@@ -48,6 +48,10 @@
       "path": "C:/matan/RTSDemo/scripts/lib/engine/Navmesh.mt",
       "type": "Script"
     },
+    "18eec76e2690afc5": {
+      "path": "C:/matan/RTSDemo/assets/input/camera.vfInputMapping",
+      "type": "InputMapping"
+    },
     "1d1ec030e00113ee": {
       "path": "C:/matan/RTSDemo/scripts/lib/engine/ISceneEventListener.mt",
       "type": "Script"

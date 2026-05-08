@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0",
+  "projectName": "RTSDemo",
+  "version": "0.1.0",
+  "workingDirectory": ".",
+  "startupScene": "scenes/Main.vfScene",
+  "exeIconPath": "",
+  "engineVersion": "VertexForge 1.0.0",
+  "lastModified": "2026-05-08T05:33:16.487710600Z"
+}

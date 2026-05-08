@@ -444,10 +444,6 @@
       "path": "C:/matan/RTSDemo/scripts/lib/core/exceptions/IllegalArgumentException.mt",
       "type": "Script"
     },
-    "b47e5a93272d148f": {
-      "path": "C:/matan/RTSDemo/scripts/game/Main.mt",
-      "type": "Script"
-    },
     "b5d9cc3f29d419a9": {
       "path": "C:/matan/RTSDemo/scripts/lib/core/stream/Stream.mt",
       "type": "Script"
@@ -528,6 +524,11 @@
       "path": "C:/matan/RTSDemo/scripts/lib/engine/Timer.mt",
       "type": "Script"
     },
+    "d251a65c3a39d74f": {
+      "importSource": "C:\\matan\\RTSDemo\\assets\\terrian\\demoTerrain.vfTerrain",
+      "path": "C:/matan/RTSDemo/assets/terrian/demoTerrain.vfTerrain",
+      "type": "Terrain"
+    },
     "d313d8c94b1cb1e9": {
       "path": "C:/matan/RTSDemo/scripts/lib/mtest/annotations/Test.mt",
       "type": "Script"
@@ -543,6 +544,11 @@
     "dae8a652b1e7de8e": {
       "path": "C:/matan/RTSDemo/scripts/lib/net/exceptions/TimeoutException.mt",
       "type": "Script"
+    },
+    "e10d7584f6a0a1ac": {
+      "importSource": "C:\\matan\\test\\Arches_E_PineTree_3k.hdr",
+      "path": "C:/matan/RTSDemo/assets/skyBox/Arches_E_PineTree_3k.vfHdr",
+      "type": "HDR"
     },
     "e173893d12786753": {
       "path": "C:/matan/RTSDemo/scripts/lib/core/exceptions/ClassNotFoundException.mt",

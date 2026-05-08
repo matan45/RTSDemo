@@ -3,36 +3,72 @@
     "PanBackward": {
       "bindings": [
         {
-          "code": 0,
-          "type": "mouseButton"
+          "code": 83,
+          "type": "key"
+        },
+        {
+          "code": 264,
+          "type": "key"
         }
       ],
       "context": "Default"
     },
     "PanForward": {
-      "bindings": [],
+      "bindings": [
+        {
+          "code": 87,
+          "type": "key"
+        },
+        {
+          "code": 265,
+          "type": "key"
+        }
+      ],
       "context": "Default"
     },
     "PanLeft": {
-      "bindings": [],
+      "bindings": [
+        {
+          "code": 65,
+          "type": "key"
+        },
+        {
+          "code": 263,
+          "type": "key"
+        }
+      ],
       "context": "Default"
     },
     "PanRight": {
-      "bindings": [],
+      "bindings": [
+        {
+          "code": 68,
+          "type": "key"
+        },
+        {
+          "code": 262,
+          "type": "key"
+        }
+      ],
       "context": "Default"
     },
     "RotateCamera": {
-      "bindings": [],
+      "bindings": [
+        {
+          "code": 2,
+          "type": "mouseButton"
+        }
+      ],
       "context": "Default"
     }
   },
   "axes1D": {},
   "axes2D": {
     "CameraPan": {
-      "downAction": "",
-      "leftAction": "",
-      "rightAction": "",
-      "upAction": ""
+      "downAction": "PanBackward",
+      "leftAction": "PanLeft",
+      "rightAction": "PanRight",
+      "upAction": "PanForward"
     }
   },
   "contexts": {},

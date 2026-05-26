@@ -9,6 +9,8 @@
 import * from "../lib/engine/Entity.mt";
 import * from "../lib/engine/UI.mt";
 import * from "../lib/engine/Log.mt";
+import * from "../lib/engine/RenderTexture.mt";
+import * from "../lib/engine/RenderTextureUpdateMode.mt";
 import * from "../lib/engine/IUIButtonListener.mt";
 import * from "./GameState.mt";
 
@@ -70,7 +72,11 @@ class RTSHUDController implements IUIButtonListener {
         this.cmdHoldId = this.resolve("RTS_HUD_CmdHold");
         this.cmdBuildId = this.resolve("RTS_HUD_CmdBuild");
 
-        // Minimap is a static placeholder until VK-1325 (RTT layout barrier bug) is fixed.
+        int minimapRttId = this.resolve("RTS_HUD_MinimapRTT");
+        if (minimapRttId >= 0) {
+            RenderTexture::create(minimapRttId, 512, 512, RenderTextureUpdateMode::EVERY_FRAME);
+            RenderTexture::setCamera(minimapRttId, minimapRttId);
+        }
 
         this.seedWidgets();
     }

@@ -50,10 +50,12 @@ class RTSCameraController {
     private float focalX = 0.0;
     private float focalZ = 0.0;
     private float lastTerrainY = 0.0;
+    private Vec3f rayDir;
 
     private float DEG_TO_RAD = 0.01745329252;
 
     constructor() {
+        rayDir = new Vec3f(0.0, -1.0, 0.0);
     }
 
     public function onStart(): void {
@@ -132,7 +134,6 @@ class RTSCameraController {
 
     private function applyTransform(): void {
         Vec3f rayOrigin = new Vec3f(this.focalX, 500.0, this.focalZ);
-        Vec3f rayDir = new Vec3f(0.0, -1.0, 0.0);
         RaycastHit hit = Physics::raycastHit(rayOrigin, rayDir, 1000.0, "Static");
         if (hit.hit) {
             this.lastTerrainY = hit.point.y;

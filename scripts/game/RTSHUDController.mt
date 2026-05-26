@@ -59,10 +59,10 @@ class RTSHUDController implements IUIButtonListener {
         this.selectionHealthBarId = this.resolve("RTS_HUD_SelectionHealthBar");
         this.alertLabelId = this.resolve("RTS_HUD_AlertLabel");
 
-        this.buildSlot0Id = this.resolve("RTS_HUD_BuildSlot_0_Label");
-        this.buildSlot1Id = this.resolve("RTS_HUD_BuildSlot_1_Label");
-        this.buildSlot2Id = this.resolve("RTS_HUD_BuildSlot_2_Label");
-        this.buildSlot3Id = this.resolve("RTS_HUD_BuildSlot_3_Label");
+        this.buildSlot0Id = this.resolve("RTS_HUD_BuildSlot_0");
+        this.buildSlot1Id = this.resolve("RTS_HUD_BuildSlot_1");
+        this.buildSlot2Id = this.resolve("RTS_HUD_BuildSlot_2");
+        this.buildSlot3Id = this.resolve("RTS_HUD_BuildSlot_3");
 
         this.cmdMoveId = this.resolve("RTS_HUD_CmdMove");
         this.cmdAttackMoveId = this.resolve("RTS_HUD_CmdAttackMove");

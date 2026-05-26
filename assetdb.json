@@ -176,6 +176,11 @@
       "path": "C:/matan/RTSDemo/scripts/lib/engine/ScriptEvent.mt",
       "type": "Script"
     },
+    "45215717a803d31d": {
+      "importSource": "C:\\matan\\VertexForge\\resources\\editor\\Roboto-Regular.ttf",
+      "path": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+      "type": "Font"
+    },
     "454876bed632b5e8": {
       "path": "C:/matan/RTSDemo/scripts/lib/core/functional/Predicate.mt",
       "type": "Script"

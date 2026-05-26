@@ -61,8 +61,6 @@ class RTSCameraController {
     public function onStart(): void {
         this.selfId = Entity::self();
 
-        Camera::setIsPrimary(this.selfId, true);
-
         this.terrainId = Entity::findByName("Terrain");
         if (this.terrainId < 0) {
             Log::warn("[RTSCameraController] Terrain entity not found; height-follow will use fallback Y.");
@@ -127,9 +125,7 @@ class RTSCameraController {
     }
 
     public function onDestroy(): void {
-        if (this.selfId >= 0) {
-            Camera::setIsPrimary(this.selfId, false);
-        }
+        
     }
 
     private function applyTransform(): void {

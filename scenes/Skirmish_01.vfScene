@@ -425,7 +425,7 @@
             "sizeMode": "screenSpace"
           },
           "camera": {
-            "aspectRatio": 1.777999997138977,
+            "aspectRatio": 2.104562759399414,
             "cameraId": 0,
             "farPlane": 1000.0,
             "fieldOfView": 90.0,
@@ -464,17 +464,17 @@
             "children": [],
             "components": {
               "uiImage": {
-                "colorTint": [
-                  0.03,
-                  0.035,
-                  0.038,
-                  0.94
-                ],
                 "border": [
                   14.0,
                   14.0,
                   14.0,
                   14.0
+                ],
+                "colorTint": [
+                  0.029999999329447746,
+                  0.03500000014901161,
+                  0.03799999877810478,
+                  0.9399999976158142
                 ],
                 "imageType": 1,
                 "sourceHeight": 32,
@@ -531,9 +531,9 @@
               "uiImage": {
                 "colorTint": [
                   1.0,
-                  0.72,
-                  0.24,
-                  0.92
+                  0.7200000286102295,
+                  0.23999999463558197,
+                  0.9200000166893005
                 ]
               },
               "uiRect": {
@@ -546,7 +546,7 @@
                   0.0
                 ],
                 "anchoredPosition": [
-                  0.0,
+                  29.0,
                   260.0
                 ],
                 "pivot": [
@@ -585,17 +585,17 @@
             "children": [],
             "components": {
               "uiImage": {
-                "colorTint": [
-                  0.11,
-                  0.13,
-                  0.105,
-                  0.98
-                ],
                 "border": [
                   8.0,
                   8.0,
                   8.0,
                   8.0
+                ],
+                "colorTint": [
+                  0.10980392247438431,
+                  0.12941177189350128,
+                  0.10588235408067703,
+                  0.45490196347236633
                 ],
                 "imageType": 1,
                 "sourceHeight": 32,
@@ -652,18 +652,18 @@
               "uiLabel": {
                 "color": [
                   1.0,
-                  0.7,
-                  0.28,
+                  0.699999988079071,
+                  0.2800000011920929,
                   1.0
                 ],
                 "fontRef": "45215717a803d31d",
                 "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                "fontSize": 14.0,
+                "fontSize": 14.5,
                 "fontStyle": "bold",
-                "horizontalAlignment": "center",
-                "letterSpacing": 0.0,
+                "horizontalAlignment": "left",
+                "letterSpacing": 1.5,
                 "lineSpacing": 1.0,
-                "overflow": "clip",
+                "overflow": "ellipsis",
                 "text": "TACTICAL MAP",
                 "verticalAlignment": "middle",
                 "wordWrap": false
@@ -743,8 +743,8 @@
                   1.0
                 ],
                 "sizeDelta": [
-                  200.0,
-                  200.0
+                  210.0,
+                  197.0
                 ]
               }
             },
@@ -774,19 +774,18 @@
             "children": [],
             "components": {
               "uiImage": {
-                "colorTint": [
-                  0.075,
-                  0.09,
-                  0.075,
-                  0.96
-                ],
                 "border": [
                   8.0,
                   8.0,
                   8.0,
                   8.0
                 ],
-                "imageType": 1,
+                "colorTint": [
+                  0.07500000298023224,
+                  0.09000000357627869,
+                  0.07500000298023224,
+                  0.9599999785423279
+                ],
                 "sourceHeight": 32,
                 "sourceWidth": 32
               },
@@ -841,8 +840,8 @@
               "uiLabel": {
                 "color": [
                   1.0,
-                  0.7,
-                  0.28,
+                  0.699999988079071,
+                  0.2800000011920929,
                   1.0
                 ],
                 "fontRef": "45215717a803d31d",
@@ -850,7 +849,7 @@
                 "fontSize": 14.0,
                 "fontStyle": "bold",
                 "horizontalAlignment": "left",
-                "letterSpacing": 0.0,
+                "letterSpacing": 5.0,
                 "lineSpacing": 1.0,
                 "overflow": "clip",
                 "text": "SELECTED UNIT",
@@ -875,7 +874,7 @@
                   1.0
                 ],
                 "sizeDelta": [
-                  220.0,
+                  235.0,
                   22.0
                 ]
               }
@@ -903,71 +902,6 @@
             "uuid": 9000000000000000703
           },
           {
-            "children": [],
-            "components": {
-              "uiImage": {
-                "colorTint": [
-                  0.045,
-                  0.055,
-                  0.055,
-                  1.0
-                ],
-                "border": [
-                  5.0,
-                  5.0,
-                  5.0,
-                  5.0
-                ],
-                "imageType": 1,
-                "sourceHeight": 24,
-                "sourceWidth": 24
-              },
-              "uiRect": {
-                "anchorMax": [
-                  0.5,
-                  0.0
-                ],
-                "anchorMin": [
-                  0.5,
-                  0.0
-                ],
-                "anchoredPosition": [
-                  -562.0,
-                  74.0
-                ],
-                "pivot": [
-                  0.0,
-                  1.0
-                ],
-                "sizeDelta": [
-                  180.0,
-                  180.0
-                ]
-              }
-            },
-            "isActive": true,
-            "name": "RTS_HUD_SelectionPortrait",
-            "transform": {
-              "isStatic": true,
-              "position": [
-                0.0,
-                0.0,
-                0.0
-              ],
-              "rotation": [
-                0.0,
-                0.0,
-                0.0
-              ],
-              "scale": [
-                1.0,
-                1.0,
-                1.0
-              ]
-            },
-            "uuid": 9000000000000000101
-          },
-          {
             "children": [
               {
                 "children": [],
@@ -975,8 +909,8 @@
                   "uiLabel": {
                     "color": [
                       1.0,
-                      0.7,
-                      0.28,
+                      0.699999988079071,
+                      0.2800000011920929,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
@@ -984,10 +918,10 @@
                     "fontSize": 28.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "left",
-                    "letterSpacing": 0.0,
+                    "letterSpacing": 6.0,
                     "lineSpacing": 1.0,
                     "overflow": "ellipsis",
-                    "text": "No Selection",
+                    "text": "Engineer A",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -1001,8 +935,8 @@
                       0.0
                     ],
                     "anchoredPosition": [
-                      0.0,
-                      0.0
+                      708.6541748046875,
+                      192.00003051757813
                     ],
                     "pivot": [
                       0.0,
@@ -1041,8 +975,8 @@
                 "components": {
                   "uiProgressBar": {
                     "fillColor": [
-                      0.3,
-                      0.72,
+                      0.30000001192092896,
+                      0.7200000286102295,
                       0.25,
                       1.0
                     ],
@@ -1053,12 +987,12 @@
                     "orientation": "Horizontal",
                     "smoothInterpolation": true,
                     "trackColor": [
-                      0.035,
-                      0.045,
-                      0.045,
+                      0.03500000014901161,
+                      0.04500000178813934,
+                      0.04500000178813934,
                       1.0
                     ],
-                    "value": 0.8
+                    "value": 0.800000011920929
                   },
                   "uiRect": {
                     "anchorMax": [
@@ -1070,8 +1004,8 @@
                       0.0
                     ],
                     "anchoredPosition": [
-                      0.0,
-                      0.0
+                      708.6541748046875,
+                      161.4370880126953
                     ],
                     "pivot": [
                       0.0,
@@ -1110,9 +1044,9 @@
                 "components": {
                   "uiLabel": {
                     "color": [
-                      0.58,
-                      0.64,
-                      0.56,
+                      0.5799999833106995,
+                      0.6399999856948853,
+                      0.5600000023841858,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
@@ -1120,7 +1054,7 @@
                     "fontSize": 20.0,
                     "fontStyle": "normal",
                     "horizontalAlignment": "left",
-                    "letterSpacing": 0.0,
+                    "letterSpacing": 6.0,
                     "lineSpacing": 1.0,
                     "overflow": "ellipsis",
                     "text": "Idle",
@@ -1137,8 +1071,8 @@
                       0.0
                     ],
                     "anchoredPosition": [
-                      0.0,
-                      0.0
+                      708.6541748046875,
+                      124.87418365478516
                     ],
                     "pivot": [
                       0.0,
@@ -1188,7 +1122,7 @@
               },
               "uiRect": {
                 "anchorMax": [
-                  0.5,
+                  0.5400000214576721,
                   0.0
                 ],
                 "anchorMin": [
@@ -1204,7 +1138,7 @@
                   1.0
                 ],
                 "sizeDelta": [
-                  374.0,
+                  502.0,
                   128.0
                 ]
               }
@@ -1237,40 +1171,39 @@
                 "children": [],
                 "components": {
                   "uiImage": {
-                    "colorTint": [
-                      0.095,
-                      0.11,
-                      0.095,
-                      0.95
-                    ],
                     "border": [
                       4.0,
                       4.0,
                       4.0,
                       4.0
                     ],
-                    "imageType": 1,
+                    "colorTint": [
+                      1.0,
+                      0.5372549295425415,
+                      0.21176470816135406,
+                      1.0
+                    ],
                     "sourceHeight": 24,
                     "sourceWidth": 24
                   },
                   "uiLabel": {
                     "color": [
-                      0.88,
-                      0.86,
-                      0.76,
+                      0.8799999952316284,
+                      0.8600000143051147,
+                      0.7599999904632568,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 14.0,
-                    "fontStyle": "bold",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
+                    "fontSize": 16.0,
+                    "fontStyle": "normal",
+                    "horizontalAlignment": "left",
+                    "letterSpacing": 2.0,
                     "lineSpacing": 1.0,
-                    "overflow": "ellipsis",
-                    "text": "",
+                    "overflow": "clip",
+                    "text": "Barracks",
                     "verticalAlignment": "middle",
-                    "wordWrap": false
+                    "wordWrap": true
                   },
                   "uiRect": {
                     "anchorMax": [
@@ -1282,8 +1215,8 @@
                       0.0
                     ],
                     "anchoredPosition": [
-                      0.0,
-                      0.0
+                      1806.0262451171875,
+                      979.43701171875
                     ],
                     "pivot": [
                       0.0,
@@ -1321,40 +1254,39 @@
                 "children": [],
                 "components": {
                   "uiImage": {
-                    "colorTint": [
-                      0.095,
-                      0.11,
-                      0.095,
-                      0.95
-                    ],
                     "border": [
                       4.0,
                       4.0,
                       4.0,
                       4.0
                     ],
-                    "imageType": 1,
+                    "colorTint": [
+                      1.0,
+                      1.0,
+                      1.0,
+                      0.949999988079071
+                    ],
                     "sourceHeight": 24,
                     "sourceWidth": 24
                   },
                   "uiLabel": {
                     "color": [
-                      0.88,
-                      0.86,
-                      0.76,
+                      0.8799999952316284,
+                      0.8600000143051147,
+                      0.7599999904632568,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 14.0,
-                    "fontStyle": "bold",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
+                    "fontSize": 18.0,
+                    "fontStyle": "normal",
+                    "horizontalAlignment": "left",
+                    "letterSpacing": 2.0,
                     "lineSpacing": 1.0,
-                    "overflow": "ellipsis",
-                    "text": "",
+                    "overflow": "clip",
+                    "text": "Tank",
                     "verticalAlignment": "middle",
-                    "wordWrap": false
+                    "wordWrap": true
                   },
                   "uiRect": {
                     "anchorMax": [
@@ -1366,8 +1298,8 @@
                       0.0
                     ],
                     "anchoredPosition": [
-                      0.0,
-                      0.0
+                      1920.181884765625,
+                      979.43701171875
                     ],
                     "pivot": [
                       0.0,
@@ -1400,189 +1332,21 @@
                   ]
                 },
                 "uuid": 9000000000000000620
-              },
-              {
-                "children": [],
-                "components": {
-                  "uiImage": {
-                    "colorTint": [
-                      0.095,
-                      0.11,
-                      0.095,
-                      0.95
-                    ],
-                    "border": [
-                      4.0,
-                      4.0,
-                      4.0,
-                      4.0
-                    ],
-                    "imageType": 1,
-                    "sourceHeight": 24,
-                    "sourceWidth": 24
-                  },
-                  "uiLabel": {
-                    "color": [
-                      0.88,
-                      0.86,
-                      0.76,
-                      1.0
-                    ],
-                    "fontRef": "45215717a803d31d",
-                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 14.0,
-                    "fontStyle": "bold",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
-                    "lineSpacing": 1.0,
-                    "overflow": "ellipsis",
-                    "text": "",
-                    "verticalAlignment": "middle",
-                    "wordWrap": false
-                  },
-                  "uiRect": {
-                    "anchorMax": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchorMin": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchoredPosition": [
-                      0.0,
-                      0.0
-                    ],
-                    "pivot": [
-                      0.0,
-                      0.0
-                    ],
-                    "sizeDelta": [
-                      86.0,
-                      40.0
-                    ]
-                  }
-                },
-                "isActive": true,
-                "name": "RTS_HUD_BuildSlot_2",
-                "transform": {
-                  "isStatic": true,
-                  "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                  ]
-                },
-                "uuid": 9000000000000000630
-              },
-              {
-                "children": [],
-                "components": {
-                  "uiImage": {
-                    "colorTint": [
-                      0.095,
-                      0.11,
-                      0.095,
-                      0.95
-                    ],
-                    "border": [
-                      4.0,
-                      4.0,
-                      4.0,
-                      4.0
-                    ],
-                    "imageType": 1,
-                    "sourceHeight": 24,
-                    "sourceWidth": 24
-                  },
-                  "uiLabel": {
-                    "color": [
-                      0.88,
-                      0.86,
-                      0.76,
-                      1.0
-                    ],
-                    "fontRef": "45215717a803d31d",
-                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 14.0,
-                    "fontStyle": "bold",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
-                    "lineSpacing": 1.0,
-                    "overflow": "ellipsis",
-                    "text": "",
-                    "verticalAlignment": "middle",
-                    "wordWrap": false
-                  },
-                  "uiRect": {
-                    "anchorMax": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchorMin": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchoredPosition": [
-                      0.0,
-                      0.0
-                    ],
-                    "pivot": [
-                      0.0,
-                      0.0
-                    ],
-                    "sizeDelta": [
-                      86.0,
-                      40.0
-                    ]
-                  }
-                },
-                "isActive": true,
-                "name": "RTS_HUD_BuildSlot_3",
-                "transform": {
-                  "isStatic": true,
-                  "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                  ]
-                },
-                "uuid": 9000000000000000640
               }
             ],
             "components": {
               "uiImage": {
-                "colorTint": [
-                  0.055,
-                  0.065,
-                  0.058,
-                  0.94
-                ],
                 "border": [
                   6.0,
                   6.0,
                   6.0,
                   6.0
+                ],
+                "colorTint": [
+                  0.054999999701976776,
+                  0.06499999761581421,
+                  0.057999998331069946,
+                  0.9399999976158142
                 ],
                 "imageType": 1,
                 "sourceHeight": 24,
@@ -1590,15 +1354,15 @@
               },
               "uiLayoutGroup": {
                 "childAlignment": "center",
-                "constraintCount": 1,
-                "direction": "horizontal",
+                "constraintCount": 2,
+                "direction": "grid",
                 "padding": [
                   12.0,
                   12.0,
                   8.0,
                   8.0
                 ],
-                "spacing": 8.0
+                "spacing": 0.0
               },
               "uiRect": {
                 "anchorMax": [
@@ -1618,8 +1382,8 @@
                   1.0
                 ],
                 "sizeDelta": [
-                  392.0,
-                  56.0
+                  254.0,
+                  792.0
                 ]
               }
             },
@@ -1651,45 +1415,45 @@
                 "children": [],
                 "components": {
                   "uiButton": {
-                    "colorTransitionDuration": 0.08,
+                    "colorTransitionDuration": 0.07999999821186066,
                     "disabledColor": [
-                      0.12,
-                      0.12,
-                      0.12,
-                      0.62
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.6200000047683716
                     ],
                     "hoveredColor": [
-                      0.24,
-                      0.3,
-                      0.2,
+                      0.23999999463558197,
+                      0.30000001192092896,
+                      0.20000000298023224,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.13,
-                      0.16,
-                      0.13,
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
                       1.0
                     ],
                     "pressedColor": [
-                      0.07,
-                      0.1,
-                      0.075,
+                      0.07000000029802322,
+                      0.10000000149011612,
+                      0.07500000298023224,
                       1.0
                     ]
                   },
                   "uiImage": {
-                    "colorTint": [
-                      0.125,
-                      0.15,
-                      0.12,
-                      1.0
-                    ],
                     "border": [
                       5.0,
                       5.0,
                       5.0,
                       5.0
+                    ],
+                    "colorTint": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
                     ],
                     "imageType": 1,
                     "sourceHeight": 24,
@@ -1698,8 +1462,8 @@
                   "uiLabel": {
                     "color": [
                       1.0,
-                      0.7,
-                      0.28,
+                      0.699999988079071,
+                      0.2800000011920929,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
@@ -1724,8 +1488,8 @@
                       0.0
                     ],
                     "anchoredPosition": [
-                      0.0,
-                      0.0
+                      1769.812744140625,
+                      183.1555938720703
                     ],
                     "pivot": [
                       0.0,
@@ -1763,45 +1527,45 @@
                 "children": [],
                 "components": {
                   "uiButton": {
-                    "colorTransitionDuration": 0.08,
+                    "colorTransitionDuration": 0.07999999821186066,
                     "disabledColor": [
-                      0.12,
-                      0.12,
-                      0.12,
-                      0.62
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.6200000047683716
                     ],
                     "hoveredColor": [
-                      0.24,
-                      0.3,
-                      0.2,
+                      0.23999999463558197,
+                      0.30000001192092896,
+                      0.20000000298023224,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.13,
-                      0.16,
-                      0.13,
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
                       1.0
                     ],
                     "pressedColor": [
-                      0.07,
-                      0.1,
-                      0.075,
+                      0.07000000029802322,
+                      0.10000000149011612,
+                      0.07500000298023224,
                       1.0
                     ]
                   },
                   "uiImage": {
-                    "colorTint": [
-                      0.125,
-                      0.15,
-                      0.12,
-                      1.0
-                    ],
                     "border": [
                       5.0,
                       5.0,
                       5.0,
                       5.0
+                    ],
+                    "colorTint": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
                     ],
                     "imageType": 1,
                     "sourceHeight": 24,
@@ -1810,8 +1574,8 @@
                   "uiLabel": {
                     "color": [
                       1.0,
-                      0.7,
-                      0.28,
+                      0.699999988079071,
+                      0.2800000011920929,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
@@ -1836,8 +1600,8 @@
                       0.0
                     ],
                     "anchoredPosition": [
-                      0.0,
-                      0.0
+                      1854.1041259765625,
+                      183.1555938720703
                     ],
                     "pivot": [
                       0.0,
@@ -1875,45 +1639,45 @@
                 "children": [],
                 "components": {
                   "uiButton": {
-                    "colorTransitionDuration": 0.08,
+                    "colorTransitionDuration": 0.07999999821186066,
                     "disabledColor": [
-                      0.12,
-                      0.12,
-                      0.12,
-                      0.62
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.6200000047683716
                     ],
                     "hoveredColor": [
-                      0.24,
-                      0.3,
-                      0.2,
+                      0.23999999463558197,
+                      0.30000001192092896,
+                      0.20000000298023224,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.13,
-                      0.16,
-                      0.13,
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
                       1.0
                     ],
                     "pressedColor": [
-                      0.07,
-                      0.1,
-                      0.075,
+                      0.07000000029802322,
+                      0.10000000149011612,
+                      0.07500000298023224,
                       1.0
                     ]
                   },
                   "uiImage": {
-                    "colorTint": [
-                      0.125,
-                      0.15,
-                      0.12,
-                      1.0
-                    ],
                     "border": [
                       5.0,
                       5.0,
                       5.0,
                       5.0
+                    ],
+                    "colorTint": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
                     ],
                     "imageType": 1,
                     "sourceHeight": 24,
@@ -1922,8 +1686,8 @@
                   "uiLabel": {
                     "color": [
                       1.0,
-                      0.7,
-                      0.28,
+                      0.699999988079071,
+                      0.2800000011920929,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
@@ -1948,8 +1712,8 @@
                       0.0
                     ],
                     "anchoredPosition": [
-                      0.0,
-                      0.0
+                      1938.3955078125,
+                      183.1555938720703
                     ],
                     "pivot": [
                       0.0,
@@ -1987,45 +1751,45 @@
                 "children": [],
                 "components": {
                   "uiButton": {
-                    "colorTransitionDuration": 0.08,
+                    "colorTransitionDuration": 0.07999999821186066,
                     "disabledColor": [
-                      0.12,
-                      0.12,
-                      0.12,
-                      0.62
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.6200000047683716
                     ],
                     "hoveredColor": [
-                      0.24,
-                      0.3,
-                      0.2,
+                      0.23999999463558197,
+                      0.30000001192092896,
+                      0.20000000298023224,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.13,
-                      0.16,
-                      0.13,
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
                       1.0
                     ],
                     "pressedColor": [
-                      0.07,
-                      0.1,
-                      0.075,
+                      0.07000000029802322,
+                      0.10000000149011612,
+                      0.07500000298023224,
                       1.0
                     ]
                   },
                   "uiImage": {
-                    "colorTint": [
-                      0.125,
-                      0.15,
-                      0.12,
-                      1.0
-                    ],
                     "border": [
                       5.0,
                       5.0,
                       5.0,
                       5.0
+                    ],
+                    "colorTint": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
                     ],
                     "imageType": 1,
                     "sourceHeight": 24,
@@ -2034,8 +1798,8 @@
                   "uiLabel": {
                     "color": [
                       1.0,
-                      0.7,
-                      0.28,
+                      0.699999988079071,
+                      0.2800000011920929,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
@@ -2060,8 +1824,8 @@
                       0.0
                     ],
                     "anchoredPosition": [
-                      0.0,
-                      0.0
+                      1769.812744140625,
+                      86.59269714355469
                     ],
                     "pivot": [
                       0.0,
@@ -2099,45 +1863,45 @@
                 "children": [],
                 "components": {
                   "uiButton": {
-                    "colorTransitionDuration": 0.08,
+                    "colorTransitionDuration": 0.07999999821186066,
                     "disabledColor": [
-                      0.12,
-                      0.12,
-                      0.12,
-                      0.62
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.6200000047683716
                     ],
                     "hoveredColor": [
-                      0.24,
-                      0.3,
-                      0.2,
+                      0.23999999463558197,
+                      0.30000001192092896,
+                      0.20000000298023224,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.13,
-                      0.16,
-                      0.13,
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
                       1.0
                     ],
                     "pressedColor": [
-                      0.07,
-                      0.1,
-                      0.075,
+                      0.07000000029802322,
+                      0.10000000149011612,
+                      0.07500000298023224,
                       1.0
                     ]
                   },
                   "uiImage": {
-                    "colorTint": [
-                      0.125,
-                      0.15,
-                      0.12,
-                      1.0
-                    ],
                     "border": [
                       5.0,
                       5.0,
                       5.0,
                       5.0
+                    ],
+                    "colorTint": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
                     ],
                     "imageType": 1,
                     "sourceHeight": 24,
@@ -2146,8 +1910,8 @@
                   "uiLabel": {
                     "color": [
                       1.0,
-                      0.7,
-                      0.28,
+                      0.699999988079071,
+                      0.2800000011920929,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
@@ -2172,8 +1936,8 @@
                       0.0
                     ],
                     "anchoredPosition": [
-                      0.0,
-                      0.0
+                      1854.1041259765625,
+                      86.59269714355469
                     ],
                     "pivot": [
                       0.0,
@@ -2210,17 +1974,17 @@
             ],
             "components": {
               "uiImage": {
-                "colorTint": [
-                  0.11,
-                  0.13,
-                  0.105,
-                  0.98
-                ],
                 "border": [
                   8.0,
                   8.0,
                   8.0,
                   8.0
+                ],
+                "colorTint": [
+                  0.10999999940395355,
+                  0.12999999523162842,
+                  0.10499999672174454,
+                  0.9800000190734863
                 ],
                 "imageType": 1,
                 "sourceHeight": 32,
@@ -2256,7 +2020,7 @@
                   1.0
                 ],
                 "sizeDelta": [
-                  304.0,
+                  270.0,
                   184.0
                 ]
               }
@@ -2287,17 +2051,17 @@
             "children": [],
             "components": {
               "uiImage": {
-                "colorTint": [
-                  0.045,
-                  0.06,
-                  0.045,
-                  0.96
-                ],
                 "border": [
                   7.0,
                   7.0,
                   7.0,
                   7.0
+                ],
+                "colorTint": [
+                  0.04500000178813934,
+                  0.05999999865889549,
+                  0.04500000178813934,
+                  0.9599999785423279
                 ],
                 "imageType": 1,
                 "sourceHeight": 32,
@@ -2321,7 +2085,7 @@
                   0.0
                 ],
                 "sizeDelta": [
-                  330.0,
+                  326.0,
                   54.0
                 ]
               }
@@ -2352,17 +2116,17 @@
             "children": [],
             "components": {
               "uiImage": {
-                "colorTint": [
-                  1.0,
-                  0.7,
-                  0.22,
-                  1.0
-                ],
                 "border": [
                   3.0,
                   3.0,
                   3.0,
                   3.0
+                ],
+                "colorTint": [
+                  1.0,
+                  0.699999988079071,
+                  0.2199999988079071,
+                  1.0
                 ],
                 "imageType": 1,
                 "sourceHeight": 16,
@@ -2418,9 +2182,9 @@
             "components": {
               "uiLabel": {
                 "color": [
-                  0.88,
-                  0.86,
-                  0.76,
+                  0.8799999952316284,
+                  0.8600000143051147,
+                  0.7599999904632568,
                   1.0
                 ],
                 "fontRef": "45215717a803d31d",
@@ -2428,10 +2192,10 @@
                 "fontSize": 26.0,
                 "fontStyle": "bold",
                 "horizontalAlignment": "left",
-                "letterSpacing": 0.0,
+                "letterSpacing": 6.0,
                 "lineSpacing": 1.0,
                 "overflow": "ellipsis",
-                "text": "Gold: 0",
+                "text": "Gold: 4238",
                 "verticalAlignment": "middle",
                 "wordWrap": false
               },
@@ -2484,17 +2248,17 @@
             "children": [],
             "components": {
               "uiImage": {
-                "colorTint": [
-                  0.035,
-                  0.04,
-                  0.042,
-                  0.64
-                ],
                 "border": [
                   6.0,
                   6.0,
                   6.0,
                   6.0
+                ],
+                "colorTint": [
+                  0.03500000014901161,
+                  0.03999999910593033,
+                  0.041999999433755875,
+                  0.6399999856948853
                 ],
                 "imageType": 1,
                 "sourceHeight": 32,
@@ -2518,8 +2282,8 @@
                   0.0
                 ],
                 "sizeDelta": [
-                  640.0,
-                  48.0
+                  652.0,
+                  45.0
                 ]
               }
             },
@@ -2551,19 +2315,18 @@
               "uiLabel": {
                 "color": [
                   1.0,
-                  0.7,
-                  0.28,
+                  0.699999988079071,
+                  0.2800000011920929,
                   1.0
                 ],
                 "fontRef": "45215717a803d31d",
                 "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
                 "fontSize": 22.0,
                 "fontStyle": "bold",
-                "horizontalAlignment": "center",
-                "letterSpacing": 0.0,
+                "horizontalAlignment": "left",
+                "letterSpacing": 6.0,
                 "lineSpacing": 1.0,
                 "overflow": "ellipsis",
-                "text": "",
                 "verticalAlignment": "middle",
                 "wordWrap": false
               },
@@ -2721,7 +2484,7 @@
             "sizeMode": "screenSpace"
           },
           "camera": {
-            "aspectRatio": 1.777999997138977,
+            "aspectRatio": 1.0,
             "cameraId": 2,
             "farPlane": 2000.0,
             "fieldOfView": 90.0,
@@ -2803,7 +2566,7 @@
                 1.0
               ]
             },
-            "uuid": 17386526674670139766
+            "uuid": 4832690487297581649
           },
           {
             "children": [],
@@ -2838,7 +2601,7 @@
                 1.0
               ]
             },
-            "uuid": 3113635842412432264
+            "uuid": 3058188273181284226
           },
           {
             "children": [],
@@ -2873,7 +2636,7 @@
                 1.0
               ]
             },
-            "uuid": 18263336079385244280
+            "uuid": 14568134697326982638
           },
           {
             "children": [],
@@ -2908,7 +2671,7 @@
                 1.0
               ]
             },
-            "uuid": 1649444965535992906
+            "uuid": 17627510774514814292
           },
           {
             "children": [],
@@ -2943,7 +2706,7 @@
                 1.0
               ]
             },
-            "uuid": 7937445316667668143
+            "uuid": 9089091820950887593
           },
           {
             "children": [],
@@ -2978,7 +2741,7 @@
                 1.0
               ]
             },
-            "uuid": 10468761942639619416
+            "uuid": 16593537263403499782
           },
           {
             "children": [],
@@ -3013,7 +2776,7 @@
                 1.0
               ]
             },
-            "uuid": 18274756923452002652
+            "uuid": 2958321221571542745
           },
           {
             "children": [],
@@ -3048,7 +2811,7 @@
                 1.0
               ]
             },
-            "uuid": 15694807578031026422
+            "uuid": 6664645398210895700
           },
           {
             "children": [],
@@ -3083,7 +2846,7 @@
                 1.0
               ]
             },
-            "uuid": 17091551306434873669
+            "uuid": 7320978974922775689
           },
           {
             "children": [],
@@ -3118,7 +2881,7 @@
                 1.0
               ]
             },
-            "uuid": 10955317011279141754
+            "uuid": 17752090544427739635
           },
           {
             "children": [],
@@ -3153,7 +2916,7 @@
                 1.0
               ]
             },
-            "uuid": 12891992274287676664
+            "uuid": 6933978168660644485
           },
           {
             "children": [],
@@ -3188,7 +2951,7 @@
                 1.0
               ]
             },
-            "uuid": 9174677530873359953
+            "uuid": 10837666169049979489
           },
           {
             "children": [],
@@ -3223,7 +2986,7 @@
                 1.0
               ]
             },
-            "uuid": 2630029513843358974
+            "uuid": 16654836165871134805
           },
           {
             "children": [],
@@ -3258,7 +3021,7 @@
                 1.0
               ]
             },
-            "uuid": 13742692659452911810
+            "uuid": 2577820762820927605
           },
           {
             "children": [],
@@ -3293,7 +3056,7 @@
                 1.0
               ]
             },
-            "uuid": 1654790245978797190
+            "uuid": 14200760570642502946
           },
           {
             "children": [],
@@ -3328,7 +3091,7 @@
                 1.0
               ]
             },
-            "uuid": 1459675397954524499
+            "uuid": 6983862389418433348
           },
           {
             "children": [],
@@ -3363,7 +3126,7 @@
                 1.0
               ]
             },
-            "uuid": 16763963790158810563
+            "uuid": 9771063982759500090
           },
           {
             "children": [],
@@ -3398,7 +3161,7 @@
                 1.0
               ]
             },
-            "uuid": 17987683747068373731
+            "uuid": 8898093612031795282
           },
           {
             "children": [],
@@ -3433,7 +3196,7 @@
                 1.0
               ]
             },
-            "uuid": 5097686296608098336
+            "uuid": 4598553856079956899
           },
           {
             "children": [],
@@ -3468,7 +3231,7 @@
                 1.0
               ]
             },
-            "uuid": 14745819114846572297
+            "uuid": 5421900035304076117
           },
           {
             "children": [],
@@ -3503,7 +3266,7 @@
                 1.0
               ]
             },
-            "uuid": 6996107213803570694
+            "uuid": 1247796554006485757
           },
           {
             "children": [],
@@ -3538,7 +3301,7 @@
                 1.0
               ]
             },
-            "uuid": 11726129537856875845
+            "uuid": 1880832775788786124
           },
           {
             "children": [],
@@ -3573,7 +3336,7 @@
                 1.0
               ]
             },
-            "uuid": 7953924628750901835
+            "uuid": 18302228421492289515
           },
           {
             "children": [],
@@ -3608,7 +3371,7 @@
                 1.0
               ]
             },
-            "uuid": 2699897568551327525
+            "uuid": 1794254532560014282
           },
           {
             "children": [],
@@ -3643,7 +3406,7 @@
                 1.0
               ]
             },
-            "uuid": 18259883655622861780
+            "uuid": 7012620397752595071
           },
           {
             "children": [],
@@ -3678,7 +3441,7 @@
                 1.0
               ]
             },
-            "uuid": 16266388755606872747
+            "uuid": 6966791473187760642
           },
           {
             "children": [],
@@ -3713,7 +3476,7 @@
                 1.0
               ]
             },
-            "uuid": 17966177490847760954
+            "uuid": 8112418198738606567
           },
           {
             "children": [],
@@ -3748,7 +3511,7 @@
                 1.0
               ]
             },
-            "uuid": 14491450155653727088
+            "uuid": 4424942600668953233
           },
           {
             "children": [],
@@ -3783,7 +3546,7 @@
                 1.0
               ]
             },
-            "uuid": 15216589667975406406
+            "uuid": 16117247886892221514
           },
           {
             "children": [],
@@ -3818,7 +3581,7 @@
                 1.0
               ]
             },
-            "uuid": 2179115641888474330
+            "uuid": 18022548091716611047
           },
           {
             "children": [],
@@ -3853,7 +3616,7 @@
                 1.0
               ]
             },
-            "uuid": 16399259215989381283
+            "uuid": 11946438689898870662
           },
           {
             "children": [],
@@ -3888,7 +3651,7 @@
                 1.0
               ]
             },
-            "uuid": 15850620096794246358
+            "uuid": 15503797473247671023
           },
           {
             "children": [],
@@ -3923,7 +3686,7 @@
                 1.0
               ]
             },
-            "uuid": 4437050254904655756
+            "uuid": 7962709453959101018
           },
           {
             "children": [],
@@ -3958,7 +3721,7 @@
                 1.0
               ]
             },
-            "uuid": 9588576267699898288
+            "uuid": 3647111434798183265
           },
           {
             "children": [],
@@ -3993,7 +3756,7 @@
                 1.0
               ]
             },
-            "uuid": 2181651220139189153
+            "uuid": 11054133068208216746
           },
           {
             "children": [],
@@ -4028,7 +3791,7 @@
                 1.0
               ]
             },
-            "uuid": 1559569402507100632
+            "uuid": 10604555033711048035
           },
           {
             "children": [],
@@ -4063,7 +3826,7 @@
                 1.0
               ]
             },
-            "uuid": 15122148634224656218
+            "uuid": 14321806917079051066
           },
           {
             "children": [],
@@ -4098,7 +3861,7 @@
                 1.0
               ]
             },
-            "uuid": 18379742787531601212
+            "uuid": 15992686203520391810
           },
           {
             "children": [],
@@ -4133,7 +3896,7 @@
                 1.0
               ]
             },
-            "uuid": 2280238626955100593
+            "uuid": 769343924018917818
           },
           {
             "children": [],
@@ -4168,7 +3931,7 @@
                 1.0
               ]
             },
-            "uuid": 5451626487297245294
+            "uuid": 5752933440740025116
           },
           {
             "children": [],
@@ -4203,7 +3966,7 @@
                 1.0
               ]
             },
-            "uuid": 2908470632036997678
+            "uuid": 5025473019121744326
           },
           {
             "children": [],
@@ -4238,7 +4001,7 @@
                 1.0
               ]
             },
-            "uuid": 1402146630992196484
+            "uuid": 16140319978521872381
           },
           {
             "children": [],
@@ -4273,7 +4036,7 @@
                 1.0
               ]
             },
-            "uuid": 1289116899330431037
+            "uuid": 15206645174691251796
           },
           {
             "children": [],
@@ -4308,7 +4071,7 @@
                 1.0
               ]
             },
-            "uuid": 17093868192201922553
+            "uuid": 6704722777259308362
           },
           {
             "children": [],
@@ -4343,7 +4106,7 @@
                 1.0
               ]
             },
-            "uuid": 11147232777832592400
+            "uuid": 2624301278760371336
           },
           {
             "children": [],
@@ -4378,7 +4141,7 @@
                 1.0
               ]
             },
-            "uuid": 7305724142206796604
+            "uuid": 14323988547123884934
           },
           {
             "children": [],
@@ -4413,7 +4176,7 @@
                 1.0
               ]
             },
-            "uuid": 1038657625167880985
+            "uuid": 13634435267154247301
           },
           {
             "children": [],
@@ -4448,7 +4211,7 @@
                 1.0
               ]
             },
-            "uuid": 62951413170266473
+            "uuid": 11394160507072712047
           },
           {
             "children": [],
@@ -4483,7 +4246,7 @@
                 1.0
               ]
             },
-            "uuid": 12547415529089881154
+            "uuid": 16457036850421334567
           },
           {
             "children": [],
@@ -4518,7 +4281,7 @@
                 1.0
               ]
             },
-            "uuid": 741726734992865974
+            "uuid": 13380853279765588509
           },
           {
             "children": [],
@@ -4553,7 +4316,7 @@
                 1.0
               ]
             },
-            "uuid": 3268645558653311041
+            "uuid": 591808996078493553
           },
           {
             "children": [],
@@ -4588,7 +4351,7 @@
                 1.0
               ]
             },
-            "uuid": 5698450185977293394
+            "uuid": 11335132865298653888
           },
           {
             "children": [],
@@ -4623,7 +4386,7 @@
                 1.0
               ]
             },
-            "uuid": 11926067690231302476
+            "uuid": 2887578866559031290
           },
           {
             "children": [],
@@ -4658,7 +4421,7 @@
                 1.0
               ]
             },
-            "uuid": 16793287949452443621
+            "uuid": 14314700139442515656
           },
           {
             "children": [],
@@ -4693,7 +4456,7 @@
                 1.0
               ]
             },
-            "uuid": 8378673931763393796
+            "uuid": 15026990932231706714
           },
           {
             "children": [],
@@ -4728,7 +4491,7 @@
                 1.0
               ]
             },
-            "uuid": 7223058564382720516
+            "uuid": 3581501400556922077
           },
           {
             "children": [],
@@ -4763,7 +4526,7 @@
                 1.0
               ]
             },
-            "uuid": 669535114733684687
+            "uuid": 3051957395299301323
           },
           {
             "children": [],
@@ -4798,7 +4561,7 @@
                 1.0
               ]
             },
-            "uuid": 12353889951830559366
+            "uuid": 5830782203692518649
           },
           {
             "children": [],
@@ -4833,7 +4596,7 @@
                 1.0
               ]
             },
-            "uuid": 15920102893556080416
+            "uuid": 9526961620839867417
           },
           {
             "children": [],
@@ -4868,7 +4631,7 @@
                 1.0
               ]
             },
-            "uuid": 11822915162560710374
+            "uuid": 16766592725672551865
           },
           {
             "children": [],
@@ -4903,7 +4666,7 @@
                 1.0
               ]
             },
-            "uuid": 8687503269180605265
+            "uuid": 7194172711697295512
           },
           {
             "children": [],
@@ -4938,7 +4701,7 @@
                 1.0
               ]
             },
-            "uuid": 10712513263218360745
+            "uuid": 9829310474705266791
           },
           {
             "children": [],
@@ -4973,7 +4736,7 @@
                 1.0
               ]
             },
-            "uuid": 3105486358521738844
+            "uuid": 4758241622879463472
           },
           {
             "children": [],
@@ -5008,7 +4771,7 @@
                 1.0
               ]
             },
-            "uuid": 8719215129833688462
+            "uuid": 7861639452696409460
           }
         ],
         "components": {
@@ -5046,7 +4809,7 @@
             1.0
           ]
         },
-        "uuid": 11923987832375514804
+        "uuid": 54301305950345833
       }
     ],
     "components": {

@@ -403,8 +403,4421 @@
     }
   },
   "root": {
-    "children": [],
-    "components": {},
+    "children": [
+      {
+        "children": [],
+        "components": {
+          "billboard": {
+            "atlasIndex": 0,
+            "colorTint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "editorOnly": true,
+            "iconType": "camera",
+            "selectable": true,
+            "size": [
+              64.0,
+              64.0
+            ],
+            "sizeMode": "screenSpace"
+          },
+          "camera": {
+            "aspectRatio": 2.104562759399414,
+            "cameraId": 0,
+            "farPlane": 1000.0,
+            "fieldOfView": 90.0,
+            "isPerspective": true,
+            "isPrimary": true,
+            "nearPlane": 0.10000000149011612,
+            "orthoSize": 10.0,
+            "showFrustum": false
+          }
+        },
+        "isActive": true,
+        "name": "camera",
+        "transform": {
+          "isStatic": true,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "uuid": 10477109757241377672
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "border": [
+                  14.0,
+                  14.0,
+                  14.0,
+                  14.0
+                ],
+                "colorTint": [
+                  0.029999999329447746,
+                  0.03500000014901161,
+                  0.03799999877810478,
+                  0.9399999976158142
+                ],
+                "imageType": 1,
+                "sourceHeight": 32,
+                "sourceWidth": 32
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "pivot": [
+                  0.5,
+                  1.0
+                ],
+                "sizeDelta": [
+                  0.0,
+                  260.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_CommandBar",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000010
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  0.7200000286102295,
+                  0.23999999463558197,
+                  0.9200000166893005
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  29.0,
+                  260.0
+                ],
+                "pivot": [
+                  0.5,
+                  1.0
+                ],
+                "sizeDelta": [
+                  0.0,
+                  3.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_BottomAccent",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000700
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "border": [
+                  8.0,
+                  8.0,
+                  8.0,
+                  8.0
+                ],
+                "colorTint": [
+                  0.10980392247438431,
+                  0.12941177189350128,
+                  0.10588235408067703,
+                  0.45490196347236633
+                ],
+                "imageType": 1,
+                "sourceHeight": 32,
+                "sourceWidth": 32
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.0,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  22.0,
+                  12.0
+                ],
+                "pivot": [
+                  0.0,
+                  1.0
+                ],
+                "sizeDelta": [
+                  236.0,
+                  236.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_MinimapPanel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000702
+          },
+          {
+            "children": [],
+            "components": {
+              "uiLabel": {
+                "color": [
+                  1.0,
+                  0.699999988079071,
+                  0.2800000011920929,
+                  1.0
+                ],
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 14.5,
+                "fontStyle": "bold",
+                "horizontalAlignment": "left",
+                "letterSpacing": 1.5,
+                "lineSpacing": 1.0,
+                "overflow": "ellipsis",
+                "text": "TACTICAL MAP",
+                "verticalAlignment": "middle",
+                "wordWrap": false
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.0,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  140.0,
+                  216.0
+                ],
+                "pivot": [
+                  0.5,
+                  1.0
+                ],
+                "sizeDelta": [
+                  200.0,
+                  22.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_MinimapHeader",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000701
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "renderTextureSourceName": "camera minimap"
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.0,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  40.0,
+                  12.0
+                ],
+                "pivot": [
+                  0.0,
+                  1.0
+                ],
+                "sizeDelta": [
+                  210.0,
+                  197.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_MinimapView",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000301
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "border": [
+                  8.0,
+                  8.0,
+                  8.0,
+                  8.0
+                ],
+                "colorTint": [
+                  0.07500000298023224,
+                  0.09000000357627869,
+                  0.07500000298023224,
+                  0.9599999785423279
+                ],
+                "sourceHeight": 32,
+                "sourceWidth": 32
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.5,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.5,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  -280.0,
+                  12.0
+                ],
+                "pivot": [
+                  0.5,
+                  1.0
+                ],
+                "sizeDelta": [
+                  600.0,
+                  244.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_SelectionPanel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000100
+          },
+          {
+            "children": [],
+            "components": {
+              "uiLabel": {
+                "color": [
+                  1.0,
+                  0.699999988079071,
+                  0.2800000011920929,
+                  1.0
+                ],
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 14.0,
+                "fontStyle": "bold",
+                "horizontalAlignment": "left",
+                "letterSpacing": 5.0,
+                "lineSpacing": 1.0,
+                "overflow": "clip",
+                "text": "SELECTED UNIT",
+                "verticalAlignment": "middle",
+                "wordWrap": false
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.5,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.5,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  -562.0,
+                  42.0
+                ],
+                "pivot": [
+                  0.0,
+                  1.0
+                ],
+                "sizeDelta": [
+                  235.0,
+                  22.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_SelectionHeader",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000703
+          },
+          {
+            "children": [
+              {
+                "children": [],
+                "components": {
+                  "uiLabel": {
+                    "color": [
+                      1.0,
+                      0.699999988079071,
+                      0.2800000011920929,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 28.0,
+                    "fontStyle": "bold",
+                    "horizontalAlignment": "left",
+                    "letterSpacing": 6.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "ellipsis",
+                    "text": "Engineer A",
+                    "verticalAlignment": "middle",
+                    "wordWrap": false
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      708.6541748046875,
+                      192.00003051757813
+                    ],
+                    "pivot": [
+                      0.0,
+                      1.0
+                    ],
+                    "sizeDelta": [
+                      374.0,
+                      36.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_SelectionName",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000102
+              },
+              {
+                "children": [],
+                "components": {
+                  "uiProgressBar": {
+                    "fillColor": [
+                      0.30000001192092896,
+                      0.7200000286102295,
+                      0.25,
+                      1.0
+                    ],
+                    "interpolationSpeed": 6.0,
+                    "invertDirection": false,
+                    "maxValue": 1.0,
+                    "minValue": 0.0,
+                    "orientation": "Horizontal",
+                    "smoothInterpolation": true,
+                    "trackColor": [
+                      0.03500000014901161,
+                      0.04500000178813934,
+                      0.04500000178813934,
+                      1.0
+                    ],
+                    "value": 0.800000011920929
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      708.6541748046875,
+                      161.4370880126953
+                    ],
+                    "pivot": [
+                      0.0,
+                      1.0
+                    ],
+                    "sizeDelta": [
+                      374.0,
+                      22.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_SelectionHealthBar",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000103
+              },
+              {
+                "children": [],
+                "components": {
+                  "uiLabel": {
+                    "color": [
+                      0.5799999833106995,
+                      0.6399999856948853,
+                      0.5600000023841858,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 20.0,
+                    "fontStyle": "normal",
+                    "horizontalAlignment": "left",
+                    "letterSpacing": 6.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "ellipsis",
+                    "text": "Moving",
+                    "verticalAlignment": "middle",
+                    "wordWrap": false
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      708.6541748046875,
+                      124.87418365478516
+                    ],
+                    "pivot": [
+                      0.0,
+                      1.0
+                    ],
+                    "sizeDelta": [
+                      374.0,
+                      28.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_SelectionStatus",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000104
+              }
+            ],
+            "components": {
+              "uiLayoutGroup": {
+                "childAlignment": "start",
+                "constraintCount": 1,
+                "direction": "vertical",
+                "padding": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "spacing": 8.0
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.5400000214576721,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.5,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  -360.0,
+                  100.0
+                ],
+                "pivot": [
+                  0.0,
+                  1.0
+                ],
+                "sizeDelta": [
+                  502.0,
+                  128.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_SelectionInfo",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000105
+          },
+          {
+            "children": [
+              {
+                "children": [],
+                "components": {
+                  "uiImage": {
+                    "border": [
+                      4.0,
+                      4.0,
+                      4.0,
+                      4.0
+                    ],
+                    "colorTint": [
+                      1.0,
+                      0.5372549295425415,
+                      0.21176470816135406,
+                      1.0
+                    ],
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
+                  },
+                  "uiLabel": {
+                    "color": [
+                      0.8799999952316284,
+                      0.8600000143051147,
+                      0.7599999904632568,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 16.0,
+                    "fontStyle": "normal",
+                    "horizontalAlignment": "left",
+                    "letterSpacing": 2.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "clip",
+                    "text": "Barracks",
+                    "verticalAlignment": "middle",
+                    "wordWrap": true
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      1806.0262451171875,
+                      979.43701171875
+                    ],
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      86.0,
+                      40.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_BuildSlot_0",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000610
+              },
+              {
+                "children": [],
+                "components": {
+                  "uiImage": {
+                    "border": [
+                      4.0,
+                      4.0,
+                      4.0,
+                      4.0
+                    ],
+                    "colorTint": [
+                      1.0,
+                      1.0,
+                      1.0,
+                      0.949999988079071
+                    ],
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
+                  },
+                  "uiLabel": {
+                    "color": [
+                      0.8799999952316284,
+                      0.8600000143051147,
+                      0.7599999904632568,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 18.0,
+                    "fontStyle": "normal",
+                    "horizontalAlignment": "left",
+                    "letterSpacing": 2.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "clip",
+                    "text": "Tank",
+                    "verticalAlignment": "middle",
+                    "wordWrap": true
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      1920.181884765625,
+                      979.43701171875
+                    ],
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      86.0,
+                      40.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_BuildSlot_1",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000620
+              }
+            ],
+            "components": {
+              "uiImage": {
+                "border": [
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0
+                ],
+                "colorTint": [
+                  0.054999999701976776,
+                  0.06499999761581421,
+                  0.057999998331069946,
+                  0.9399999976158142
+                ],
+                "imageType": 1,
+                "sourceHeight": 24,
+                "sourceWidth": 24
+              },
+              "uiLayoutGroup": {
+                "childAlignment": "center",
+                "constraintCount": 2,
+                "direction": "grid",
+                "padding": [
+                  12.0,
+                  12.0,
+                  8.0,
+                  8.0
+                ],
+                "spacing": 0.0
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  0.0
+                ],
+                "anchorMin": [
+                  1.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  -22.0,
+                  196.0
+                ],
+                "pivot": [
+                  1.0,
+                  1.0
+                ],
+                "sizeDelta": [
+                  254.0,
+                  792.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_BuildQueue",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000600
+          },
+          {
+            "children": [
+              {
+                "children": [],
+                "components": {
+                  "uiButton": {
+                    "colorTransitionDuration": 0.07999999821186066,
+                    "disabledColor": [
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.6200000047683716
+                    ],
+                    "hoveredColor": [
+                      0.23999999463558197,
+                      0.30000001192092896,
+                      0.20000000298023224,
+                      1.0
+                    ],
+                    "interactable": true,
+                    "normalColor": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
+                    ],
+                    "pressedColor": [
+                      0.07000000029802322,
+                      0.10000000149011612,
+                      0.07500000298023224,
+                      1.0
+                    ]
+                  },
+                  "uiImage": {
+                    "border": [
+                      5.0,
+                      5.0,
+                      5.0,
+                      5.0
+                    ],
+                    "colorTint": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
+                  },
+                  "uiLabel": {
+                    "color": [
+                      1.0,
+                      0.699999988079071,
+                      0.2800000011920929,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 36.0,
+                    "fontStyle": "bold",
+                    "horizontalAlignment": "center",
+                    "letterSpacing": 0.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "clip",
+                    "text": "M",
+                    "verticalAlignment": "middle",
+                    "wordWrap": false
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      1769.812744140625,
+                      183.1555938720703
+                    ],
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      88.0,
+                      88.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_CmdMove",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000210
+              },
+              {
+                "children": [],
+                "components": {
+                  "uiButton": {
+                    "colorTransitionDuration": 0.07999999821186066,
+                    "disabledColor": [
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.6200000047683716
+                    ],
+                    "hoveredColor": [
+                      0.23999999463558197,
+                      0.30000001192092896,
+                      0.20000000298023224,
+                      1.0
+                    ],
+                    "interactable": true,
+                    "normalColor": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
+                    ],
+                    "pressedColor": [
+                      0.07000000029802322,
+                      0.10000000149011612,
+                      0.07500000298023224,
+                      1.0
+                    ]
+                  },
+                  "uiImage": {
+                    "border": [
+                      5.0,
+                      5.0,
+                      5.0,
+                      5.0
+                    ],
+                    "colorTint": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
+                  },
+                  "uiLabel": {
+                    "color": [
+                      1.0,
+                      0.699999988079071,
+                      0.2800000011920929,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 36.0,
+                    "fontStyle": "bold",
+                    "horizontalAlignment": "center",
+                    "letterSpacing": 0.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "clip",
+                    "text": "A",
+                    "verticalAlignment": "middle",
+                    "wordWrap": false
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      1854.1041259765625,
+                      183.1555938720703
+                    ],
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      88.0,
+                      88.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_CmdAttackMove",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000220
+              },
+              {
+                "children": [],
+                "components": {
+                  "uiButton": {
+                    "colorTransitionDuration": 0.07999999821186066,
+                    "disabledColor": [
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.6200000047683716
+                    ],
+                    "hoveredColor": [
+                      0.23999999463558197,
+                      0.30000001192092896,
+                      0.20000000298023224,
+                      1.0
+                    ],
+                    "interactable": true,
+                    "normalColor": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
+                    ],
+                    "pressedColor": [
+                      0.07000000029802322,
+                      0.10000000149011612,
+                      0.07500000298023224,
+                      1.0
+                    ]
+                  },
+                  "uiImage": {
+                    "border": [
+                      5.0,
+                      5.0,
+                      5.0,
+                      5.0
+                    ],
+                    "colorTint": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
+                  },
+                  "uiLabel": {
+                    "color": [
+                      1.0,
+                      0.699999988079071,
+                      0.2800000011920929,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 36.0,
+                    "fontStyle": "bold",
+                    "horizontalAlignment": "center",
+                    "letterSpacing": 0.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "clip",
+                    "text": "S",
+                    "verticalAlignment": "middle",
+                    "wordWrap": false
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      1938.3955078125,
+                      183.1555938720703
+                    ],
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      88.0,
+                      88.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_CmdStop",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000230
+              },
+              {
+                "children": [],
+                "components": {
+                  "uiButton": {
+                    "colorTransitionDuration": 0.07999999821186066,
+                    "disabledColor": [
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.6200000047683716
+                    ],
+                    "hoveredColor": [
+                      0.23999999463558197,
+                      0.30000001192092896,
+                      0.20000000298023224,
+                      1.0
+                    ],
+                    "interactable": true,
+                    "normalColor": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
+                    ],
+                    "pressedColor": [
+                      0.07000000029802322,
+                      0.10000000149011612,
+                      0.07500000298023224,
+                      1.0
+                    ]
+                  },
+                  "uiImage": {
+                    "border": [
+                      5.0,
+                      5.0,
+                      5.0,
+                      5.0
+                    ],
+                    "colorTint": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
+                  },
+                  "uiLabel": {
+                    "color": [
+                      1.0,
+                      0.699999988079071,
+                      0.2800000011920929,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 36.0,
+                    "fontStyle": "bold",
+                    "horizontalAlignment": "center",
+                    "letterSpacing": 0.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "clip",
+                    "text": "H",
+                    "verticalAlignment": "middle",
+                    "wordWrap": false
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      1769.812744140625,
+                      86.59269714355469
+                    ],
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      88.0,
+                      88.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_CmdHold",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000240
+              },
+              {
+                "children": [],
+                "components": {
+                  "uiButton": {
+                    "colorTransitionDuration": 0.07999999821186066,
+                    "disabledColor": [
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.6200000047683716
+                    ],
+                    "hoveredColor": [
+                      0.23999999463558197,
+                      0.30000001192092896,
+                      0.20000000298023224,
+                      1.0
+                    ],
+                    "interactable": true,
+                    "normalColor": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
+                    ],
+                    "pressedColor": [
+                      0.07000000029802322,
+                      0.10000000149011612,
+                      0.07500000298023224,
+                      1.0
+                    ]
+                  },
+                  "uiImage": {
+                    "border": [
+                      5.0,
+                      5.0,
+                      5.0,
+                      5.0
+                    ],
+                    "colorTint": [
+                      0.12999999523162842,
+                      0.1599999964237213,
+                      0.12999999523162842,
+                      1.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
+                  },
+                  "uiLabel": {
+                    "color": [
+                      1.0,
+                      0.699999988079071,
+                      0.2800000011920929,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 36.0,
+                    "fontStyle": "bold",
+                    "horizontalAlignment": "center",
+                    "letterSpacing": 0.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "clip",
+                    "text": "B",
+                    "verticalAlignment": "middle",
+                    "wordWrap": false
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      1854.1041259765625,
+                      86.59269714355469
+                    ],
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      88.0,
+                      88.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_CmdBuild",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000250
+              }
+            ],
+            "components": {
+              "uiImage": {
+                "border": [
+                  8.0,
+                  8.0,
+                  8.0,
+                  8.0
+                ],
+                "colorTint": [
+                  0.10999999940395355,
+                  0.12999999523162842,
+                  0.10499999672174454,
+                  0.9800000190734863
+                ],
+                "imageType": 1,
+                "sourceHeight": 32,
+                "sourceWidth": 32
+              },
+              "uiLayoutGroup": {
+                "childAlignment": "center",
+                "constraintCount": 3,
+                "direction": "grid",
+                "padding": [
+                  12.0,
+                  12.0,
+                  12.0,
+                  12.0
+                ],
+                "spacing": 8.0
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  0.0
+                ],
+                "anchorMin": [
+                  1.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  -22.0,
+                  12.0
+                ],
+                "pivot": [
+                  1.0,
+                  1.0
+                ],
+                "sizeDelta": [
+                  270.0,
+                  184.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_CommandGrid",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000200
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "border": [
+                  7.0,
+                  7.0,
+                  7.0,
+                  7.0
+                ],
+                "colorTint": [
+                  0.04500000178813934,
+                  0.05999999865889549,
+                  0.04500000178813934,
+                  0.9599999785423279
+                ],
+                "imageType": 1,
+                "sourceHeight": 32,
+                "sourceWidth": 32
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  1.0,
+                  1.0
+                ],
+                "anchoredPosition": [
+                  -18.0,
+                  -16.0
+                ],
+                "pivot": [
+                  1.0,
+                  0.0
+                ],
+                "sizeDelta": [
+                  326.0,
+                  54.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_ResourceStrip",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000400
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "border": [
+                  3.0,
+                  3.0,
+                  3.0,
+                  3.0
+                ],
+                "colorTint": [
+                  1.0,
+                  0.699999988079071,
+                  0.2199999988079071,
+                  1.0
+                ],
+                "imageType": 1,
+                "sourceHeight": 16,
+                "sourceWidth": 16
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  1.0,
+                  1.0
+                ],
+                "anchoredPosition": [
+                  -320.0,
+                  -25.0
+                ],
+                "pivot": [
+                  0.0,
+                  0.0
+                ],
+                "sizeDelta": [
+                  36.0,
+                  36.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_GoldIcon",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000401
+          },
+          {
+            "children": [],
+            "components": {
+              "uiLabel": {
+                "color": [
+                  0.8799999952316284,
+                  0.8600000143051147,
+                  0.7599999904632568,
+                  1.0
+                ],
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 26.0,
+                "fontStyle": "bold",
+                "horizontalAlignment": "left",
+                "letterSpacing": 6.0,
+                "lineSpacing": 1.0,
+                "overflow": "ellipsis",
+                "text": "Gold: 4205",
+                "verticalAlignment": "middle",
+                "wordWrap": false
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  1.0,
+                  1.0
+                ],
+                "anchoredPosition": [
+                  -274.0,
+                  -20.0
+                ],
+                "pivot": [
+                  0.0,
+                  0.0
+                ],
+                "sizeDelta": [
+                  250.0,
+                  42.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_GoldLabel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000402
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "border": [
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0
+                ],
+                "colorTint": [
+                  0.03500000014901161,
+                  0.03999999910593033,
+                  0.041999999433755875,
+                  0.6399999856948853
+                ],
+                "imageType": 1,
+                "sourceHeight": 32,
+                "sourceWidth": 32
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.5,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.5,
+                  1.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  -18.0
+                ],
+                "pivot": [
+                  0.5,
+                  0.0
+                ],
+                "sizeDelta": [
+                  652.0,
+                  45.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_AlertStrip",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000500
+          },
+          {
+            "children": [],
+            "components": {
+              "uiLabel": {
+                "color": [
+                  1.0,
+                  0.699999988079071,
+                  0.2800000011920929,
+                  1.0
+                ],
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 22.0,
+                "fontStyle": "bold",
+                "horizontalAlignment": "left",
+                "letterSpacing": 6.0,
+                "lineSpacing": 1.0,
+                "overflow": "ellipsis",
+                "verticalAlignment": "middle",
+                "wordWrap": false
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.5,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.5,
+                  1.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  -18.0
+                ],
+                "pivot": [
+                  0.5,
+                  0.0
+                ],
+                "sizeDelta": [
+                  640.0,
+                  48.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_AlertLabel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000501
+          }
+        ],
+        "components": {
+          "uiCanvas": {
+            "pixelsPerUnit": 100.0,
+            "referenceHeight": 1080.0,
+            "referenceWidth": 1920.0,
+            "scaleMode": "scaleWithScreenSize"
+          },
+          "uiRect": {
+            "anchorMax": [
+              1.0,
+              1.0
+            ],
+            "anchorMin": [
+              0.0,
+              0.0
+            ],
+            "anchoredPosition": [
+              0.0,
+              0.0
+            ],
+            "pivot": [
+              0.5,
+              0.5
+            ],
+            "sizeDelta": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "isActive": true,
+        "name": "RTS_HUD_Canvas",
+        "transform": {
+          "isStatic": true,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "uuid": 9000000000000000003
+      },
+      {
+        "children": [],
+        "components": {
+          "script": {
+            "scripts": [
+              {
+                "enabled": true,
+                "scriptRef": "b2c3d4e5f6071829",
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/RTSHUDController.mt"
+              }
+            ]
+          }
+        },
+        "isActive": true,
+        "name": "RTS_HUD_Controller",
+        "transform": {
+          "isStatic": true,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "uuid": 9000000000000000002
+      },
+      {
+        "children": [],
+        "components": {
+          "billboard": {
+            "atlasIndex": 0,
+            "colorTint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "editorOnly": true,
+            "iconType": "camera",
+            "selectable": true,
+            "size": [
+              64.0,
+              64.0
+            ],
+            "sizeMode": "screenSpace"
+          },
+          "camera": {
+            "aspectRatio": 1.0,
+            "cameraId": 2,
+            "farPlane": 2000.0,
+            "fieldOfView": 90.0,
+            "isPerspective": true,
+            "isPrimary": false,
+            "nearPlane": 0.10000000149011612,
+            "orthoSize": 10.0,
+            "showFrustum": false
+          },
+          "renderTexture": {
+            "clearColor": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "enabled": true,
+            "fixedIntervalSeconds": 0.03333333507180214,
+            "height": 512,
+            "priority": 0,
+            "updateMode": "everyFrame",
+            "width": 512
+          }
+        },
+        "isActive": true,
+        "name": "camera minimap",
+        "transform": {
+          "isStatic": true,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "uuid": 762850702595728735
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -2,
+                "tileZ": 2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-2_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -128.0,
+                -10.0,
+                128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 4832690487297581649
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -4,
+                "tileZ": 3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-4_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -256.0,
+                -10.0,
+                192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 3058188273181284226
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -2,
+                "tileZ": -3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-2_-3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -128.0,
+                -10.0,
+                -192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 14568134697326982638
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -4,
+                "tileZ": -4
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-4_-4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -256.0,
+                -10.0,
+                -256.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 17627510774514814292
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -2,
+                "tileZ": 3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-2_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -128.0,
+                -10.0,
+                192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9089091820950887593
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -4,
+                "tileZ": 2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-4_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -256.0,
+                -10.0,
+                128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 16593537263403499782
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -2,
+                "tileZ": -4
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-2_-4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -128.0,
+                -10.0,
+                -256.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 2958321221571542745
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -4,
+                "tileZ": -3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-4_-3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -256.0,
+                -10.0,
+                -192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 6664645398210895700
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -2,
+                "tileZ": 0
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-2_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -128.0,
+                -10.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 7320978974922775689
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -4,
+                "tileZ": 1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-4_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -256.0,
+                -10.0,
+                64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 17752090544427739635
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -2,
+                "tileZ": -1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-2_-1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -128.0,
+                -10.0,
+                -64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 6933978168660644485
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -4,
+                "tileZ": -2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-4_-2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -256.0,
+                -10.0,
+                -128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 10837666169049979489
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -2,
+                "tileZ": 1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-2_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -128.0,
+                -10.0,
+                64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 16654836165871134805
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -4,
+                "tileZ": 0
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-4_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -256.0,
+                -10.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 2577820762820927605
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -2,
+                "tileZ": -2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-2_-2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -128.0,
+                -10.0,
+                -128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 14200760570642502946
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -4,
+                "tileZ": -1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-4_-1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -256.0,
+                -10.0,
+                -64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 6983862389418433348
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -1,
+                "tileZ": -3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-1_-3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -64.0,
+                -10.0,
+                -192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9771063982759500090
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -3,
+                "tileZ": -4
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-3_-4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -192.0,
+                -10.0,
+                -256.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 8898093612031795282
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -1,
+                "tileZ": -4
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-1_-4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -64.0,
+                -10.0,
+                -256.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 4598553856079956899
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -3,
+                "tileZ": -3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-3_-3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -192.0,
+                -10.0,
+                -192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 5421900035304076117
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -1,
+                "tileZ": -1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-1_-1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -64.0,
+                -10.0,
+                -64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 1247796554006485757
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -3,
+                "tileZ": -2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-3_-2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -192.0,
+                -10.0,
+                -128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 1880832775788786124
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -1,
+                "tileZ": -2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-1_-2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -64.0,
+                -10.0,
+                -128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 18302228421492289515
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -3,
+                "tileZ": -1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-3_-1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -192.0,
+                -10.0,
+                -64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 1794254532560014282
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -1,
+                "tileZ": 1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-1_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -64.0,
+                -10.0,
+                64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 7012620397752595071
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -3,
+                "tileZ": 0
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-3_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -192.0,
+                -10.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 6966791473187760642
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -1,
+                "tileZ": 0
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-1_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -64.0,
+                -10.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 8112418198738606567
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -3,
+                "tileZ": 1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-3_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -192.0,
+                -10.0,
+                64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 4424942600668953233
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -1,
+                "tileZ": 3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-1_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -64.0,
+                -10.0,
+                192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 16117247886892221514
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -3,
+                "tileZ": 2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-3_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -192.0,
+                -10.0,
+                128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 18022548091716611047
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -1,
+                "tileZ": 2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-1_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -64.0,
+                -10.0,
+                128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 11946438689898870662
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": -3,
+                "tileZ": 3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_-3_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                -192.0,
+                -10.0,
+                192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 15503797473247671023
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 2,
+                "tileZ": -3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_2_-3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                128.0,
+                -10.0,
+                -192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 7962709453959101018
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 0,
+                "tileZ": -4
+              }
+            },
+            "isActive": true,
+            "name": "Tile_0_-4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                -10.0,
+                -256.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 3647111434798183265
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 2,
+                "tileZ": -4
+              }
+            },
+            "isActive": true,
+            "name": "Tile_2_-4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                128.0,
+                -10.0,
+                -256.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 11054133068208216746
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 0,
+                "tileZ": -3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_0_-3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                -10.0,
+                -192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 10604555033711048035
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 2,
+                "tileZ": -1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_2_-1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                128.0,
+                -10.0,
+                -64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 14321806917079051066
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 0,
+                "tileZ": -2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_0_-2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                -10.0,
+                -128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 15992686203520391810
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 2,
+                "tileZ": -2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_2_-2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                128.0,
+                -10.0,
+                -128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 769343924018917818
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 0,
+                "tileZ": -1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_0_-1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                -10.0,
+                -64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 5752933440740025116
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 2,
+                "tileZ": 1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_2_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                128.0,
+                -10.0,
+                64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 5025473019121744326
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 0,
+                "tileZ": 0
+              }
+            },
+            "isActive": true,
+            "name": "Tile_0_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                -10.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 16140319978521872381
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 2,
+                "tileZ": 0
+              }
+            },
+            "isActive": true,
+            "name": "Tile_2_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                128.0,
+                -10.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 15206645174691251796
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 0,
+                "tileZ": 1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_0_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                -10.0,
+                64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 6704722777259308362
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 2,
+                "tileZ": 3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_2_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                128.0,
+                -10.0,
+                192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 2624301278760371336
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 0,
+                "tileZ": 2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_0_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                -10.0,
+                128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 14323988547123884934
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 2,
+                "tileZ": 2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_2_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                128.0,
+                -10.0,
+                128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 13634435267154247301
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 0,
+                "tileZ": 3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_0_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                -10.0,
+                192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 11394160507072712047
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 3,
+                "tileZ": -3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_3_-3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                192.0,
+                -10.0,
+                -192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 16457036850421334567
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 1,
+                "tileZ": -4
+              }
+            },
+            "isActive": true,
+            "name": "Tile_1_-4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                64.0,
+                -10.0,
+                -256.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 13380853279765588509
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 3,
+                "tileZ": -4
+              }
+            },
+            "isActive": true,
+            "name": "Tile_3_-4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                192.0,
+                -10.0,
+                -256.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 591808996078493553
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 1,
+                "tileZ": -3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_1_-3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                64.0,
+                -10.0,
+                -192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 11335132865298653888
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 3,
+                "tileZ": -1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_3_-1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                192.0,
+                -10.0,
+                -64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 2887578866559031290
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 1,
+                "tileZ": -2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_1_-2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                64.0,
+                -10.0,
+                -128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 14314700139442515656
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 3,
+                "tileZ": -2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_3_-2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                192.0,
+                -10.0,
+                -128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 15026990932231706714
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 1,
+                "tileZ": -1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_1_-1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                64.0,
+                -10.0,
+                -64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 3581501400556922077
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 3,
+                "tileZ": 1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_3_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                192.0,
+                -10.0,
+                64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 3051957395299301323
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 1,
+                "tileZ": 0
+              }
+            },
+            "isActive": true,
+            "name": "Tile_1_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                64.0,
+                -10.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 5830782203692518649
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 3,
+                "tileZ": 0
+              }
+            },
+            "isActive": true,
+            "name": "Tile_3_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                192.0,
+                -10.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9526961620839867417
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 1,
+                "tileZ": 1
+              }
+            },
+            "isActive": true,
+            "name": "Tile_1_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                64.0,
+                -10.0,
+                64.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 16766592725672551865
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 3,
+                "tileZ": 3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_3_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                192.0,
+                -10.0,
+                192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 7194172711697295512
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 1,
+                "tileZ": 2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_1_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                64.0,
+                -10.0,
+                128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9829310474705266791
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 3,
+                "tileZ": 2
+              }
+            },
+            "isActive": true,
+            "name": "Tile_3_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                192.0,
+                -10.0,
+                128.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 4758241622879463472
+          },
+          {
+            "children": [],
+            "components": {
+              "terrainTile": {
+                "boundingMaxY": 100.0,
+                "boundingMinY": -10.0,
+                "isDirty": false,
+                "isGPUResident": false,
+                "isVisible": true,
+                "tileX": 1,
+                "tileZ": 3
+              }
+            },
+            "isActive": true,
+            "name": "Tile_1_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                64.0,
+                -10.0,
+                192.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 7861639452696409460
+          }
+        ],
+        "components": {
+          "terrain": {
+            "gridMaxX": 3,
+            "gridMaxZ": 3,
+            "gridMinX": -4,
+            "gridMinZ": -4,
+            "heightmapPath": "",
+            "isActive": true,
+            "maxHeight": 100.0,
+            "minHeight": -10.0,
+            "resolution": 0,
+            "savePath": "C:\\matan\\RTSDemo\\assets\\terrian\\demoTerrain.vfTerrain",
+            "worldTileSize": 64.0
+          }
+        },
+        "isActive": true,
+        "name": "Terrain",
+        "transform": {
+          "isStatic": true,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "uuid": 54301305950345833
+      }
+    ],
+    "components": {
+      "ibl": {
+        "hdrRef": "e10d7584f6a0a1ac",
+        "hdrRefPath": "C:/matan/RTSDemo/assets/skyBox/Arches_E_PineTree_3k.vfHdr"
+      }
+    },
     "isActive": true,
     "name": "Root",
     "transform": {

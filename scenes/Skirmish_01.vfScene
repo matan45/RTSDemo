@@ -464,17 +464,17 @@
             "children": [],
             "components": {
               "uiImage": {
-                "border": [
-                  8.0,
-                  8.0,
-                  8.0,
-                  8.0
-                ],
                 "colorTint": [
-                  0.10000000149011612,
-                  0.10999999940395355,
-                  0.12999999523162842,
-                  0.9200000166893005
+                  0.03,
+                  0.035,
+                  0.038,
+                  0.94
+                ],
+                "border": [
+                  14.0,
+                  14.0,
+                  14.0,
+                  14.0
                 ],
                 "imageType": 1,
                 "sourceHeight": 32,
@@ -499,7 +499,7 @@
                 ],
                 "sizeDelta": [
                   0.0,
-                  180.0
+                  260.0
                 ]
               }
             },
@@ -529,17 +529,73 @@
             "children": [],
             "components": {
               "uiImage": {
-                "border": [
-                  6.0,
-                  6.0,
-                  6.0,
-                  6.0
-                ],
                 "colorTint": [
-                  0.1599999964237213,
-                  0.20999999344348907,
-                  0.14000000059604645,
-                  0.949999988079071
+                  1.0,
+                  0.72,
+                  0.24,
+                  0.92
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  260.0
+                ],
+                "pivot": [
+                  0.5,
+                  1.0
+                ],
+                "sizeDelta": [
+                  0.0,
+                  3.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_BottomAccent",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000700
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.11,
+                  0.13,
+                  0.105,
+                  0.98
+                ],
+                "border": [
+                  8.0,
+                  8.0,
+                  8.0,
+                  8.0
                 ],
                 "imageType": 1,
                 "sourceHeight": 32,
@@ -555,16 +611,205 @@
                   0.0
                 ],
                 "anchoredPosition": [
-                  16.0,
-                  8.0
+                  22.0,
+                  12.0
                 ],
                 "pivot": [
                   0.0,
                   1.0
                 ],
                 "sizeDelta": [
-                  360.0,
-                  164.0
+                  236.0,
+                  236.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_MinimapPanel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000702
+          },
+          {
+            "children": [],
+            "components": {
+              "uiLabel": {
+                "color": [
+                  1.0,
+                  0.7,
+                  0.28,
+                  1.0
+                ],
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 14.0,
+                "fontStyle": "bold",
+                "horizontalAlignment": "center",
+                "letterSpacing": 0.0,
+                "lineSpacing": 1.0,
+                "overflow": "clip",
+                "text": "TACTICAL MAP",
+                "verticalAlignment": "middle",
+                "wordWrap": false
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.0,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  140.0,
+                  216.0
+                ],
+                "pivot": [
+                  0.5,
+                  1.0
+                ],
+                "sizeDelta": [
+                  200.0,
+                  22.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_MinimapHeader",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000701
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "renderTextureSourceName": "camera minimap"
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.0,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  40.0,
+                  12.0
+                ],
+                "pivot": [
+                  0.0,
+                  1.0
+                ],
+                "sizeDelta": [
+                  200.0,
+                  200.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_MinimapView",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000301
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.075,
+                  0.09,
+                  0.075,
+                  0.96
+                ],
+                "border": [
+                  8.0,
+                  8.0,
+                  8.0,
+                  8.0
+                ],
+                "imageType": 1,
+                "sourceHeight": 32,
+                "sourceWidth": 32
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.5,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.5,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  -280.0,
+                  12.0
+                ],
+                "pivot": [
+                  0.5,
+                  1.0
+                ],
+                "sizeDelta": [
+                  600.0,
+                  244.0
                 ]
               }
             },
@@ -593,43 +838,110 @@
           {
             "children": [],
             "components": {
-              "uiImage": {
-                "border": [
-                  4.0,
-                  4.0,
-                  4.0,
-                  4.0
-                ],
-                "colorTint": [
-                  0.05000000074505806,
-                  0.05999999865889549,
-                  0.07999999821186066,
+              "uiLabel": {
+                "color": [
+                  1.0,
+                  0.7,
+                  0.28,
                   1.0
                 ],
-                "imageType": 1,
-                "sourceHeight": 16,
-                "sourceWidth": 16
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 14.0,
+                "fontStyle": "bold",
+                "horizontalAlignment": "left",
+                "letterSpacing": 0.0,
+                "lineSpacing": 1.0,
+                "overflow": "clip",
+                "text": "SELECTED UNIT",
+                "verticalAlignment": "middle",
+                "wordWrap": false
               },
               "uiRect": {
                 "anchorMax": [
-                  0.0,
+                  0.5,
                   0.0
                 ],
                 "anchorMin": [
-                  0.0,
+                  0.5,
                   0.0
                 ],
                 "anchoredPosition": [
-                  28.0,
-                  34.0
+                  -562.0,
+                  42.0
                 ],
                 "pivot": [
                   0.0,
                   1.0
                 ],
                 "sizeDelta": [
-                  112.0,
-                  112.0
+                  220.0,
+                  22.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_SelectionHeader",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000703
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.045,
+                  0.055,
+                  0.055,
+                  1.0
+                ],
+                "border": [
+                  5.0,
+                  5.0,
+                  5.0,
+                  5.0
+                ],
+                "imageType": 1,
+                "sourceHeight": 24,
+                "sourceWidth": 24
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.5,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.5,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  -562.0,
+                  74.0
+                ],
+                "pivot": [
+                  0.0,
+                  1.0
+                ],
+                "sizeDelta": [
+                  180.0,
+                  180.0
                 ]
               }
             },
@@ -663,13 +975,13 @@
                   "uiLabel": {
                     "color": [
                       1.0,
-                      0.7200000286102295,
-                      0.28999999165534973,
+                      0.7,
+                      0.28,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 22.0,
+                    "fontSize": 28.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "left",
                     "letterSpacing": 0.0,
@@ -697,8 +1009,8 @@
                       1.0
                     ],
                     "sizeDelta": [
-                      212.0,
-                      28.0
+                      374.0,
+                      36.0
                     ]
                   }
                 },
@@ -729,9 +1041,9 @@
                 "components": {
                   "uiProgressBar": {
                     "fillColor": [
-                      0.36000001430511475,
-                      0.7799999713897705,
-                      0.3199999928474426,
+                      0.3,
+                      0.72,
+                      0.25,
                       1.0
                     ],
                     "interpolationSpeed": 6.0,
@@ -741,12 +1053,12 @@
                     "orientation": "Horizontal",
                     "smoothInterpolation": true,
                     "trackColor": [
-                      0.07999999821186066,
-                      0.10000000149011612,
-                      0.11999999731779099,
+                      0.035,
+                      0.045,
+                      0.045,
                       1.0
                     ],
-                    "value": 0.800000011920929
+                    "value": 0.8
                   },
                   "uiRect": {
                     "anchorMax": [
@@ -766,8 +1078,8 @@
                       1.0
                     ],
                     "sizeDelta": [
-                      212.0,
-                      18.0
+                      374.0,
+                      22.0
                     ]
                   }
                 },
@@ -798,14 +1110,14 @@
                 "components": {
                   "uiLabel": {
                     "color": [
-                      0.9200000166893005,
-                      0.9100000262260437,
-                      0.8399999737739563,
+                      0.58,
+                      0.64,
+                      0.56,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 16.0,
+                    "fontSize": 20.0,
                     "fontStyle": "normal",
                     "horizontalAlignment": "left",
                     "letterSpacing": 0.0,
@@ -833,8 +1145,8 @@
                       1.0
                     ],
                     "sizeDelta": [
-                      212.0,
-                      22.0
+                      374.0,
+                      28.0
                     ]
                   }
                 },
@@ -872,28 +1184,28 @@
                   0.0,
                   0.0
                 ],
-                "spacing": 12.0
+                "spacing": 8.0
               },
               "uiRect": {
                 "anchorMax": [
-                  0.0,
+                  0.5,
                   0.0
                 ],
                 "anchorMin": [
-                  0.0,
+                  0.5,
                   0.0
                 ],
                 "anchoredPosition": [
-                  152.0,
-                  68.0
+                  -360.0,
+                  100.0
                 ],
                 "pivot": [
                   0.0,
                   1.0
                 ],
                 "sizeDelta": [
-                  212.0,
-                  92.0
+                  374.0,
+                  128.0
                 ]
               }
             },
@@ -924,58 +1236,39 @@
               {
                 "children": [],
                 "components": {
-                  "uiButton": {
-                    "colorTransitionDuration": 0.07999999821186066,
-                    "disabledColor": [
-                      0.11999999731779099,
-                      0.11999999731779099,
-                      0.11999999731779099,
-                      0.6000000238418579
-                    ],
-                    "hoveredColor": [
-                      0.2199999988079071,
-                      0.30000001192092896,
-                      0.20000000298023224,
-                      1.0
-                    ],
-                    "interactable": true,
-                    "normalColor": [
-                      0.1599999964237213,
-                      0.20999999344348907,
-                      0.14000000059604645,
-                      1.0
-                    ],
-                    "pressedColor": [
-                      0.10000000149011612,
-                      0.14000000059604645,
-                      0.09000000357627869,
-                      1.0
-                    ]
-                  },
                   "uiImage": {
                     "colorTint": [
-                      0.1599999964237213,
-                      0.20999999344348907,
-                      0.14000000059604645,
-                      1.0
-                    ]
+                      0.095,
+                      0.11,
+                      0.095,
+                      0.95
+                    ],
+                    "border": [
+                      4.0,
+                      4.0,
+                      4.0,
+                      4.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
                   },
                   "uiLabel": {
                     "color": [
-                      1.0,
-                      0.7200000286102295,
-                      0.28999999165534973,
+                      0.88,
+                      0.86,
+                      0.76,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 18.0,
+                    "fontSize": 14.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "center",
                     "letterSpacing": 0.0,
                     "lineSpacing": 1.0,
-                    "overflow": "clip",
-                    "text": "Move",
+                    "overflow": "ellipsis",
+                    "text": "",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -997,8 +1290,450 @@
                       0.0
                     ],
                     "sizeDelta": [
-                      100.0,
-                      64.0
+                      86.0,
+                      40.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_BuildSlot_0",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000610
+              },
+              {
+                "children": [],
+                "components": {
+                  "uiImage": {
+                    "colorTint": [
+                      0.095,
+                      0.11,
+                      0.095,
+                      0.95
+                    ],
+                    "border": [
+                      4.0,
+                      4.0,
+                      4.0,
+                      4.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
+                  },
+                  "uiLabel": {
+                    "color": [
+                      0.88,
+                      0.86,
+                      0.76,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 14.0,
+                    "fontStyle": "bold",
+                    "horizontalAlignment": "center",
+                    "letterSpacing": 0.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "ellipsis",
+                    "text": "",
+                    "verticalAlignment": "middle",
+                    "wordWrap": false
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      0.0,
+                      0.0
+                    ],
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      86.0,
+                      40.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_BuildSlot_1",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000620
+              },
+              {
+                "children": [],
+                "components": {
+                  "uiImage": {
+                    "colorTint": [
+                      0.095,
+                      0.11,
+                      0.095,
+                      0.95
+                    ],
+                    "border": [
+                      4.0,
+                      4.0,
+                      4.0,
+                      4.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
+                  },
+                  "uiLabel": {
+                    "color": [
+                      0.88,
+                      0.86,
+                      0.76,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 14.0,
+                    "fontStyle": "bold",
+                    "horizontalAlignment": "center",
+                    "letterSpacing": 0.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "ellipsis",
+                    "text": "",
+                    "verticalAlignment": "middle",
+                    "wordWrap": false
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      0.0,
+                      0.0
+                    ],
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      86.0,
+                      40.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_BuildSlot_2",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000630
+              },
+              {
+                "children": [],
+                "components": {
+                  "uiImage": {
+                    "colorTint": [
+                      0.095,
+                      0.11,
+                      0.095,
+                      0.95
+                    ],
+                    "border": [
+                      4.0,
+                      4.0,
+                      4.0,
+                      4.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
+                  },
+                  "uiLabel": {
+                    "color": [
+                      0.88,
+                      0.86,
+                      0.76,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 14.0,
+                    "fontStyle": "bold",
+                    "horizontalAlignment": "center",
+                    "letterSpacing": 0.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "ellipsis",
+                    "text": "",
+                    "verticalAlignment": "middle",
+                    "wordWrap": false
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      0.0,
+                      0.0
+                    ],
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      86.0,
+                      40.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_BuildSlot_3",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000640
+              }
+            ],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.055,
+                  0.065,
+                  0.058,
+                  0.94
+                ],
+                "border": [
+                  6.0,
+                  6.0,
+                  6.0,
+                  6.0
+                ],
+                "imageType": 1,
+                "sourceHeight": 24,
+                "sourceWidth": 24
+              },
+              "uiLayoutGroup": {
+                "childAlignment": "center",
+                "constraintCount": 1,
+                "direction": "horizontal",
+                "padding": [
+                  12.0,
+                  12.0,
+                  8.0,
+                  8.0
+                ],
+                "spacing": 8.0
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  0.0
+                ],
+                "anchorMin": [
+                  1.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  -22.0,
+                  196.0
+                ],
+                "pivot": [
+                  1.0,
+                  1.0
+                ],
+                "sizeDelta": [
+                  392.0,
+                  56.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_BuildQueue",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000600
+          },
+          {
+            "children": [
+              {
+                "children": [],
+                "components": {
+                  "uiButton": {
+                    "colorTransitionDuration": 0.08,
+                    "disabledColor": [
+                      0.12,
+                      0.12,
+                      0.12,
+                      0.62
+                    ],
+                    "hoveredColor": [
+                      0.24,
+                      0.3,
+                      0.2,
+                      1.0
+                    ],
+                    "interactable": true,
+                    "normalColor": [
+                      0.13,
+                      0.16,
+                      0.13,
+                      1.0
+                    ],
+                    "pressedColor": [
+                      0.07,
+                      0.1,
+                      0.075,
+                      1.0
+                    ]
+                  },
+                  "uiImage": {
+                    "colorTint": [
+                      0.125,
+                      0.15,
+                      0.12,
+                      1.0
+                    ],
+                    "border": [
+                      5.0,
+                      5.0,
+                      5.0,
+                      5.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
+                  },
+                  "uiLabel": {
+                    "color": [
+                      1.0,
+                      0.7,
+                      0.28,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 36.0,
+                    "fontStyle": "bold",
+                    "horizontalAlignment": "center",
+                    "letterSpacing": 0.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "clip",
+                    "text": "M",
+                    "verticalAlignment": "middle",
+                    "wordWrap": false
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      0.0,
+                      0.0
+                    ],
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      88.0,
+                      88.0
                     ]
                   }
                 },
@@ -1028,57 +1763,66 @@
                 "children": [],
                 "components": {
                   "uiButton": {
-                    "colorTransitionDuration": 0.07999999821186066,
+                    "colorTransitionDuration": 0.08,
                     "disabledColor": [
-                      0.11999999731779099,
-                      0.11999999731779099,
-                      0.11999999731779099,
-                      0.6000000238418579
+                      0.12,
+                      0.12,
+                      0.12,
+                      0.62
                     ],
                     "hoveredColor": [
-                      0.2199999988079071,
-                      0.30000001192092896,
-                      0.20000000298023224,
+                      0.24,
+                      0.3,
+                      0.2,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.1599999964237213,
-                      0.20999999344348907,
-                      0.14000000059604645,
+                      0.13,
+                      0.16,
+                      0.13,
                       1.0
                     ],
                     "pressedColor": [
-                      0.10000000149011612,
-                      0.14000000059604645,
-                      0.09000000357627869,
+                      0.07,
+                      0.1,
+                      0.075,
                       1.0
                     ]
                   },
                   "uiImage": {
                     "colorTint": [
-                      0.1599999964237213,
-                      0.20999999344348907,
-                      0.14000000059604645,
+                      0.125,
+                      0.15,
+                      0.12,
                       1.0
-                    ]
+                    ],
+                    "border": [
+                      5.0,
+                      5.0,
+                      5.0,
+                      5.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
                   },
                   "uiLabel": {
                     "color": [
                       1.0,
-                      0.7200000286102295,
-                      0.28999999165534973,
+                      0.7,
+                      0.28,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 18.0,
+                    "fontSize": 36.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "center",
                     "letterSpacing": 0.0,
                     "lineSpacing": 1.0,
                     "overflow": "clip",
-                    "text": "A-Move",
+                    "text": "A",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -1100,8 +1844,8 @@
                       0.0
                     ],
                     "sizeDelta": [
-                      100.0,
-                      64.0
+                      88.0,
+                      88.0
                     ]
                   }
                 },
@@ -1131,57 +1875,66 @@
                 "children": [],
                 "components": {
                   "uiButton": {
-                    "colorTransitionDuration": 0.07999999821186066,
+                    "colorTransitionDuration": 0.08,
                     "disabledColor": [
-                      0.11999999731779099,
-                      0.11999999731779099,
-                      0.11999999731779099,
-                      0.6000000238418579
+                      0.12,
+                      0.12,
+                      0.12,
+                      0.62
                     ],
                     "hoveredColor": [
-                      0.2199999988079071,
-                      0.30000001192092896,
-                      0.20000000298023224,
+                      0.24,
+                      0.3,
+                      0.2,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.1599999964237213,
-                      0.20999999344348907,
-                      0.14000000059604645,
+                      0.13,
+                      0.16,
+                      0.13,
                       1.0
                     ],
                     "pressedColor": [
-                      0.10000000149011612,
-                      0.14000000059604645,
-                      0.09000000357627869,
+                      0.07,
+                      0.1,
+                      0.075,
                       1.0
                     ]
                   },
                   "uiImage": {
                     "colorTint": [
-                      0.1599999964237213,
-                      0.20999999344348907,
-                      0.14000000059604645,
+                      0.125,
+                      0.15,
+                      0.12,
                       1.0
-                    ]
+                    ],
+                    "border": [
+                      5.0,
+                      5.0,
+                      5.0,
+                      5.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
                   },
                   "uiLabel": {
                     "color": [
                       1.0,
-                      0.7200000286102295,
-                      0.28999999165534973,
+                      0.7,
+                      0.28,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 18.0,
+                    "fontSize": 36.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "center",
                     "letterSpacing": 0.0,
                     "lineSpacing": 1.0,
                     "overflow": "clip",
-                    "text": "Stop",
+                    "text": "S",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -1203,8 +1956,8 @@
                       0.0
                     ],
                     "sizeDelta": [
-                      100.0,
-                      64.0
+                      88.0,
+                      88.0
                     ]
                   }
                 },
@@ -1234,57 +1987,66 @@
                 "children": [],
                 "components": {
                   "uiButton": {
-                    "colorTransitionDuration": 0.07999999821186066,
+                    "colorTransitionDuration": 0.08,
                     "disabledColor": [
-                      0.11999999731779099,
-                      0.11999999731779099,
-                      0.11999999731779099,
-                      0.6000000238418579
+                      0.12,
+                      0.12,
+                      0.12,
+                      0.62
                     ],
                     "hoveredColor": [
-                      0.2199999988079071,
-                      0.30000001192092896,
-                      0.20000000298023224,
+                      0.24,
+                      0.3,
+                      0.2,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.1599999964237213,
-                      0.20999999344348907,
-                      0.14000000059604645,
+                      0.13,
+                      0.16,
+                      0.13,
                       1.0
                     ],
                     "pressedColor": [
-                      0.10000000149011612,
-                      0.14000000059604645,
-                      0.09000000357627869,
+                      0.07,
+                      0.1,
+                      0.075,
                       1.0
                     ]
                   },
                   "uiImage": {
                     "colorTint": [
-                      0.1599999964237213,
-                      0.20999999344348907,
-                      0.14000000059604645,
+                      0.125,
+                      0.15,
+                      0.12,
                       1.0
-                    ]
+                    ],
+                    "border": [
+                      5.0,
+                      5.0,
+                      5.0,
+                      5.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
                   },
                   "uiLabel": {
                     "color": [
                       1.0,
-                      0.7200000286102295,
-                      0.28999999165534973,
+                      0.7,
+                      0.28,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 18.0,
+                    "fontSize": 36.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "center",
                     "letterSpacing": 0.0,
                     "lineSpacing": 1.0,
                     "overflow": "clip",
-                    "text": "Hold",
+                    "text": "H",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -1306,8 +2068,8 @@
                       0.0
                     ],
                     "sizeDelta": [
-                      100.0,
-                      64.0
+                      88.0,
+                      88.0
                     ]
                   }
                 },
@@ -1337,57 +2099,66 @@
                 "children": [],
                 "components": {
                   "uiButton": {
-                    "colorTransitionDuration": 0.07999999821186066,
+                    "colorTransitionDuration": 0.08,
                     "disabledColor": [
-                      0.11999999731779099,
-                      0.11999999731779099,
-                      0.11999999731779099,
-                      0.6000000238418579
+                      0.12,
+                      0.12,
+                      0.12,
+                      0.62
                     ],
                     "hoveredColor": [
-                      0.2199999988079071,
-                      0.30000001192092896,
-                      0.20000000298023224,
+                      0.24,
+                      0.3,
+                      0.2,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.1599999964237213,
-                      0.20999999344348907,
-                      0.14000000059604645,
+                      0.13,
+                      0.16,
+                      0.13,
                       1.0
                     ],
                     "pressedColor": [
-                      0.10000000149011612,
-                      0.14000000059604645,
-                      0.09000000357627869,
+                      0.07,
+                      0.1,
+                      0.075,
                       1.0
                     ]
                   },
                   "uiImage": {
                     "colorTint": [
-                      0.1599999964237213,
-                      0.20999999344348907,
-                      0.14000000059604645,
+                      0.125,
+                      0.15,
+                      0.12,
                       1.0
-                    ]
+                    ],
+                    "border": [
+                      5.0,
+                      5.0,
+                      5.0,
+                      5.0
+                    ],
+                    "imageType": 1,
+                    "sourceHeight": 24,
+                    "sourceWidth": 24
                   },
                   "uiLabel": {
                     "color": [
                       1.0,
-                      0.7200000286102295,
-                      0.28999999165534973,
+                      0.7,
+                      0.28,
                       1.0
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 18.0,
+                    "fontSize": 36.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "center",
                     "letterSpacing": 0.0,
                     "lineSpacing": 1.0,
                     "overflow": "clip",
-                    "text": "Build",
+                    "text": "B",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -1409,8 +2180,8 @@
                       0.0
                     ],
                     "sizeDelta": [
-                      100.0,
-                      64.0
+                      88.0,
+                      88.0
                     ]
                   }
                 },
@@ -1439,54 +2210,54 @@
             ],
             "components": {
               "uiImage": {
-                "border": [
-                  6.0,
-                  6.0,
-                  6.0,
-                  6.0
-                ],
                 "colorTint": [
-                  0.14000000059604645,
-                  0.18000000715255737,
-                  0.11999999731779099,
-                  0.9200000166893005
+                  0.11,
+                  0.13,
+                  0.105,
+                  0.98
+                ],
+                "border": [
+                  8.0,
+                  8.0,
+                  8.0,
+                  8.0
                 ],
                 "imageType": 1,
                 "sourceHeight": 32,
                 "sourceWidth": 32
               },
               "uiLayoutGroup": {
-                "childAlignment": "start",
+                "childAlignment": "center",
                 "constraintCount": 3,
                 "direction": "grid",
                 "padding": [
-                  8.0,
-                  8.0,
-                  8.0,
-                  8.0
+                  12.0,
+                  12.0,
+                  12.0,
+                  12.0
                 ],
                 "spacing": 8.0
               },
               "uiRect": {
                 "anchorMax": [
-                  0.0,
+                  1.0,
                   0.0
                 ],
                 "anchorMin": [
-                  0.0,
+                  1.0,
                   0.0
                 ],
                 "anchoredPosition": [
-                  790.0,
-                  10.0
+                  -22.0,
+                  12.0
                 ],
                 "pivot": [
-                  0.0,
+                  1.0,
                   1.0
                 ],
                 "sizeDelta": [
-                  340.0,
-                  160.0
+                  304.0,
+                  184.0
                 ]
               }
             },
@@ -1517,73 +2288,16 @@
             "components": {
               "uiImage": {
                 "colorTint": [
-                  0.05000000074505806,
-                  0.07000000029802322,
-                  0.05000000074505806,
-                  1.0
+                  0.045,
+                  0.06,
+                  0.045,
+                  0.96
                 ],
-                "renderTextureSourceName": "camera minimap"
-              },
-              "uiRect": {
-                "anchorMax": [
-                  0.0,
-                  0.0
-                ],
-                "anchorMin": [
-                  0.0,
-                  0.0
-                ],
-                "anchoredPosition": [
-                  1571.0,
-                  304.0
-                ],
-                "pivot": [
-                  0.0,
-                  1.0
-                ],
-                "sizeDelta": [
-                  212.0,
-                  175.0
-                ]
-              }
-            },
-            "isActive": true,
-            "name": "RTS_HUD_MinimapView",
-            "transform": {
-              "isStatic": true,
-              "position": [
-                0.0,
-                0.0,
-                0.0
-              ],
-              "rotation": [
-                0.0,
-                0.0,
-                0.0
-              ],
-              "scale": [
-                1.0,
-                1.0,
-                1.0
-              ]
-            },
-            "uuid": 9000000000000000301
-          },
-          {
-            "children": [],
-            "components": {
-              "uiImage": {
                 "border": [
-                  6.0,
-                  6.0,
-                  6.0,
-                  6.0
-                ],
-                "colorTint": [
-                  0.1599999964237213,
-                  0.20999999344348907,
-                  0.14000000059604645,
-                  0.949999988079071
+                  7.0,
+                  7.0,
+                  7.0,
+                  7.0
                 ],
                 "imageType": 1,
                 "sourceHeight": 32,
@@ -1591,24 +2305,24 @@
               },
               "uiRect": {
                 "anchorMax": [
-                  0.0,
+                  1.0,
                   1.0
                 ],
                 "anchorMin": [
-                  0.0,
+                  1.0,
                   1.0
                 ],
                 "anchoredPosition": [
-                  16.0,
+                  -18.0,
                   -16.0
                 ],
                 "pivot": [
-                  0.0,
+                  1.0,
                   0.0
                 ],
                 "sizeDelta": [
-                  360.0,
-                  56.0
+                  330.0,
+                  54.0
                 ]
               }
             },
@@ -1640,31 +2354,40 @@
               "uiImage": {
                 "colorTint": [
                   1.0,
-                  0.7200000286102295,
-                  0.28999999165534973,
+                  0.7,
+                  0.22,
                   1.0
-                ]
+                ],
+                "border": [
+                  3.0,
+                  3.0,
+                  3.0,
+                  3.0
+                ],
+                "imageType": 1,
+                "sourceHeight": 16,
+                "sourceWidth": 16
               },
               "uiRect": {
                 "anchorMax": [
-                  0.0,
+                  1.0,
                   1.0
                 ],
                 "anchorMin": [
-                  0.0,
+                  1.0,
                   1.0
                 ],
                 "anchoredPosition": [
-                  28.0,
-                  -28.0
+                  -320.0,
+                  -25.0
                 ],
                 "pivot": [
                   0.0,
                   0.0
                 ],
                 "sizeDelta": [
-                  32.0,
-                  32.0
+                  36.0,
+                  36.0
                 ]
               }
             },
@@ -1695,14 +2418,14 @@
             "components": {
               "uiLabel": {
                 "color": [
-                  0.9200000166893005,
-                  0.9100000262260437,
-                  0.8399999737739563,
+                  0.88,
+                  0.86,
+                  0.76,
                   1.0
                 ],
                 "fontRef": "45215717a803d31d",
                 "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                "fontSize": 24.0,
+                "fontSize": 26.0,
                 "fontStyle": "bold",
                 "horizontalAlignment": "left",
                 "letterSpacing": 0.0,
@@ -1714,24 +2437,24 @@
               },
               "uiRect": {
                 "anchorMax": [
-                  0.0,
+                  1.0,
                   1.0
                 ],
                 "anchorMin": [
-                  0.0,
+                  1.0,
                   1.0
                 ],
                 "anchoredPosition": [
-                  68.0,
-                  -24.0
+                  -274.0,
+                  -20.0
                 ],
                 "pivot": [
                   0.0,
                   0.0
                 ],
                 "sizeDelta": [
-                  280.0,
-                  40.0
+                  250.0,
+                  42.0
                 ]
               }
             },
@@ -1761,17 +2484,17 @@
             "children": [],
             "components": {
               "uiImage": {
+                "colorTint": [
+                  0.035,
+                  0.04,
+                  0.042,
+                  0.64
+                ],
                 "border": [
                   6.0,
                   6.0,
                   6.0,
                   6.0
-                ],
-                "colorTint": [
-                  0.10000000149011612,
-                  0.10999999940395355,
-                  0.12999999523162842,
-                  0.6000000238418579
                 ],
                 "imageType": 1,
                 "sourceHeight": 32,
@@ -1788,7 +2511,7 @@
                 ],
                 "anchoredPosition": [
                   0.0,
-                  -12.0
+                  -18.0
                 ],
                 "pivot": [
                   0.5,
@@ -1796,7 +2519,7 @@
                 ],
                 "sizeDelta": [
                   640.0,
-                  40.0
+                  48.0
                 ]
               }
             },
@@ -1828,19 +2551,19 @@
               "uiLabel": {
                 "color": [
                   1.0,
-                  0.7200000286102295,
-                  0.28999999165534973,
+                  0.7,
+                  0.28,
                   1.0
                 ],
                 "fontRef": "45215717a803d31d",
                 "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                "fontSize": 20.0,
+                "fontSize": 22.0,
                 "fontStyle": "bold",
                 "horizontalAlignment": "center",
                 "letterSpacing": 0.0,
                 "lineSpacing": 1.0,
                 "overflow": "ellipsis",
-                "text": "Label",
+                "text": "",
                 "verticalAlignment": "middle",
                 "wordWrap": false
               },
@@ -1855,7 +2578,7 @@
                 ],
                 "anchoredPosition": [
                   0.0,
-                  -12.0
+                  -18.0
                 ],
                 "pivot": [
                   0.5,
@@ -1863,7 +2586,7 @@
                 ],
                 "sizeDelta": [
                   640.0,
-                  40.0
+                  48.0
                 ]
               }
             },
@@ -1888,420 +2611,6 @@
               ]
             },
             "uuid": 9000000000000000501
-          },
-          {
-            "children": [
-              {
-                "children": [],
-                "components": {
-                  "uiImage": {
-                    "border": [
-                      4.0,
-                      4.0,
-                      4.0,
-                      4.0
-                    ],
-                    "colorTint": [
-                      0.10000000149011612,
-                      0.10999999940395355,
-                      0.12999999523162842,
-                      0.949999988079071
-                    ],
-                    "imageType": 1,
-                    "sourceHeight": 16,
-                    "sourceWidth": 16
-                  },
-                  "uiLabel": {
-                    "color": [
-                      0.9200000166893005,
-                      0.9100000262260437,
-                      0.8399999737739563,
-                      1.0
-                    ],
-                    "fontRef": "45215717a803d31d",
-                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 12.0,
-                    "fontStyle": "normal",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
-                    "lineSpacing": 1.0,
-                    "overflow": "clip",
-                    "text": "Label",
-                    "verticalAlignment": "middle",
-                    "wordWrap": false
-                  },
-                  "uiRect": {
-                    "anchorMax": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchorMin": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchoredPosition": [
-                      0.0,
-                      0.0
-                    ],
-                    "pivot": [
-                      0.0,
-                      0.0
-                    ],
-                    "sizeDelta": [
-                      64.0,
-                      56.0
-                    ]
-                  }
-                },
-                "isActive": true,
-                "name": "RTS_HUD_BuildSlot_0",
-                "transform": {
-                  "isStatic": true,
-                  "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                  ]
-                },
-                "uuid": 9000000000000000610
-              },
-              {
-                "children": [],
-                "components": {
-                  "uiImage": {
-                    "border": [
-                      4.0,
-                      4.0,
-                      4.0,
-                      4.0
-                    ],
-                    "colorTint": [
-                      0.10000000149011612,
-                      0.10999999940395355,
-                      0.12999999523162842,
-                      0.949999988079071
-                    ],
-                    "imageType": 1,
-                    "sourceHeight": 16,
-                    "sourceWidth": 16
-                  },
-                  "uiLabel": {
-                    "color": [
-                      0.9200000166893005,
-                      0.9100000262260437,
-                      0.8399999737739563,
-                      1.0
-                    ],
-                    "fontRef": "45215717a803d31d",
-                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 12.0,
-                    "fontStyle": "normal",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
-                    "lineSpacing": 1.0,
-                    "overflow": "clip",
-                    "text": "Label",
-                    "verticalAlignment": "middle",
-                    "wordWrap": false
-                  },
-                  "uiRect": {
-                    "anchorMax": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchorMin": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchoredPosition": [
-                      0.0,
-                      0.0
-                    ],
-                    "pivot": [
-                      0.0,
-                      0.0
-                    ],
-                    "sizeDelta": [
-                      64.0,
-                      56.0
-                    ]
-                  }
-                },
-                "isActive": true,
-                "name": "RTS_HUD_BuildSlot_1",
-                "transform": {
-                  "isStatic": true,
-                  "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                  ]
-                },
-                "uuid": 9000000000000000620
-              },
-              {
-                "children": [],
-                "components": {
-                  "uiImage": {
-                    "border": [
-                      4.0,
-                      4.0,
-                      4.0,
-                      4.0
-                    ],
-                    "colorTint": [
-                      0.10000000149011612,
-                      0.10999999940395355,
-                      0.12999999523162842,
-                      0.949999988079071
-                    ],
-                    "imageType": 1,
-                    "sourceHeight": 16,
-                    "sourceWidth": 16
-                  },
-                  "uiLabel": {
-                    "color": [
-                      0.9200000166893005,
-                      0.9100000262260437,
-                      0.8399999737739563,
-                      1.0
-                    ],
-                    "fontRef": "45215717a803d31d",
-                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 12.0,
-                    "fontStyle": "normal",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
-                    "lineSpacing": 1.0,
-                    "overflow": "clip",
-                    "text": "Label",
-                    "verticalAlignment": "middle",
-                    "wordWrap": false
-                  },
-                  "uiRect": {
-                    "anchorMax": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchorMin": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchoredPosition": [
-                      0.0,
-                      0.0
-                    ],
-                    "pivot": [
-                      0.0,
-                      0.0
-                    ],
-                    "sizeDelta": [
-                      64.0,
-                      56.0
-                    ]
-                  }
-                },
-                "isActive": true,
-                "name": "RTS_HUD_BuildSlot_2",
-                "transform": {
-                  "isStatic": true,
-                  "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                  ]
-                },
-                "uuid": 9000000000000000630
-              },
-              {
-                "children": [],
-                "components": {
-                  "uiImage": {
-                    "border": [
-                      4.0,
-                      4.0,
-                      4.0,
-                      4.0
-                    ],
-                    "colorTint": [
-                      0.10000000149011612,
-                      0.10999999940395355,
-                      0.12999999523162842,
-                      0.949999988079071
-                    ],
-                    "imageType": 1,
-                    "sourceHeight": 16,
-                    "sourceWidth": 16
-                  },
-                  "uiLabel": {
-                    "color": [
-                      0.9200000166893005,
-                      0.9100000262260437,
-                      0.8399999737739563,
-                      1.0
-                    ],
-                    "fontRef": "45215717a803d31d",
-                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 12.0,
-                    "fontStyle": "normal",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
-                    "lineSpacing": 1.0,
-                    "overflow": "clip",
-                    "text": "Label",
-                    "verticalAlignment": "middle",
-                    "wordWrap": false
-                  },
-                  "uiRect": {
-                    "anchorMax": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchorMin": [
-                      0.0,
-                      0.0
-                    ],
-                    "anchoredPosition": [
-                      0.0,
-                      0.0
-                    ],
-                    "pivot": [
-                      0.0,
-                      0.0
-                    ],
-                    "sizeDelta": [
-                      64.0,
-                      56.0
-                    ]
-                  }
-                },
-                "isActive": true,
-                "name": "RTS_HUD_BuildSlot_3",
-                "transform": {
-                  "isStatic": true,
-                  "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ],
-                  "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                  ]
-                },
-                "uuid": 9000000000000000640
-              }
-            ],
-            "components": {
-              "uiImage": {
-                "border": [
-                  6.0,
-                  6.0,
-                  6.0,
-                  6.0
-                ],
-                "colorTint": [
-                  0.1599999964237213,
-                  0.20999999344348907,
-                  0.14000000059604645,
-                  0.949999988079071
-                ],
-                "imageType": 1,
-                "sourceHeight": 32,
-                "sourceWidth": 32
-              },
-              "uiLayoutGroup": {
-                "childAlignment": "center",
-                "constraintCount": 1,
-                "direction": "horizontal",
-                "padding": [
-                  8.0,
-                  8.0,
-                  8.0,
-                  8.0
-                ],
-                "spacing": 6.0
-              },
-              "uiRect": {
-                "anchorMax": [
-                  1.0,
-                  1.0
-                ],
-                "anchorMin": [
-                  1.0,
-                  1.0
-                ],
-                "anchoredPosition": [
-                  -16.0,
-                  -16.0
-                ],
-                "pivot": [
-                  1.0,
-                  0.0
-                ],
-                "sizeDelta": [
-                  320.0,
-                  72.0
-                ]
-              }
-            },
-            "isActive": true,
-            "name": "RTS_HUD_BuildQueue",
-            "transform": {
-              "isStatic": true,
-              "position": [
-                0.0,
-                0.0,
-                0.0
-              ],
-              "rotation": [
-                0.0,
-                0.0,
-                0.0
-              ],
-              "scale": [
-                1.0,
-                1.0,
-                1.0
-              ]
-            },
-            "uuid": 9000000000000000600
           }
         ],
         "components": {
@@ -2494,7 +2803,7 @@
                 1.0
               ]
             },
-            "uuid": 10862591431497725120
+            "uuid": 17386526674670139766
           },
           {
             "children": [],
@@ -2529,7 +2838,7 @@
                 1.0
               ]
             },
-            "uuid": 981899554201084300
+            "uuid": 3113635842412432264
           },
           {
             "children": [],
@@ -2564,7 +2873,7 @@
                 1.0
               ]
             },
-            "uuid": 13423105878412729879
+            "uuid": 18263336079385244280
           },
           {
             "children": [],
@@ -2599,7 +2908,7 @@
                 1.0
               ]
             },
-            "uuid": 7242200980516307933
+            "uuid": 1649444965535992906
           },
           {
             "children": [],
@@ -2634,7 +2943,7 @@
                 1.0
               ]
             },
-            "uuid": 686025050649743333
+            "uuid": 7937445316667668143
           },
           {
             "children": [],
@@ -2669,7 +2978,7 @@
                 1.0
               ]
             },
-            "uuid": 12185588903049312584
+            "uuid": 10468761942639619416
           },
           {
             "children": [],
@@ -2704,7 +3013,7 @@
                 1.0
               ]
             },
-            "uuid": 16180913654540180844
+            "uuid": 18274756923452002652
           },
           {
             "children": [],
@@ -2739,7 +3048,7 @@
                 1.0
               ]
             },
-            "uuid": 1627206503913267366
+            "uuid": 15694807578031026422
           },
           {
             "children": [],
@@ -2774,7 +3083,7 @@
                 1.0
               ]
             },
-            "uuid": 10353817503072326396
+            "uuid": 17091551306434873669
           },
           {
             "children": [],
@@ -2809,7 +3118,7 @@
                 1.0
               ]
             },
-            "uuid": 11674730049966079959
+            "uuid": 10955317011279141754
           },
           {
             "children": [],
@@ -2844,7 +3153,7 @@
                 1.0
               ]
             },
-            "uuid": 13099403720721083111
+            "uuid": 12891992274287676664
           },
           {
             "children": [],
@@ -2879,7 +3188,7 @@
                 1.0
               ]
             },
-            "uuid": 16622171771581218012
+            "uuid": 9174677530873359953
           },
           {
             "children": [],
@@ -2914,7 +3223,7 @@
                 1.0
               ]
             },
-            "uuid": 15822467416246817236
+            "uuid": 2630029513843358974
           },
           {
             "children": [],
@@ -2949,7 +3258,7 @@
                 1.0
               ]
             },
-            "uuid": 6023804821702719326
+            "uuid": 13742692659452911810
           },
           {
             "children": [],
@@ -2984,7 +3293,7 @@
                 1.0
               ]
             },
-            "uuid": 2224282632415045342
+            "uuid": 1654790245978797190
           },
           {
             "children": [],
@@ -3019,7 +3328,7 @@
                 1.0
               ]
             },
-            "uuid": 9162444076477511167
+            "uuid": 1459675397954524499
           },
           {
             "children": [],
@@ -3054,7 +3363,7 @@
                 1.0
               ]
             },
-            "uuid": 12967419345120599765
+            "uuid": 16763963790158810563
           },
           {
             "children": [],
@@ -3089,7 +3398,7 @@
                 1.0
               ]
             },
-            "uuid": 1632611098592869293
+            "uuid": 17987683747068373731
           },
           {
             "children": [],
@@ -3124,7 +3433,7 @@
                 1.0
               ]
             },
-            "uuid": 1358011371829742138
+            "uuid": 5097686296608098336
           },
           {
             "children": [],
@@ -3159,7 +3468,7 @@
                 1.0
               ]
             },
-            "uuid": 11797757292225691426
+            "uuid": 14745819114846572297
           },
           {
             "children": [],
@@ -3194,7 +3503,7 @@
                 1.0
               ]
             },
-            "uuid": 11975830459536623172
+            "uuid": 6996107213803570694
           },
           {
             "children": [],
@@ -3229,7 +3538,7 @@
                 1.0
               ]
             },
-            "uuid": 12831419541797542925
+            "uuid": 11726129537856875845
           },
           {
             "children": [],
@@ -3264,7 +3573,7 @@
                 1.0
               ]
             },
-            "uuid": 2856078302088914647
+            "uuid": 7953924628750901835
           },
           {
             "children": [],
@@ -3299,7 +3608,7 @@
                 1.0
               ]
             },
-            "uuid": 2765780600461761856
+            "uuid": 2699897568551327525
           },
           {
             "children": [],
@@ -3334,7 +3643,7 @@
                 1.0
               ]
             },
-            "uuid": 8830690370518266671
+            "uuid": 18259883655622861780
           },
           {
             "children": [],
@@ -3369,7 +3678,7 @@
                 1.0
               ]
             },
-            "uuid": 7050569705175972034
+            "uuid": 16266388755606872747
           },
           {
             "children": [],
@@ -3404,7 +3713,7 @@
                 1.0
               ]
             },
-            "uuid": 9934573244042127177
+            "uuid": 17966177490847760954
           },
           {
             "children": [],
@@ -3439,7 +3748,7 @@
                 1.0
               ]
             },
-            "uuid": 18327238424563900615
+            "uuid": 14491450155653727088
           },
           {
             "children": [],
@@ -3474,7 +3783,7 @@
                 1.0
               ]
             },
-            "uuid": 12301585648173091829
+            "uuid": 15216589667975406406
           },
           {
             "children": [],
@@ -3509,7 +3818,7 @@
                 1.0
               ]
             },
-            "uuid": 13176909131434767648
+            "uuid": 2179115641888474330
           },
           {
             "children": [],
@@ -3544,7 +3853,7 @@
                 1.0
               ]
             },
-            "uuid": 14176065893344738762
+            "uuid": 16399259215989381283
           },
           {
             "children": [],
@@ -3579,7 +3888,7 @@
                 1.0
               ]
             },
-            "uuid": 16111805353175904581
+            "uuid": 15850620096794246358
           },
           {
             "children": [],
@@ -3614,7 +3923,7 @@
                 1.0
               ]
             },
-            "uuid": 1278171916319588363
+            "uuid": 4437050254904655756
           },
           {
             "children": [],
@@ -3649,7 +3958,7 @@
                 1.0
               ]
             },
-            "uuid": 17795315378716132009
+            "uuid": 9588576267699898288
           },
           {
             "children": [],
@@ -3684,7 +3993,7 @@
                 1.0
               ]
             },
-            "uuid": 7658565249092026475
+            "uuid": 2181651220139189153
           },
           {
             "children": [],
@@ -3719,7 +4028,7 @@
                 1.0
               ]
             },
-            "uuid": 10543411623967211523
+            "uuid": 1559569402507100632
           },
           {
             "children": [],
@@ -3754,7 +4063,7 @@
                 1.0
               ]
             },
-            "uuid": 18200701997719484334
+            "uuid": 15122148634224656218
           },
           {
             "children": [],
@@ -3789,7 +4098,7 @@
                 1.0
               ]
             },
-            "uuid": 5665987260336663510
+            "uuid": 18379742787531601212
           },
           {
             "children": [],
@@ -3824,7 +4133,7 @@
                 1.0
               ]
             },
-            "uuid": 2540329754557258863
+            "uuid": 2280238626955100593
           },
           {
             "children": [],
@@ -3859,7 +4168,7 @@
                 1.0
               ]
             },
-            "uuid": 6750720611996680391
+            "uuid": 5451626487297245294
           },
           {
             "children": [],
@@ -3894,7 +4203,7 @@
                 1.0
               ]
             },
-            "uuid": 6914716807571872725
+            "uuid": 2908470632036997678
           },
           {
             "children": [],
@@ -3929,7 +4238,7 @@
                 1.0
               ]
             },
-            "uuid": 9572688220795121097
+            "uuid": 1402146630992196484
           },
           {
             "children": [],
@@ -3964,7 +4273,7 @@
                 1.0
               ]
             },
-            "uuid": 1309693883745190245
+            "uuid": 1289116899330431037
           },
           {
             "children": [],
@@ -3999,7 +4308,7 @@
                 1.0
               ]
             },
-            "uuid": 17487449985661929489
+            "uuid": 17093868192201922553
           },
           {
             "children": [],
@@ -4034,7 +4343,7 @@
                 1.0
               ]
             },
-            "uuid": 8683665088296195366
+            "uuid": 11147232777832592400
           },
           {
             "children": [],
@@ -4069,7 +4378,7 @@
                 1.0
               ]
             },
-            "uuid": 8259222596052182639
+            "uuid": 7305724142206796604
           },
           {
             "children": [],
@@ -4104,7 +4413,7 @@
                 1.0
               ]
             },
-            "uuid": 7892012832477505181
+            "uuid": 1038657625167880985
           },
           {
             "children": [],
@@ -4139,7 +4448,7 @@
                 1.0
               ]
             },
-            "uuid": 16662265962093414768
+            "uuid": 62951413170266473
           },
           {
             "children": [],
@@ -4174,7 +4483,7 @@
                 1.0
               ]
             },
-            "uuid": 5265767781483962085
+            "uuid": 12547415529089881154
           },
           {
             "children": [],
@@ -4209,7 +4518,7 @@
                 1.0
               ]
             },
-            "uuid": 9571650459787798966
+            "uuid": 741726734992865974
           },
           {
             "children": [],
@@ -4244,7 +4553,7 @@
                 1.0
               ]
             },
-            "uuid": 14370793668688252455
+            "uuid": 3268645558653311041
           },
           {
             "children": [],
@@ -4279,7 +4588,7 @@
                 1.0
               ]
             },
-            "uuid": 15917624812485350073
+            "uuid": 5698450185977293394
           },
           {
             "children": [],
@@ -4314,7 +4623,7 @@
                 1.0
               ]
             },
-            "uuid": 398691946534894605
+            "uuid": 11926067690231302476
           },
           {
             "children": [],
@@ -4349,7 +4658,7 @@
                 1.0
               ]
             },
-            "uuid": 10830263656926532997
+            "uuid": 16793287949452443621
           },
           {
             "children": [],
@@ -4384,7 +4693,7 @@
                 1.0
               ]
             },
-            "uuid": 1022957653187021787
+            "uuid": 8378673931763393796
           },
           {
             "children": [],
@@ -4419,7 +4728,7 @@
                 1.0
               ]
             },
-            "uuid": 12325423231745340358
+            "uuid": 7223058564382720516
           },
           {
             "children": [],
@@ -4454,7 +4763,7 @@
                 1.0
               ]
             },
-            "uuid": 10641958101570711684
+            "uuid": 669535114733684687
           },
           {
             "children": [],
@@ -4489,7 +4798,7 @@
                 1.0
               ]
             },
-            "uuid": 424569422986984795
+            "uuid": 12353889951830559366
           },
           {
             "children": [],
@@ -4524,7 +4833,7 @@
                 1.0
               ]
             },
-            "uuid": 13394938359644086144
+            "uuid": 15920102893556080416
           },
           {
             "children": [],
@@ -4559,7 +4868,7 @@
                 1.0
               ]
             },
-            "uuid": 7413880673250040479
+            "uuid": 11822915162560710374
           },
           {
             "children": [],
@@ -4594,7 +4903,7 @@
                 1.0
               ]
             },
-            "uuid": 15870623150962758115
+            "uuid": 8687503269180605265
           },
           {
             "children": [],
@@ -4629,7 +4938,7 @@
                 1.0
               ]
             },
-            "uuid": 11654036478924660666
+            "uuid": 10712513263218360745
           },
           {
             "children": [],
@@ -4664,7 +4973,7 @@
                 1.0
               ]
             },
-            "uuid": 6644092626253612446
+            "uuid": 3105486358521738844
           },
           {
             "children": [],
@@ -4699,7 +5008,7 @@
                 1.0
               ]
             },
-            "uuid": 5266593727095822622
+            "uuid": 8719215129833688462
           }
         ],
         "components": {
@@ -4737,7 +5046,7 @@
             1.0
           ]
         },
-        "uuid": 17948451157154584904
+        "uuid": 11923987832375514804
       }
     ],
     "components": {

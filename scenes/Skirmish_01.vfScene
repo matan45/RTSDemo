@@ -2381,7 +2381,8 @@
             "pixelsPerUnit": 100.0,
             "referenceHeight": 1080.0,
             "referenceWidth": 1920.0,
-            "scaleMode": "scaleWithScreenSize"
+            "scaleMode": "scaleWithScreenSize",
+            "sortOrder": 0
           },
           "uiRect": {
             "anchorMax": [

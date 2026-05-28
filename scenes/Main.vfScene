@@ -441,13 +441,13 @@
         "transform": {
           "isStatic": true,
           "position": [
-            0.0,
-            0.0,
+            -35.099998474121094,
+            11.5,
             0.0
           ],
           "rotation": [
-            0.0,
-            0.0,
+            -18.799999237060547,
+            -20.299999237060547,
             0.0
           ],
           "scale": [
@@ -2381,7 +2381,8 @@
             "pixelsPerUnit": 100.0,
             "referenceHeight": 1080.0,
             "referenceWidth": 1920.0,
-            "scaleMode": "scaleWithScreenSize"
+            "scaleMode": "scaleWithScreenSize",
+            "sortOrder": 0
           },
           "uiRect": {
             "anchorMax": [
@@ -2515,11 +2516,11 @@
           "isStatic": true,
           "position": [
             0.0,
-            0.0,
+            300.0,
             0.0
           ],
           "rotation": [
-            0.0,
+            -90.0,
             0.0,
             0.0
           ],

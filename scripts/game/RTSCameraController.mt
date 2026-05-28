@@ -31,7 +31,7 @@ class RTSCameraController {
     private int terrainId = -1;
 
     private float yaw = 0.0;
-    private float pitch = 50.0;
+    private float pitch = -50.0;
 
     private float zoomLevel = 0.5;
     private float zoomSensitivity = 0.1;

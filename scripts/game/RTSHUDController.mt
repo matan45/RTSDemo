@@ -26,8 +26,6 @@ class RTSHUDController implements IUIButtonListener {
 
     private int buildSlot0Id;
     private int buildSlot1Id;
-    private int buildSlot2Id;
-    private int buildSlot3Id;
 
     private int cmdMoveId;
     private int cmdAttackMoveId;
@@ -43,8 +41,6 @@ class RTSHUDController implements IUIButtonListener {
         this.alertLabelId = -1;
         this.buildSlot0Id = -1;
         this.buildSlot1Id = -1;
-        this.buildSlot2Id = -1;
-        this.buildSlot3Id = -1;
         this.cmdMoveId = -1;
         this.cmdAttackMoveId = -1;
         this.cmdStopId = -1;
@@ -63,20 +59,12 @@ class RTSHUDController implements IUIButtonListener {
 
         this.buildSlot0Id = this.resolve("RTS_HUD_BuildSlot_0");
         this.buildSlot1Id = this.resolve("RTS_HUD_BuildSlot_1");
-        this.buildSlot2Id = this.resolve("RTS_HUD_BuildSlot_2");
-        this.buildSlot3Id = this.resolve("RTS_HUD_BuildSlot_3");
 
         this.cmdMoveId = this.resolve("RTS_HUD_CmdMove");
         this.cmdAttackMoveId = this.resolve("RTS_HUD_CmdAttackMove");
         this.cmdStopId = this.resolve("RTS_HUD_CmdStop");
         this.cmdHoldId = this.resolve("RTS_HUD_CmdHold");
         this.cmdBuildId = this.resolve("RTS_HUD_CmdBuild");
-
-        int minimapRttId = this.resolve("RTS_HUD_MinimapRTT");
-        if (minimapRttId >= 0) {
-            RenderTexture::create(minimapRttId, 512, 512, RenderTextureUpdateMode::EVERY_FRAME);
-            RenderTexture::setCamera(minimapRttId, minimapRttId);
-        }
 
         this.seedWidgets();
     }
@@ -102,8 +90,6 @@ class RTSHUDController implements IUIButtonListener {
 
         if (this.buildSlot0Id >= 0) { UI::setLabelText(this.buildSlot0Id, this.state.getBuildSlot(0)); }
         if (this.buildSlot1Id >= 0) { UI::setLabelText(this.buildSlot1Id, this.state.getBuildSlot(1)); }
-        if (this.buildSlot2Id >= 0) { UI::setLabelText(this.buildSlot2Id, this.state.getBuildSlot(2)); }
-        if (this.buildSlot3Id >= 0) { UI::setLabelText(this.buildSlot3Id, this.state.getBuildSlot(3)); }
     }
 
     public function onDestroy(): void {
@@ -156,7 +142,5 @@ class RTSHUDController implements IUIButtonListener {
         }
         if (this.buildSlot0Id >= 0) { UI::setLabelText(this.buildSlot0Id, this.state.getBuildSlot(0)); }
         if (this.buildSlot1Id >= 0) { UI::setLabelText(this.buildSlot1Id, this.state.getBuildSlot(1)); }
-        if (this.buildSlot2Id >= 0) { UI::setLabelText(this.buildSlot2Id, this.state.getBuildSlot(2)); }
-        if (this.buildSlot3Id >= 0) { UI::setLabelText(this.buildSlot3Id, this.state.getBuildSlot(3)); }
     }
 }

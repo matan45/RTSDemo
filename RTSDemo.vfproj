@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "workingDirectory": ".",
   "startupScene": "scenes/Skirmish_01.vfScene",
+  "inputMapping": "assets/input/camera.vfInputMapping",
   "exeIconPath": "",
   "engineVersion": "VertexForge 1.0.0",
   "lastModified": "2026-05-08T05:33:16.487710600Z"

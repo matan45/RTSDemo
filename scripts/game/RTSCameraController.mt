@@ -74,10 +74,10 @@ class RTSCameraController {
         float ax = InputAxis::getValue2DX("CameraPan");
         float ay = InputAxis::getValue2DY("CameraPan");
 
-        float mx = Input::getMouseX();
-        float my = Input::getMouseY();
-        int   ww = Window::getWidth();
-        int   wh = Window::getHeight();
+        float mx = Input::getViewportMouseX();
+        float my = Input::getViewportMouseY();
+        int   ww = Window::getViewportWidth();
+        int   wh = Window::getViewportHeight();
 
         float ex = 0.0;
         float ey = 0.0;

@@ -129,7 +129,7 @@ class EmptyIterator<T> implements Iterator<T> {
 /**
  * Iterator that generates a range of integers.
  */
-class RangeIterator implements Iterator<int> {
+class RangeIterator implements Iterator<Int> {
     private int current;
     private int end;
 

@@ -2,6 +2,7 @@
 // Row-major order: m[row][col] = data[row * 4 + col]
 // Used for 3D transformations, projections, and view matrices
 import * from "./Vec4f.mt";
+import * from "./Matrix3f.mt";
 public value class Matrix4f {
     // Matrix elements stored in row-major order
     // | m00 m01 m02 m03 |

@@ -20,8 +20,7 @@ import * from "../lib/engine/Input.mt";
 import * from "../lib/engine/InputAction.mt";
 import * from "../lib/engine/InputAxis.mt";
 import * from "../lib/engine/Log.mt";
-import * from "../lib/engine/Physics.mt";
-import * from "../lib/engine/RaycastHit.mt";
+import * from "../lib/engine/Terrain.mt";
 import * from "../lib/engine/Window.mt";
 import * from "../lib/math/Vec3f.mt";
 
@@ -50,12 +49,10 @@ class RTSCameraController {
     private float focalX = 0.0;
     private float focalZ = 0.0;
     private float lastTerrainY = 0.0;
-    private Vec3f rayDir;
 
     private float DEG_TO_RAD = 0.01745329252;
 
     constructor() {
-        rayDir = new Vec3f(0.0, -1.0, 0.0);
     }
 
     public function onStart(): void {
@@ -129,10 +126,10 @@ class RTSCameraController {
     }
 
     private function applyTransform(): void {
-        Vec3f rayOrigin = new Vec3f(this.focalX, 500.0, this.focalZ);
-        RaycastHit hit = Physics::raycastHit(rayOrigin, rayDir, 1000.0, "Static");
-        if (hit.hit) {
-            this.lastTerrainY = hit.point.y;
+        // Follow the terrain by sampling the CPU heightfield directly (no physics
+        // collider dependency). Off-map samples return 0; keep the last good height.
+        if (Terrain::hasHeightAt(this.focalX, this.focalZ)) {
+            this.lastTerrainY = Terrain::heightAt(this.focalX, this.focalZ);
         }
 
         float currentHeight = this.minHeight + (this.maxHeight - this.minHeight) * this.zoomLevel;

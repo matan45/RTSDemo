@@ -26,6 +26,7 @@ import * from "../lib/engine/UI.mt";
 import * from "../lib/engine/Picker.mt";
 import * from "../lib/engine/RaycastHit.mt";
 import * from "../lib/engine/Terrain.mt";
+import * from "../lib/engine/Physics.mt";
 import * from "../lib/engine/DebugDraw.mt";
 import * from "../lib/engine/Log.mt";
 import * from "../lib/engine/IUIButtonListener.mt";
@@ -70,6 +71,13 @@ class BuildingPlacementController implements IUIButtonListener {
     private float gridSize;
     private float buildingHeight;
     private float slopeMinNormalY;
+
+    // Add a box collider to placed buildings (so they can be selected / block).
+    // Layer stays OFF "Static" (0) so the terrain picker keeps hitting the ground;
+    // 1 = Dynamic in this project's physics layers.
+    private bool addCollider;
+    private int colliderLayer;
+
     private float mapMinX;
     private float mapMaxX;
     private float mapMinZ;
@@ -108,6 +116,8 @@ class BuildingPlacementController implements IUIButtonListener {
         this.gridSize = 4.0;
         this.buildingHeight = 4.0;
         this.slopeMinNormalY = 0.85;
+        this.addCollider = true;
+        this.colliderLayer = 1;
         this.mapMinX = -256.0;
         this.mapMaxX = 256.0;
         this.mapMinZ = -256.0;
@@ -173,7 +183,13 @@ class BuildingPlacementController implements IUIButtonListener {
             return;
         }
 
-        if (rightPressed || escPressed) {
+        if (rightPressed) {
+            Log::info("[BuildPlacement] cancel via RIGHT mouse");
+            this.cancel();
+            return;
+        }
+        if (escPressed) {
+            Log::info("[BuildPlacement] cancel via ESC");
             this.cancel();
             return;
         }
@@ -215,8 +231,12 @@ class BuildingPlacementController implements IUIButtonListener {
             DebugDraw::box(this.ghostCenter, extents, this.colorInvalid);
         }
 
-        if (leftPressed && this.ghostValid) {
-            this.commitPlacement();
+        if (leftPressed) {
+            if (this.ghostValid) {
+                this.commitPlacement();
+            } else {
+                Log::info("[BuildPlacement] left-click ignored: invalid spot (slope/bounds/overlap)");
+            }
         }
     }
 
@@ -424,6 +444,18 @@ class BuildingPlacementController implements IUIButtonListener {
         Entity::setActive(id, true);
         Entity::setPosition(id, this.ghostCenter);
         Entity::setRotation(id, new Vec3f(0.0, (float)(this.rotationSteps * 90), 0.0));
+
+        // The placed building (unlike the ghost) gets a box collider so it can be
+        // picked / block movement. Uses un-rotated footprint extents -- the box
+        // rotates with the entity transform.
+        if (this.addCollider) {
+            int slot = this.resolvedSlot();
+            BuildingDef def = this.buildings[slot];
+            Entity::addComponent(id, "Collider");
+            Physics::setColliderSize(id, new Vec3f(def.halfX, this.buildingHeight, def.halfZ));
+            Physics::setCollisionLayer(id, this.colliderLayer);
+        }
+
         this.ghostEntity = -1;
         this.ghostSlot = -1;
 

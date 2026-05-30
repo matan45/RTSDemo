@@ -164,9 +164,9 @@ class BuildingPlacementController implements IUIButtonListener {
 
     public function onUpdate(float deltaTime): void {
         // Derive press edges every frame so previous-state tracking stays fresh.
-        bool nowLeft = Input::isMouseButtonDown(Mouse::LEFT);
-        bool nowRight = Input::isMouseButtonDown(Mouse::RIGHT);
-        bool nowR = Input::isKeyDown(Key::R);
+        bool nowLeft = Input::isMouseButtonDown(0);
+        bool nowRight = Input::isMouseButtonDown(1);
+        bool nowR = Input::isKeyDown(82);
         bool nowEsc = Input::isKeyDown(Key::ESCAPE);
 
         bool leftPressed = !this.prevLeftDown && nowLeft;
@@ -196,6 +196,8 @@ class BuildingPlacementController implements IUIButtonListener {
 
         if (rPressed) {
             this.rotationSteps = (this.rotationSteps + 1) % 4;
+            Log::info("[BuildPlacement] R rotate -> step " + this.rotationSteps
+                + " (yaw " + (this.rotationSteps * 90) + " deg)");
         }
 
         // Resolve the ground point + surface normal under the cursor via physics.

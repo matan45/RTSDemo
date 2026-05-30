@@ -21,6 +21,23 @@ public class Picker {
     public constructor() {
     }
 
+    // Terrain pick: CPU heightfield ray-march on the engine side (no physics).
+    // Works even when the terrain has no physics collider. Returns hit + world
+    // point only (no surface normal). Use pickTerrainPhysics if you need a normal.
+    public static function pickTerrain(float screenX, float screenY): RaycastHit {
+        float[] raw = _native_picker_pickTerrainPoint(screenX, screenY);
+        if (raw[0] < 0.5) {
+            return new RaycastHit();
+        }
+        return new RaycastHit(
+            true,
+            -1,
+            new Vec3f(raw[1], raw[2], raw[3]),
+            new Vec3f(0.0, 0.0, 0.0),
+            0.0
+        );
+    }
+
     // Terrain pick: a Jolt physics raycast against the "Static" layer (the terrain
     // heightfield collider). Returns hit entity + point + surface normal.
     public static function pickTerrainPhysics(float screenX, float screenY): RaycastHit {

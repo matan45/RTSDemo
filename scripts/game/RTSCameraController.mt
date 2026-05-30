@@ -68,7 +68,8 @@ class RTSCameraController {
     }
 
     public function onUpdate(float deltaTime): void {
-        float ax = InputAxis::getValue2DX("CameraPan");
+        //DISABLE panning and zooming for now, to focus on testing the UI and game state display.
+        /*float ax = InputAxis::getValue2DX("CameraPan");
         float ay = InputAxis::getValue2DY("CameraPan");
 
         float mx = Input::getViewportMouseX();
@@ -118,7 +119,7 @@ class RTSCameraController {
             this.yaw = this.yaw + Input::getMouseDeltaX() * this.rotateSensitivity;
         }
 
-        this.applyTransform();
+        this.applyTransform();*/
     }
 
     public function onDestroy(): void {

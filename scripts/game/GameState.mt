@@ -37,9 +37,9 @@ class GameState {
         this.buildQueueSize = 3;
         this.buildQueue = new string[4];
         this.buildQueue[0] = "Barracks";
-        this.buildQueue[1] = "Tank";
-        this.buildQueue[2] = "Tank";
-        this.buildQueue[3] = "";
+        this.buildQueue[1] = "Command";
+        this.buildQueue[2] = "Refinery";
+        this.buildQueue[3] = "Power";
 
         this.alert = "";
         this.alertExpiry = 0.0;

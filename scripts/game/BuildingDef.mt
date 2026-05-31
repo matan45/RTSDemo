@@ -5,6 +5,9 @@
 // cost. BuildingPlacementController holds one per RTS_HUD_BuildSlot.
 
 value class BuildingDef {
+    // meshPath / materialPath accept project-relative, forward-slash asset
+    // paths (VK-1346), e.g. "assets/buildings/Barracks.vfMesh". Absolute paths
+    // still work but are not portable across machines.
     public string meshPath;
     public string materialPath;
     public float halfX;

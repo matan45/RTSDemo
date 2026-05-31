@@ -125,8 +125,9 @@ class BuildingPlacementController implements IUIButtonListener {
 
         // === DEFINE YOUR BUILDINGS HERE (one per build slot) ===
         // new BuildingDef(meshPath, materialPath, halfX, halfZ, cost)
-        // Use absolute, forward-slash asset paths as registered in assetdb.json,
-        // e.g. "C:/matan/RTSDemo/assets/buildings/Barracks.vfMesh".
+        // Use project-relative, forward-slash asset paths (VK-1346),
+        // e.g. "assets/buildings/Barracks.vfMesh" (resolved against the project
+        // root). Absolute paths still work but are not portable.
         this.buildings = new BuildingDef[4];
         this.buildings[0] = new BuildingDef("", "", 6.0, 4.0, 50);  // Barracks
         this.buildings[1] = new BuildingDef("", "", 6.0, 6.0, 75);  // Command

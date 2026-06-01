@@ -129,7 +129,7 @@ class BuildingPlacementController implements IUIButtonListener {
         // e.g. "assets/buildings/Barracks.vfMesh" (resolved against the project
         // root). Absolute paths still work but are not portable.
         this.buildings = new BuildingDef[4];
-        this.buildings[0] = new BuildingDef("", "", 6.0, 4.0, 50);  // Barracks
+        this.buildings[0] = new BuildingDef("assets/buildings/CommandCenter.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 4.0, 50);  // Command Center
         this.buildings[1] = new BuildingDef("", "", 6.0, 6.0, 75);  // Command
         this.buildings[2] = new BuildingDef("", "", 4.0, 4.0, 40);  // Refinery
         this.buildings[3] = new BuildingDef("", "", 4.0, 4.0, 60);  // Power
@@ -165,9 +165,9 @@ class BuildingPlacementController implements IUIButtonListener {
 
     public function onUpdate(float deltaTime): void {
         // Derive press edges every frame so previous-state tracking stays fresh.
-        bool nowLeft = Input::isMouseButtonDown(0);
-        bool nowRight = Input::isMouseButtonDown(1);
-        bool nowR = Input::isKeyDown(82);
+        bool nowLeft = Input::isMouseButtonDown(Mouse::LEFT);
+        bool nowRight = Input::isMouseButtonDown(Mouse::RIGHT);
+        bool nowR = Input::isKeyDown(Key::R);
         bool nowEsc = Input::isKeyDown(Key::ESCAPE);
 
         bool leftPressed = !this.prevLeftDown && nowLeft;
@@ -315,6 +315,7 @@ class BuildingPlacementController implements IUIButtonListener {
     // it when the chosen building type differs from the current ghost's type.
     private function ensureGhost(): void {
         int slot = this.resolvedSlot();
+        Log::info("slota" + slot);
         if (this.ghostEntity >= 0 && this.ghostSlot == slot) {
             return;
         }
@@ -325,6 +326,10 @@ class BuildingPlacementController implements IUIButtonListener {
         int id = Entity::create("BuildGhost");
         string mp = this.meshFor(slot);
         string xp = this.materialFor(slot);
+        Log::info("[BuildPlacement] creating ghost for slot " + slot
+            + " with mesh '" + mp + "' and material '" + xp + "'");
+        Log::info("[BuildPlacement] creating ghost entity " + id + " for slot " + slot
+            + " (mesh '" + mp + "', material '" + xp + "')");
         if (mp != "") {
             Entity::setMesh(id, mp);
         }

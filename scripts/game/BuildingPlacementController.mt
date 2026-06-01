@@ -130,9 +130,9 @@ class BuildingPlacementController implements IUIButtonListener {
         // root). Absolute paths still work but are not portable.
         this.buildings = new BuildingDef[4];
         this.buildings[0] = new BuildingDef("assets/buildings/CommandCenter.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 4.0, 50);  // Command Center
-        this.buildings[1] = new BuildingDef("", "", 6.0, 6.0, 75);  // Command
-        this.buildings[2] = new BuildingDef("", "", 4.0, 4.0, 40);  // Refinery
-        this.buildings[3] = new BuildingDef("", "", 4.0, 4.0, 60);  // Power
+        this.buildings[1] = new BuildingDef("assets/buildings/Barracks_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 6.0, 75);  // Barraks
+        this.buildings[2] = new BuildingDef("assets/buildings/Refinery_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 40);  // Refinery
+        this.buildings[3] = new BuildingDef("assets/buildings/PowerPlant_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 60);  // Power
         this.ghostSlot = -1;
 
         this.colorValid = new Vec4f(0.2, 0.9, 0.2, 1.0);

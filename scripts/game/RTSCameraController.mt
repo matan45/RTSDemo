@@ -93,11 +93,15 @@ class RTSCameraController {
             dy = dy / mag;
         }
 
+        // Rotate the screen-local pan (dx=right, dy=forward) into world XZ using the
+        // engine's yaw convention (see EditorCamera): forward=(-sin,-cos), right=(cos,-sin).
+        // world = right*dx + forward*dy. The previous formula flipped the cross-term signs,
+        // which is a reflection rather than a rotation, so WASD desynced once the camera rotated.
         float yawRad = this.yaw * this.DEG_TO_RAD;
         float sinY = sin(yawRad);
         float cosY = cos(yawRad);
-        float worldDX = dx * cosY + dy * sinY;
-        float worldDZ = dx * sinY - dy * cosY;
+        float worldDX = dx * cosY - dy * sinY;
+        float worldDZ = -dx * sinY - dy * cosY;
 
         float speed = this.panSpeed * (0.5 + this.zoomLevel);
         this.focalX = this.focalX + worldDX * speed * deltaTime;

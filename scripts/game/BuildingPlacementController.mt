@@ -315,7 +315,6 @@ class BuildingPlacementController implements IUIButtonListener {
     // it when the chosen building type differs from the current ghost's type.
     private function ensureGhost(): void {
         int slot = this.resolvedSlot();
-        Log::info("slota" + slot);
         if (this.ghostEntity >= 0 && this.ghostSlot == slot) {
             return;
         }
@@ -326,10 +325,6 @@ class BuildingPlacementController implements IUIButtonListener {
         int id = Entity::create("BuildGhost");
         string mp = this.meshFor(slot);
         string xp = this.materialFor(slot);
-        Log::info("[BuildPlacement] creating ghost for slot " + slot
-            + " with mesh '" + mp + "' and material '" + xp + "'");
-        Log::info("[BuildPlacement] creating ghost entity " + id + " for slot " + slot
-            + " (mesh '" + mp + "', material '" + xp + "')");
         if (mp != "") {
             Entity::setMesh(id, mp);
         }

@@ -95,6 +95,20 @@ class RTSHUDController implements IUIButtonListener {
     public function onDestroy(): void {
     }
 
+    // Resource accessors used by BuildingPlacementController (VK-1311) via
+    // Entity::getScript, so gold stays a single source of truth in GameState.
+    public function getGold(): int {
+        return this.state.gold;
+    }
+
+    public function trySpendGold(int amount): bool {
+        if (this.state.gold < amount) {
+            return false;
+        }
+        this.state.gold = this.state.gold - amount;
+        return true;
+    }
+
     @Override
     public function onButtonClicked(int buttonEntityId, string entityName): void {
         if (buttonEntityId == this.cmdMoveId)       { this.state.onCommand("Move"); return; }

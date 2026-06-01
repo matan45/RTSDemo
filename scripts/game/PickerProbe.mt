@@ -37,13 +37,19 @@ class PickerProbe {
             return;
         }
 
-        RaycastHit t = Picker::pickTerrainPhysics(mx, my);
-        if (t.hit) {
-            Log::info("[Pick] TERRAIN @ (" + t.point.x + ", " + t.point.y + ", " + t.point.z + ")");
-            return;
+        // Compare both terrain picks: heightfield ray-march (no physics) vs Jolt raycast.
+        RaycastHit th = Picker::pickTerrain(mx, my);
+        if (th.hit) {
+            Log::info("[Pick] TERRAIN(heightfield) @ (" + th.point.x + ", " + th.point.y + ", " + th.point.z + ")");
+        }
+        RaycastHit tp = Picker::pickTerrainPhysics(mx, my);
+        if (tp.hit) {
+            Log::info("[Pick] TERRAIN(physics) @ (" + tp.point.x + ", " + tp.point.y + ", " + tp.point.z + ")");
         }
 
-        Log::info("[Pick] EMPTY (no entity, no terrain)");
+        if (!th.hit && !tp.hit) {
+            Log::info("[Pick] EMPTY (no entity, no terrain)");
+        }
     }
 
     public function onDestroy(): void {

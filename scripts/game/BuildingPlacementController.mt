@@ -337,7 +337,7 @@ class BuildingPlacementController implements IUIButtonListener {
     private function defaultCommands(): string[] {
         string[] cmds = new string[3];
         cmds[0] = "Train";
-        cmds[1] = "Set Rally";
+        cmds[1] = "Rally";
         cmds[2] = "Cancel";
         return cmds;
     }

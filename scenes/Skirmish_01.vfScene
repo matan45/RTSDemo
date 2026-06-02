@@ -1739,7 +1739,7 @@
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 36.0,
+                    "fontSize": 18.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "center",
                     "letterSpacing": 0.0,
@@ -1851,7 +1851,7 @@
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 36.0,
+                    "fontSize": 18.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "center",
                     "letterSpacing": 0.0,
@@ -1963,7 +1963,7 @@
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 36.0,
+                    "fontSize": 18.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "center",
                     "letterSpacing": 0.0,
@@ -2075,7 +2075,7 @@
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 36.0,
+                    "fontSize": 18.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "center",
                     "letterSpacing": 0.0,
@@ -2187,7 +2187,7 @@
                     ],
                     "fontRef": "45215717a803d31d",
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
-                    "fontSize": 36.0,
+                    "fontSize": 18.0,
                     "fontStyle": "bold",
                     "horizontalAlignment": "center",
                     "letterSpacing": 0.0,
@@ -2540,15 +2540,15 @@
                 ],
                 "anchoredPosition": [
                   -548.0,
-                  208.0
+                  96.0
                 ],
                 "pivot": [
                   0.0,
                   1.0
                 ],
                 "sizeDelta": [
-                  104.0,
-                  104.0
+                  96.0,
+                  96.0
                 ]
               }
             },

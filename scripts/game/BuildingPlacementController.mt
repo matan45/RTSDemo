@@ -134,8 +134,10 @@ class BuildingPlacementController implements IUIButtonListener {
         // root). Absolute paths still work but are not portable. iconPath is the
         // selection-panel portrait (.vfImage) shown by VK-1348.
         this.buildings = new BuildingDef[4];
-        this.buildings[0] = new BuildingDef("assets/buildings/CommandCenter.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 4.0, 50, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
-        this.buildings[1] = new BuildingDef("assets/buildings/Barracks_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 6.0, 75, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
+        // Order must match the build-queue slot labels (GameState.buildQueue):
+        // slot 0 = Barracks, slot 1 = Command, slot 2 = Refinery, slot 3 = Power.
+        this.buildings[0] = new BuildingDef("assets/buildings/Barracks_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 6.0, 75, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
+        this.buildings[1] = new BuildingDef("assets/buildings/CommandCenter.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 4.0, 50, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
         this.buildings[2] = new BuildingDef("assets/buildings/Refinery_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 40, "Refinery", "Refinery", "assets/ui/icons/refinery.vfImage", 800.0);
         this.buildings[3] = new BuildingDef("assets/buildings/PowerPlant_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 60, "Power", "Power Plant", "assets/ui/icons/power.vfImage", 600.0);
         this.ghostSlot = -1;

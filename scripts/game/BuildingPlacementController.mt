@@ -506,6 +506,9 @@ class BuildingPlacementController implements IUIButtonListener {
             Entity::addComponent(id, "Collider");
             Physics::setColliderSize(id, new Vec3f(def.halfX, this.buildingHeight, def.halfZ));
             Physics::setCollisionLayer(id, this.colliderLayer);
+            // VK-1351: build the real Jolt body now that the entity is positioned and the
+            // collider is configured, so the building is mouse-pickable / collidable.
+            Physics::createBody(id);
         }
 
         this.ghostEntity = -1;

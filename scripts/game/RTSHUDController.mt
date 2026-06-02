@@ -40,6 +40,14 @@ class RTSHUDController implements IUIButtonListener {
     private int[] cmdButtons;
     private string[] defaultCmdLabels;
 
+    // Command-card font sizes (VK-1352): the authored size is used for the
+    // single-letter default labels (M/A/S/H/B); word labels (Train/Rally/
+    // Cancel) shrink to WORD_CMD_FONT_SIZE so they fit the button.
+    private float defaultCmdFontSize;
+    private static final float WORD_CMD_FONT_SIZE = 18.0;
+    // Extra spacing between letters of word labels so they read clearly (VK-1352).
+    private static final float WORD_CMD_LETTER_SPACING = 6.0;
+
     // SelectionController (on the GameSystems entity) drives the selection panel.
     private int selectionOwnerId;
     private SelectionController selection;
@@ -65,6 +73,7 @@ class RTSHUDController implements IUIButtonListener {
         this.selectionOwnerId = -1;
         this.selection = null;
         this.lastShownId = -2;
+        this.defaultCmdFontSize = 36.0;
     }
 
     public function onStart(): void {
@@ -99,6 +108,13 @@ class RTSHUDController implements IUIButtonListener {
         this.defaultCmdLabels[2] = "S";
         this.defaultCmdLabels[3] = "H";
         this.defaultCmdLabels[4] = "B";
+
+        // Remember the authored command-card font size so it can be restored
+        // after word labels temporarily shrink it (VK-1352).
+        if (this.cmdMoveId >= 0) {
+            float authored = UI::getLabelFontSize(this.cmdMoveId);
+            if (authored > 0.0) { this.defaultCmdFontSize = authored; }
+        }
 
         this.selectionOwnerId = Entity::findByName("GameSystems");
 
@@ -270,6 +286,12 @@ class RTSHUDController implements IUIButtonListener {
                 if (i < n) {
                     Entity::setActive(bid, true);
                     UI::setLabelText(bid, info.commands[i]);
+                    // Word labels (Train/Rally/Cancel) overflow at the authored
+                    // letter size, so shrink them and left-align while shown
+                    // (VK-1352).
+                    UI::setLabelFontSize(bid, WORD_CMD_FONT_SIZE);
+                    UI::setLabelAlignment(bid, UI::LABEL_ALIGN_LEFT, UI::LABEL_VALIGN_MIDDLE);
+                    UI::setLabelSpacing(bid, 1.0, WORD_CMD_LETTER_SPACING);
                 } else {
                     Entity::setActive(bid, false);
                 }
@@ -285,6 +307,11 @@ class RTSHUDController implements IUIButtonListener {
             if (bid >= 0) {
                 Entity::setActive(bid, true);
                 UI::setLabelText(bid, this.defaultCmdLabels[i]);
+                // Restore the authored letter-label styling (size, centered,
+                // default spacing).
+                UI::setLabelFontSize(bid, this.defaultCmdFontSize);
+                UI::setLabelAlignment(bid, UI::LABEL_ALIGN_CENTER, UI::LABEL_VALIGN_MIDDLE);
+                UI::setLabelSpacing(bid, 1.0, 0.0);
             }
         }
     }

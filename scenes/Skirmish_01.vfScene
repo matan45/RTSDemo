@@ -930,6 +930,7 @@
                     "letterSpacing": 6.0,
                     "lineSpacing": 1.0,
                     "overflow": "ellipsis",
+                    "text": "Label",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -1065,6 +1066,7 @@
                     "letterSpacing": 6.0,
                     "lineSpacing": 1.0,
                     "overflow": "ellipsis",
+                    "text": "Label",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -2655,6 +2657,7 @@
                 "letterSpacing": 6.0,
                 "lineSpacing": 1.0,
                 "overflow": "ellipsis",
+                "text": "Label",
                 "verticalAlignment": "middle",
                 "wordWrap": false
               },
@@ -2935,7 +2938,7 @@
                 1.0
               ]
             },
-            "uuid": 10500519183802008540
+            "uuid": 15877995510513433880
           },
           {
             "children": [],
@@ -2970,7 +2973,7 @@
                 1.0
               ]
             },
-            "uuid": 17366171583037026012
+            "uuid": 10210092754178316754
           },
           {
             "children": [],
@@ -3005,7 +3008,7 @@
                 1.0
               ]
             },
-            "uuid": 9846976508987686725
+            "uuid": 12652417049500473223
           },
           {
             "children": [],
@@ -3040,7 +3043,7 @@
                 1.0
               ]
             },
-            "uuid": 14669038092431485346
+            "uuid": 5178786858805850538
           },
           {
             "children": [],
@@ -3075,7 +3078,7 @@
                 1.0
               ]
             },
-            "uuid": 185077330267802200
+            "uuid": 13592371748395385487
           },
           {
             "children": [],
@@ -3110,7 +3113,7 @@
                 1.0
               ]
             },
-            "uuid": 13030753460566642141
+            "uuid": 10163115366965355147
           },
           {
             "children": [],
@@ -3145,7 +3148,7 @@
                 1.0
               ]
             },
-            "uuid": 7364195134014471500
+            "uuid": 13478520195011812773
           },
           {
             "children": [],
@@ -3180,7 +3183,7 @@
                 1.0
               ]
             },
-            "uuid": 12000666347510764337
+            "uuid": 2737205670664116053
           },
           {
             "children": [],
@@ -3215,7 +3218,7 @@
                 1.0
               ]
             },
-            "uuid": 1774379238576901456
+            "uuid": 16710527317500337542
           },
           {
             "children": [],
@@ -3250,7 +3253,7 @@
                 1.0
               ]
             },
-            "uuid": 16995679685050797202
+            "uuid": 15436869755217536661
           },
           {
             "children": [],
@@ -3285,7 +3288,7 @@
                 1.0
               ]
             },
-            "uuid": 14800079515061464360
+            "uuid": 15688940560628417600
           },
           {
             "children": [],
@@ -3320,7 +3323,7 @@
                 1.0
               ]
             },
-            "uuid": 930497794753113847
+            "uuid": 1486354262917889339
           },
           {
             "children": [],
@@ -3355,7 +3358,7 @@
                 1.0
               ]
             },
-            "uuid": 6484250277454999269
+            "uuid": 1310855511852714
           },
           {
             "children": [],
@@ -3390,7 +3393,7 @@
                 1.0
               ]
             },
-            "uuid": 5308019092560635928
+            "uuid": 1695027776891361046
           },
           {
             "children": [],
@@ -3425,7 +3428,7 @@
                 1.0
               ]
             },
-            "uuid": 13416863051721677565
+            "uuid": 847741315595078411
           },
           {
             "children": [],
@@ -3460,7 +3463,7 @@
                 1.0
               ]
             },
-            "uuid": 3117430898910664349
+            "uuid": 11665044688758135393
           },
           {
             "children": [],
@@ -3495,7 +3498,7 @@
                 1.0
               ]
             },
-            "uuid": 17242535135482782376
+            "uuid": 14393511946819124990
           },
           {
             "children": [],
@@ -3530,7 +3533,7 @@
                 1.0
               ]
             },
-            "uuid": 10551772299078556422
+            "uuid": 17572996825164088535
           },
           {
             "children": [],
@@ -3565,7 +3568,7 @@
                 1.0
               ]
             },
-            "uuid": 4333109615396238539
+            "uuid": 10244803424588885368
           },
           {
             "children": [],
@@ -3600,7 +3603,7 @@
                 1.0
               ]
             },
-            "uuid": 7294953792620453908
+            "uuid": 6996391610377644669
           },
           {
             "children": [],
@@ -3635,7 +3638,7 @@
                 1.0
               ]
             },
-            "uuid": 8063666915486349824
+            "uuid": 4233215930464157694
           },
           {
             "children": [],
@@ -3670,7 +3673,7 @@
                 1.0
               ]
             },
-            "uuid": 9477387532720198060
+            "uuid": 423730147504489558
           },
           {
             "children": [],
@@ -3705,7 +3708,7 @@
                 1.0
               ]
             },
-            "uuid": 13637715472577067428
+            "uuid": 9957505995342568471
           },
           {
             "children": [],
@@ -3740,7 +3743,7 @@
                 1.0
               ]
             },
-            "uuid": 10189113763358632511
+            "uuid": 9394199320022234402
           },
           {
             "children": [],
@@ -3775,7 +3778,7 @@
                 1.0
               ]
             },
-            "uuid": 13509583202467590565
+            "uuid": 11444161161366284920
           },
           {
             "children": [],
@@ -3810,7 +3813,7 @@
                 1.0
               ]
             },
-            "uuid": 4699935499610493243
+            "uuid": 12018857462953032713
           },
           {
             "children": [],
@@ -3845,7 +3848,7 @@
                 1.0
               ]
             },
-            "uuid": 5817166227520968512
+            "uuid": 3150253677068777878
           },
           {
             "children": [],
@@ -3880,7 +3883,7 @@
                 1.0
               ]
             },
-            "uuid": 5749517385501257404
+            "uuid": 1650053127853180691
           },
           {
             "children": [],
@@ -3915,7 +3918,7 @@
                 1.0
               ]
             },
-            "uuid": 18217430465786031524
+            "uuid": 668486711826890385
           },
           {
             "children": [],
@@ -3950,7 +3953,7 @@
                 1.0
               ]
             },
-            "uuid": 2332869599371522660
+            "uuid": 8963124579115738623
           },
           {
             "children": [],
@@ -3985,7 +3988,7 @@
                 1.0
               ]
             },
-            "uuid": 7875393538624506455
+            "uuid": 1952296532050499749
           },
           {
             "children": [],
@@ -4020,7 +4023,7 @@
                 1.0
               ]
             },
-            "uuid": 16784285276366324743
+            "uuid": 17012754005148327118
           },
           {
             "children": [],
@@ -4055,7 +4058,7 @@
                 1.0
               ]
             },
-            "uuid": 12316179392593517093
+            "uuid": 11397416966066434807
           },
           {
             "children": [],
@@ -4090,7 +4093,7 @@
                 1.0
               ]
             },
-            "uuid": 12166897183093387668
+            "uuid": 11986460763858425773
           },
           {
             "children": [],
@@ -4125,7 +4128,7 @@
                 1.0
               ]
             },
-            "uuid": 2024940331324199471
+            "uuid": 190865448103446809
           },
           {
             "children": [],
@@ -4160,7 +4163,7 @@
                 1.0
               ]
             },
-            "uuid": 10005949063083300211
+            "uuid": 3288349409542437447
           },
           {
             "children": [],
@@ -4195,7 +4198,7 @@
                 1.0
               ]
             },
-            "uuid": 682829268551272193
+            "uuid": 11869809864287049231
           },
           {
             "children": [],
@@ -4230,7 +4233,7 @@
                 1.0
               ]
             },
-            "uuid": 1415190693734759624
+            "uuid": 12474549362620841367
           },
           {
             "children": [],
@@ -4265,7 +4268,7 @@
                 1.0
               ]
             },
-            "uuid": 13216523419484588043
+            "uuid": 7385923322733219277
           },
           {
             "children": [],
@@ -4300,7 +4303,7 @@
                 1.0
               ]
             },
-            "uuid": 221778450336011885
+            "uuid": 6235096873518363583
           },
           {
             "children": [],
@@ -4335,7 +4338,7 @@
                 1.0
               ]
             },
-            "uuid": 2818173771297789768
+            "uuid": 13012276621364403787
           },
           {
             "children": [],
@@ -4370,7 +4373,7 @@
                 1.0
               ]
             },
-            "uuid": 16277863397674821617
+            "uuid": 10315088960186758419
           },
           {
             "children": [],
@@ -4405,7 +4408,7 @@
                 1.0
               ]
             },
-            "uuid": 4002887441074676613
+            "uuid": 10702334922253443531
           },
           {
             "children": [],
@@ -4440,7 +4443,7 @@
                 1.0
               ]
             },
-            "uuid": 10267264310507232151
+            "uuid": 5728411376419278686
           },
           {
             "children": [],
@@ -4475,7 +4478,7 @@
                 1.0
               ]
             },
-            "uuid": 5281044561627805678
+            "uuid": 5006381026005631194
           },
           {
             "children": [],
@@ -4510,7 +4513,7 @@
                 1.0
               ]
             },
-            "uuid": 8565554209690100577
+            "uuid": 17686414205227475430
           },
           {
             "children": [],
@@ -4545,7 +4548,7 @@
                 1.0
               ]
             },
-            "uuid": 14853037142609316110
+            "uuid": 4530730744367860584
           },
           {
             "children": [],
@@ -4580,7 +4583,7 @@
                 1.0
               ]
             },
-            "uuid": 16246308412568789164
+            "uuid": 16427410027446324942
           },
           {
             "children": [],
@@ -4615,7 +4618,7 @@
                 1.0
               ]
             },
-            "uuid": 50120354495030969
+            "uuid": 468159969839168334
           },
           {
             "children": [],
@@ -4650,7 +4653,7 @@
                 1.0
               ]
             },
-            "uuid": 1768649843667776241
+            "uuid": 658277157856225459
           },
           {
             "children": [],
@@ -4685,7 +4688,7 @@
                 1.0
               ]
             },
-            "uuid": 12788775646058541948
+            "uuid": 2979132444845500640
           },
           {
             "children": [],
@@ -4720,7 +4723,7 @@
                 1.0
               ]
             },
-            "uuid": 13706578960643752953
+            "uuid": 16917190686255551279
           },
           {
             "children": [],
@@ -4755,7 +4758,7 @@
                 1.0
               ]
             },
-            "uuid": 1051423549188075904
+            "uuid": 1433625397129851927
           },
           {
             "children": [],
@@ -4790,7 +4793,7 @@
                 1.0
               ]
             },
-            "uuid": 3834552959580967533
+            "uuid": 8061392961283781223
           },
           {
             "children": [],
@@ -4825,7 +4828,7 @@
                 1.0
               ]
             },
-            "uuid": 16171665632039332851
+            "uuid": 13466479375230327937
           },
           {
             "children": [],
@@ -4860,7 +4863,7 @@
                 1.0
               ]
             },
-            "uuid": 7001383909164636544
+            "uuid": 13461685418724498075
           },
           {
             "children": [],
@@ -4895,7 +4898,7 @@
                 1.0
               ]
             },
-            "uuid": 9852415258669635042
+            "uuid": 14570106650545490373
           },
           {
             "children": [],
@@ -4930,7 +4933,7 @@
                 1.0
               ]
             },
-            "uuid": 15337832814847870336
+            "uuid": 5332125528215824688
           },
           {
             "children": [],
@@ -4965,7 +4968,7 @@
                 1.0
               ]
             },
-            "uuid": 3141013190666228645
+            "uuid": 3787741085031150161
           },
           {
             "children": [],
@@ -5000,7 +5003,7 @@
                 1.0
               ]
             },
-            "uuid": 16264203324624110934
+            "uuid": 6084260038182909600
           },
           {
             "children": [],
@@ -5035,7 +5038,7 @@
                 1.0
               ]
             },
-            "uuid": 14359479186895001026
+            "uuid": 17045844654768481469
           },
           {
             "children": [],
@@ -5070,7 +5073,7 @@
                 1.0
               ]
             },
-            "uuid": 3721511082980204846
+            "uuid": 2535251133376540296
           },
           {
             "children": [],
@@ -5105,7 +5108,7 @@
                 1.0
               ]
             },
-            "uuid": 357495059272704915
+            "uuid": 15758270275075039055
           },
           {
             "children": [],
@@ -5140,7 +5143,7 @@
                 1.0
               ]
             },
-            "uuid": 10682608910930458570
+            "uuid": 11641709037985496169
           }
         ],
         "components": {
@@ -5178,413 +5181,7 @@
             1.0
           ]
         },
-        "uuid": 7756759638186076765
-      },
-      {
-        "children": [],
-        "components": {
-          "collider": {
-            "collisionLayer": 1,
-            "friction": 0.5,
-            "height": 2.0,
-            "isTrigger": false,
-            "meshRef": "0000000000000000",
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "restitution": 0.0,
-            "shape": "box",
-            "size": [
-              6.0,
-              4.0,
-              6.0
-            ],
-            "submeshIndex": -1
-          },
-          "material": {
-            "defaultMaterialRef": "442852c68a0db0c7",
-            "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/CommandCenter_inst.vfMatInstance",
-            "parameterOverrides": {},
-            "subMeshMaterials": {}
-          },
-          "mesh": {
-            "meshRef": "dd1592a3a691f4ec",
-            "meshRefPath": "C:/matan/RTSDemo/assets/buildings/Barracks_source.vfMesh",
-            "showBoundingBox": false,
-            "submeshIndex": -1
-          }
-        },
-        "isActive": true,
-        "name": "Building_0",
-        "transform": {
-          "isStatic": true,
-          "position": [
-            8.0,
-            0.0,
-            -48.0
-          ],
-          "rotation": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ]
-        },
-        "uuid": 8380042046832116992
-      },
-      {
-        "children": [],
-        "components": {
-          "collider": {
-            "collisionLayer": 1,
-            "friction": 0.5,
-            "height": 2.0,
-            "isTrigger": false,
-            "meshRef": "0000000000000000",
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "restitution": 0.0,
-            "shape": "box",
-            "size": [
-              6.0,
-              4.0,
-              6.0
-            ],
-            "submeshIndex": -1
-          },
-          "material": {
-            "defaultMaterialRef": "442852c68a0db0c7",
-            "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/CommandCenter_inst.vfMatInstance",
-            "parameterOverrides": {},
-            "subMeshMaterials": {}
-          },
-          "mesh": {
-            "meshRef": "dd1592a3a691f4ec",
-            "meshRefPath": "C:/matan/RTSDemo/assets/buildings/Barracks_source.vfMesh",
-            "showBoundingBox": false,
-            "submeshIndex": -1
-          }
-        },
-        "isActive": true,
-        "name": "Building_1",
-        "transform": {
-          "isStatic": true,
-          "position": [
-            4.0,
-            0.0,
-            -64.0
-          ],
-          "rotation": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ]
-        },
-        "uuid": 6064143306483007222
-      },
-      {
-        "children": [],
-        "components": {
-          "collider": {
-            "collisionLayer": 1,
-            "friction": 0.5,
-            "height": 2.0,
-            "isTrigger": false,
-            "meshRef": "0000000000000000",
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "restitution": 0.0,
-            "shape": "box",
-            "size": [
-              6.0,
-              4.0,
-              6.0
-            ],
-            "submeshIndex": -1
-          },
-          "material": {
-            "defaultMaterialRef": "442852c68a0db0c7",
-            "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/CommandCenter_inst.vfMatInstance",
-            "parameterOverrides": {},
-            "subMeshMaterials": {}
-          },
-          "mesh": {
-            "meshRef": "dd1592a3a691f4ec",
-            "meshRefPath": "C:/matan/RTSDemo/assets/buildings/Barracks_source.vfMesh",
-            "showBoundingBox": false,
-            "submeshIndex": -1
-          }
-        },
-        "isActive": true,
-        "name": "Building_2",
-        "transform": {
-          "isStatic": true,
-          "position": [
-            -8.0,
-            0.0,
-            -64.0
-          ],
-          "rotation": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ]
-        },
-        "uuid": 16184825800267923998
-      },
-      {
-        "children": [],
-        "components": {
-          "collider": {
-            "collisionLayer": 1,
-            "friction": 0.5,
-            "height": 2.0,
-            "isTrigger": false,
-            "meshRef": "0000000000000000",
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "restitution": 0.0,
-            "shape": "box",
-            "size": [
-              6.0,
-              4.0,
-              4.0
-            ],
-            "submeshIndex": -1
-          },
-          "material": {
-            "defaultMaterialRef": "442852c68a0db0c7",
-            "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/CommandCenter_inst.vfMatInstance",
-            "parameterOverrides": {},
-            "subMeshMaterials": {}
-          },
-          "mesh": {
-            "meshRef": "61b4f3e65433632e",
-            "meshRefPath": "C:/matan/RTSDemo/assets/buildings/CommandCenter.vfMesh",
-            "showBoundingBox": false,
-            "submeshIndex": -1
-          }
-        },
-        "isActive": true,
-        "name": "Building_3",
-        "transform": {
-          "isStatic": true,
-          "position": [
-            16.0,
-            0.0,
-            -64.0
-          ],
-          "rotation": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ]
-        },
-        "uuid": 2647066382982647680
-      },
-      {
-        "children": [],
-        "components": {
-          "collider": {
-            "collisionLayer": 1,
-            "friction": 0.5,
-            "height": 2.0,
-            "isTrigger": false,
-            "meshRef": "0000000000000000",
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "restitution": 0.0,
-            "shape": "box",
-            "size": [
-              4.0,
-              4.0,
-              4.0
-            ],
-            "submeshIndex": -1
-          },
-          "material": {
-            "defaultMaterialRef": "442852c68a0db0c7",
-            "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/CommandCenter_inst.vfMatInstance",
-            "parameterOverrides": {},
-            "subMeshMaterials": {}
-          },
-          "mesh": {
-            "meshRef": "13a6699eba7e2325",
-            "meshRefPath": "C:/matan/RTSDemo/assets/buildings/PowerPlant_source.vfMesh",
-            "showBoundingBox": false,
-            "submeshIndex": -1
-          }
-        },
-        "isActive": true,
-        "name": "Building_4",
-        "transform": {
-          "isStatic": true,
-          "position": [
-            24.0,
-            0.0,
-            -56.0
-          ],
-          "rotation": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ]
-        },
-        "uuid": 8574345106700498991
-      },
-      {
-        "children": [],
-        "components": {
-          "collider": {
-            "collisionLayer": 1,
-            "friction": 0.5,
-            "height": 2.0,
-            "isTrigger": false,
-            "meshRef": "0000000000000000",
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "restitution": 0.0,
-            "shape": "box",
-            "size": [
-              4.0,
-              4.0,
-              4.0
-            ],
-            "submeshIndex": -1
-          },
-          "material": {
-            "defaultMaterialRef": "442852c68a0db0c7",
-            "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/CommandCenter_inst.vfMatInstance",
-            "parameterOverrides": {},
-            "subMeshMaterials": {}
-          },
-          "mesh": {
-            "meshRef": "13a6699eba7e2325",
-            "meshRefPath": "C:/matan/RTSDemo/assets/buildings/PowerPlant_source.vfMesh",
-            "showBoundingBox": false,
-            "submeshIndex": -1
-          }
-        },
-        "isActive": true,
-        "name": "Building_5",
-        "transform": {
-          "isStatic": true,
-          "position": [
-            40.0,
-            0.0,
-            -68.0
-          ],
-          "rotation": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ]
-        },
-        "uuid": 17128534589703686387
-      },
-      {
-        "children": [],
-        "components": {
-          "collider": {
-            "collisionLayer": 1,
-            "friction": 0.5,
-            "height": 2.0,
-            "isTrigger": false,
-            "meshRef": "0000000000000000",
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "restitution": 0.0,
-            "shape": "box",
-            "size": [
-              4.0,
-              4.0,
-              4.0
-            ],
-            "submeshIndex": -1
-          },
-          "material": {
-            "defaultMaterialRef": "442852c68a0db0c7",
-            "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/CommandCenter_inst.vfMatInstance",
-            "parameterOverrides": {},
-            "subMeshMaterials": {}
-          },
-          "mesh": {
-            "meshRef": "aa825cb2b6ce5bdf",
-            "meshRefPath": "C:/matan/RTSDemo/assets/buildings/Refinery_source.vfMesh",
-            "showBoundingBox": false,
-            "submeshIndex": -1
-          }
-        },
-        "isActive": true,
-        "name": "Building_6",
-        "transform": {
-          "isStatic": true,
-          "position": [
-            24.0,
-            0.0,
-            -92.0
-          ],
-          "rotation": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ]
-        },
-        "uuid": 15546565035918989157
+        "uuid": 10198345034227495338
       }
     ],
     "components": {

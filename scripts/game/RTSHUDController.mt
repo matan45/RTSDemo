@@ -232,6 +232,9 @@ class RTSHUDController implements IUIButtonListener {
             return null;
         }
         this.selection = Entity::getScript<SelectionController>(this.selectionOwnerId, "SelectionController");
+        if (this.selection != null) {
+            Log::info("[HUD] SelectionController resolved on GameSystems");
+        }
         return this.selection;
     }
 

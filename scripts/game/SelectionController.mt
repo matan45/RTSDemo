@@ -39,12 +39,14 @@ class SelectionController {
     private bool placementActive;
 
     private bool prevEscDown;
+    private bool prevLeftDown;
 
     constructor() {
         this.selectedId = -1;
         this.guardCount = 0;
         this.placementActive = false;
         this.prevEscDown = false;
+        this.prevLeftDown = false;
     }
 
     public function onStart(): void {
@@ -76,14 +78,22 @@ class SelectionController {
             this.clearSelection();
         }
 
-        // Selection happens on the left-click release edge.
-        if (!Input::isMouseButtonReleased(Mouse::LEFT)) {
+        // Select on the left-button RELEASE edge (down -> up this frame).
+        // Input::isMouseButtonReleased is LEVEL (true every frame the button is
+        // up), so derive the edge from isMouseButtonDown instead.
+        bool nowLeft = Input::isMouseButtonDown(Mouse::LEFT);
+        bool leftReleased = this.prevLeftDown && !nowLeft;
+        this.prevLeftDown = nowLeft;
+        if (!leftReleased) {
             return;
         }
+
         if (this.placementActive) {
+            Log::info("[Selection] click ignored (placement active)");
             return;
         }
         if (this.isPointerOverHUD()) {
+            Log::info("[Selection] click ignored (over HUD button)");
             return;
         }
 
@@ -92,7 +102,7 @@ class SelectionController {
         RaycastHit e = Picker::pickEntity(mx, my, "Dynamic");
         if (e.hit && this.isRegistered(e.entityId)) {
             this.selectedId = e.entityId;
-            Log::info("[Selection] selected building id=" + this.selectedId);
+            Log::info("[Selection] SELECTED building id=" + this.selectedId);
         } else {
             this.selectedId = -1;
         }
@@ -107,7 +117,7 @@ class SelectionController {
         return this.selectedId;
     }
 
-    public function getSelectedInfo(): BuildingInfo {
+    public function getSelectedInfo(): BuildingInfo? {
         return this.findInfo(this.selectedId);
     }
 
@@ -124,6 +134,7 @@ class SelectionController {
             return;
         }
         this.registry.put(new Int(id), info);
+        Log::info("[Selection] registered building id=" + id + " type=" + info.buildingType);
     }
 
     public function findInfo(int id): BuildingInfo? {

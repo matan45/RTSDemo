@@ -72,21 +72,9 @@ class RTSCameraController {
         float ax = InputAxis::getValue2DX("CameraPan");
         float ay = InputAxis::getValue2DY("CameraPan");
 
-        float mx = Input::getViewportMouseX();
-        float my = Input::getViewportMouseY();
-        int   ww = Window::getViewportWidth();
-        int   wh = Window::getViewportHeight();
-
-        float ex = 0.0;
-        float ey = 0.0;
-        if (mx <= this.edgeThresholdPx) { ex = -1.0; }
-        if (mx >= ww - this.edgeThresholdPx) { ex = 1.0; }
-        // Y=0 is top of window; "forward" pan should fire when cursor is near the top edge.
-        if (my <= this.edgeThresholdPx) { ey = 1.0; }
-        if (my >= wh - this.edgeThresholdPx) { ey = -1.0; }
-
-        float dx = ax + ex;
-        float dy = ay + ey;
+        // Edge-of-screen panning disabled; keyboard CameraPan axis only.
+        float dx = ax;
+        float dy = ay;
         float mag = sqrt(dx * dx + dy * dy);
         if (mag > 1.0) {
             dx = dx / mag;

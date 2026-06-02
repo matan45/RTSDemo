@@ -119,6 +119,7 @@ class RTSHUDController implements IUIButtonListener {
         this.selectionOwnerId = Entity::findByName("GameSystems");
 
         this.seedWidgets();
+        this.skinHud();
     }
 
     public function onUpdate(float deltaTime): void {
@@ -223,6 +224,39 @@ class RTSHUDController implements IUIButtonListener {
             Log::warn("[RTSHUDController] HUD entity not found: " + name);
         }
         return id;
+    }
+
+    // Apply the imported HUD skin textures to the non-interactive panel/strip
+    // entities at runtime (VK-1348/1352 setImageTexture). Each target keeps its
+    // authored 9-patch border/imageType; we only swap the texture and force a
+    // white tint so the dark authored colorTint doesn't darken the new skin.
+    //
+    // Buttons (command card + build-queue slots) are NOT skinned here: they use
+    // the UIButton component's per-state textures (Normal/Hover/Pressed),
+    // authored in the editor, which the UI interaction system swaps per state in
+    // play mode. Driving their UIImage texture from script would just fight that.
+    private function skinHud(): void {
+        string hud = "assets/ui/hud/";
+
+        // Background panels + strips (plain UIImage): texture + white tint.
+        this.skinImage("RTS_HUD_CommandBar", hud + "hud_panel_wide.vfImage");
+        this.skinImage("RTS_HUD_AlertStrip", hud + "hud_panel_wide.vfImage");
+        this.skinImage("RTS_HUD_CommandGrid", hud + "hud_panel_medium.vfImage");
+        this.skinImage("RTS_HUD_SelectionPanel", hud + "hud_panel_medium.vfImage");
+        this.skinImage("RTS_HUD_BuildQueue", hud + "hud_panel_tall.vfImage");
+        this.skinImage("RTS_HUD_ResourceStrip", hud + "hud_resource_bar.vfImage");
+        this.skinImage("RTS_HUD_MinimapPanel", hud + "hud_minimap_frame.vfImage");
+        this.skinImage("RTS_HUD_BottomAccent", hud + "hud_separator.vfImage");
+    }
+
+    // Resolve an entity by name and point its UIImage at a texture with a white
+    // tint (so the texture renders at full brightness).
+    private function skinImage(string name, string path): void {
+        int id = Entity::findByName(name);
+        if (id >= 0) {
+            UI::setImageTexture(id, path);
+            UI::setImageColor(id, 1.0, 1.0, 1.0, 1.0);
+        }
     }
 
     private function seedWidgets(): void {

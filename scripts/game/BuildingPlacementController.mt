@@ -1,10 +1,11 @@
 // BuildingPlacementController - VK-1311 building placement widget.
 //
 // Clicking a build-queue slot (RTS_HUD_BuildSlot_0..3) or the Build command
-// button enters placement mode. While placing, a grid-snapped ghost footprint
-// follows the cursor (DebugDraw box, green when valid / red when not). Left-click
-// confirms (spawns a building + deducts gold), right-click / ESC cancels, and R
-// rotates the footprint in 90-degree steps.
+// button enters placement mode. While placing, a grid-snapped ghost building
+// mesh follows the cursor, tinted green when the spot is valid / red when not
+// by swapping its material (no DebugDraw overlay). Left-click confirms (spawns a
+// building + deducts gold), right-click / ESC cancels, and R rotates the
+// footprint in 90-degree steps.
 //
 // Spawning creates a fresh entity and assigns a mesh + material to it at runtime
 // via Entity::setMesh / Entity::setMaterial (engine API added for VK-1311) -- no
@@ -27,13 +28,13 @@ import * from "../lib/engine/Picker.mt";
 import * from "../lib/engine/RaycastHit.mt";
 import * from "../lib/engine/Terrain.mt";
 import * from "../lib/engine/Physics.mt";
-import * from "../lib/engine/DebugDraw.mt";
 import * from "../lib/engine/Log.mt";
 import * from "../lib/engine/IUIButtonListener.mt";
 import * from "../lib/math/Vec3f.mt";
-import * from "../lib/math/Vec4f.mt";
 import * from "./RTSHUDController.mt";
 import * from "./BuildingDef.mt";
+import * from "./BuildingInfo.mt";
+import * from "./SelectionController.mt";
 
 @Script
 class BuildingPlacementController implements IUIButtonListener {
@@ -90,9 +91,11 @@ class BuildingPlacementController implements IUIButtonListener {
     // Which slot's asset the current ghost was built with (-1 = none / stale).
     private int ghostSlot;
 
-    // Ghost colors.
-    private Vec4f colorValid;
-    private Vec4f colorInvalid;
+    // Ghost tint materials (swapped onto the ghost mesh to signal validity), and
+    // the last applied state so we only re-issue the swap when validity flips.
+    private string ghostMatValid;
+    private string ghostMatInvalid;
+    private bool lastGhostValid;
 
     constructor() {
         this.cmdBuildId = -1;
@@ -124,19 +127,22 @@ class BuildingPlacementController implements IUIButtonListener {
         this.mapMaxZ = 256.0;
 
         // === DEFINE YOUR BUILDINGS HERE (one per build slot) ===
-        // new BuildingDef(meshPath, materialPath, halfX, halfZ, cost)
+        // new BuildingDef(meshPath, materialPath, halfX, halfZ, cost,
+        //                 displayType, displayName, iconPath, maxHealth)
         // Use project-relative, forward-slash asset paths (VK-1346),
         // e.g. "assets/buildings/Barracks.vfMesh" (resolved against the project
-        // root). Absolute paths still work but are not portable.
+        // root). Absolute paths still work but are not portable. iconPath is the
+        // selection-panel portrait (.vfImage) shown by VK-1348.
         this.buildings = new BuildingDef[4];
-        this.buildings[0] = new BuildingDef("assets/buildings/CommandCenter.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 4.0, 50);  // Command Center
-        this.buildings[1] = new BuildingDef("assets/buildings/Barracks_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 6.0, 75);  // Barraks
-        this.buildings[2] = new BuildingDef("assets/buildings/Refinery_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 40);  // Refinery
-        this.buildings[3] = new BuildingDef("assets/buildings/PowerPlant_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 60);  // Power
+        this.buildings[0] = new BuildingDef("assets/buildings/CommandCenter.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 4.0, 50, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
+        this.buildings[1] = new BuildingDef("assets/buildings/Barracks_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 6.0, 75, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
+        this.buildings[2] = new BuildingDef("assets/buildings/Refinery_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 40, "Refinery", "Refinery", "assets/ui/icons/refinery.vfImage", 800.0);
+        this.buildings[3] = new BuildingDef("assets/buildings/PowerPlant_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 60, "Power", "Power Plant", "assets/ui/icons/power.vfImage", 600.0);
         this.ghostSlot = -1;
 
-        this.colorValid = new Vec4f(0.2, 0.9, 0.2, 1.0);
-        this.colorInvalid = new Vec4f(0.9, 0.2, 0.2, 1.0);
+        this.ghostMatValid = "assets/buildings/GhostValid_inst.vfMatInstance";
+        this.ghostMatInvalid = "assets/buildings/GhostInvalid_inst.vfMatInstance";
+        this.lastGhostValid = false;
     }
 
     public function onStart(): void {
@@ -159,7 +165,6 @@ class BuildingPlacementController implements IUIButtonListener {
             Log::warn("[BuildPlacement] building meshes are empty; placed buildings will be invisible until you set BuildingDef mesh/material paths to your imported assets.");
         }
 
-        DebugDraw::setEnabled(true);
         Log::info("[BuildPlacement] ready.");
     }
 
@@ -224,14 +229,18 @@ class BuildingPlacementController implements IUIButtonListener {
             Entity::setRotation(this.ghostEntity, rot);
         }
 
-        // Footprint overlay shows validity (green/red) -- no runtime mesh tint yet.
-        float hx = this.halfXFor(this.rotationSteps);
-        float hz = this.halfZFor(this.rotationSteps);
-        Vec3f extents = new Vec3f(hx, this.buildingHeight, hz);
-        if (this.ghostValid) {
-            DebugDraw::box(this.ghostCenter, extents, this.colorValid);
-        } else {
-            DebugDraw::box(this.ghostCenter, extents, this.colorInvalid);
+        // Tint the ghost mesh to signal validity (green = valid, red = invalid).
+        // Swap only when the state flips so we do not re-issue the material-load
+        // command every frame.
+        if (this.ghostValid != this.lastGhostValid) {
+            if (this.ghostEntity >= 0) {
+                if (this.ghostValid) {
+                    Entity::setMaterial(this.ghostEntity, this.ghostMatValid);
+                } else {
+                    Entity::setMaterial(this.ghostEntity, this.ghostMatInvalid);
+                }
+            }
+            this.lastGhostValid = this.ghostValid;
         }
 
         if (leftPressed) {
@@ -282,17 +291,55 @@ class BuildingPlacementController implements IUIButtonListener {
         return -1;
     }
 
+    // Read by SelectionController so a placement click is not also a selection
+    // click (it instead pushes its state via setPlacementActive, below).
+    public function isPlacing(): bool {
+        return this.placing;
+    }
+
+    // Resolve the SelectionController sharing this entity (GameSystems). May be
+    // null if it is not attached / not yet loaded.
+    private function selection(): SelectionController {
+        return Entity::getScript<SelectionController>(Entity::self(), "SelectionController");
+    }
+
     private function enterPlacement(string what): void {
         this.placing = true;
         this.rotationSteps = 0;
         this.ensureGhost();
+        SelectionController sel = this.selection();
+        if (sel != null) {
+            sel.setPlacementActive(true);
+            sel.clearSelection();
+        }
         Log::info("[BuildPlacement] placement mode ON (" + what + ")");
     }
 
     private function cancel(): void {
         this.placing = false;
         this.hideGhost();
+        SelectionController sel = this.selection();
+        if (sel != null) {
+            sel.setPlacementActive(false);
+        }
         Log::info("[BuildPlacement] placement cancelled");
+    }
+
+    // Fresh BuildingInfo for the just-placed building, built from its slot's
+    // BuildingDef (single source of per-building data). A new instance per
+    // building is required because currentHealth is mutated per-entity, so a
+    // shared/cached value (e.g. from a map) must not be handed out.
+    private function infoForSlot(int slot): BuildingInfo {
+        BuildingDef d = this.buildings[slot];
+        return new BuildingInfo(d.displayType, d.displayName, d.iconPath, 0, d.maxHealth, this.defaultCommands());
+    }
+
+    private function defaultCommands(): string[] {
+        string[] cmds = new string[3];
+        cmds[0] = "Train";
+        cmds[1] = "Set Rally";
+        cmds[2] = "Cancel";
+        return cmds;
     }
 
     // Normalize the active selection to a 0..3 slot index (Build button -> slot 0).
@@ -324,13 +371,15 @@ class BuildingPlacementController implements IUIButtonListener {
         }
         int id = Entity::create("BuildGhost");
         string mp = this.meshFor(slot);
-        string xp = this.materialFor(slot);
         if (mp != "") {
             Entity::setMesh(id, mp);
         }
-        if (xp != "") {
-            Entity::setMaterial(id, xp);
+        // The ghost wears a tint material (red until the first valid check); the
+        // real building material is applied only on confirm in commitPlacement().
+        if (this.ghostMatInvalid != "") {
+            Entity::setMaterial(id, this.ghostMatInvalid);
         }
+        this.lastGhostValid = false;
         Entity::setActive(id, false);
         this.ghostEntity = id;
         this.ghostSlot = slot;
@@ -434,15 +483,16 @@ class BuildingPlacementController implements IUIButtonListener {
         }
 
         // Promote the ghost in place into the placed building (it already has the
-        // mesh + material and is at the right pose), then clear the slot so a fresh
-        // ghost is created for the next placement.
+        // mesh and is at the right pose). The ghost wears a tint material, so swap
+        // the real building material back on before finalizing, then clear the slot
+        // so a fresh ghost is created for the next placement.
+        int slot = this.resolvedSlot();
         int id = this.ghostEntity;
         if (id < 0) {
-            int slot = this.resolvedSlot();
             id = Entity::create("Building_" + this.placedCount);
             if (this.meshFor(slot) != "") { Entity::setMesh(id, this.meshFor(slot)); }
-            if (this.materialFor(slot) != "") { Entity::setMaterial(id, this.materialFor(slot)); }
         }
+        if (this.materialFor(slot) != "") { Entity::setMaterial(id, this.materialFor(slot)); }
         Entity::setName(id, "Building_" + this.placedCount);
         Entity::setActive(id, true);
         Entity::setPosition(id, this.ghostCenter);
@@ -452,7 +502,6 @@ class BuildingPlacementController implements IUIButtonListener {
         // picked / block movement. Uses un-rotated footprint extents -- the box
         // rotates with the entity transform.
         if (this.addCollider) {
-            int slot = this.resolvedSlot();
             BuildingDef def = this.buildings[slot];
             Entity::addComponent(id, "Collider");
             Physics::setColliderSize(id, new Vec3f(def.halfX, this.buildingHeight, def.halfZ));
@@ -466,6 +515,14 @@ class BuildingPlacementController implements IUIButtonListener {
         this.placedHalfX[this.placedCount] = this.halfXFor(this.rotationSteps);
         this.placedHalfZ[this.placedCount] = this.halfZFor(this.rotationSteps);
         this.placedCount = this.placedCount + 1;
+
+        // Make the new building selectable (VK-1348) and release the placement
+        // lock so the next click selects instead of placing.
+        SelectionController sel = this.selection();
+        if (sel != null) {
+            sel.registerBuilding(id, this.infoForSlot(this.resolvedSlot()));
+            sel.setPlacementActive(false);
+        }
 
         Log::info("[BuildPlacement] placed building; gold now " + hud.getGold());
         this.placing = false;

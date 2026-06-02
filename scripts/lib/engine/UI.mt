@@ -82,6 +82,22 @@ public class UI {
     }
 
     // ============================================
+    // Image Texture
+    // ============================================
+
+    // Point a UIImage on the given entity at a texture asset by path at runtime.
+    // The path must be a registered/imported asset (e.g. an .vfImage). The UI
+    // renderer resolves the texture per-frame, so the swap takes effect live.
+    public static function setImageTexture(int entityId, string assetPath): void {
+        _native_ui_setImageTexture(entityId, assetPath);
+    }
+
+    // Get the current texture asset path of a UIImage (empty string if none).
+    public static function getImageTexture(int entityId): string {
+        return _native_ui_getImageTexture(entityId);
+    }
+
+    // ============================================
     // Checkbox State Constants
     // ============================================
     public static final int CHECKBOX_NORMAL = 0;

@@ -2519,6 +2519,65 @@
             "children": [],
             "components": {
               "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "imageType": 0,
+                "sourceHeight": 32,
+                "sourceWidth": 32
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.5,
+                  0.0
+                ],
+                "anchorMin": [
+                  0.5,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  -548.0,
+                  208.0
+                ],
+                "pivot": [
+                  0.0,
+                  1.0
+                ],
+                "sizeDelta": [
+                  104.0,
+                  104.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_SelectionIcon",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000106
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
                 "border": [
                   6.0,
                   6.0,
@@ -2813,6 +2872,11 @@
                 "enabled": true,
                 "scriptRef": "b1f3c2d4e5a60718",
                 "scriptRefPath": "C:/matan/RTSDemo/scripts/game/BuildingPlacementController.mt"
+              },
+              {
+                "enabled": true,
+                "scriptRef": "a3b5c7d9e1f20a14",
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/SelectionController.mt"
               }
             ]
           }

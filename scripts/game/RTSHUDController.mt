@@ -121,7 +121,7 @@ class RTSHUDController implements IUIButtonListener {
         // Selection context panel (VK-1348): driven by SelectionController.
         SelectionController sel = this.selectionController();
         int selId = -1;
-        BuildingInfo info = null;
+        BuildingInfo? info = null;
         if (sel != null) {
             selId = sel.getSelectedId();
             info = sel.findInfo(selId);
@@ -171,7 +171,7 @@ class RTSHUDController implements IUIButtonListener {
         // (stub) orders against the current selection (VK-1348). Real production
         // lands with VK-1312.
         SelectionController sel = this.selectionController();
-        BuildingInfo info = null;
+        BuildingInfo? info = null;
         if (sel != null) { info = sel.getSelectedInfo(); }
         if (info != null && info.isPlayer()) {
             int idx = this.cmdIndexFor(buttonEntityId);
@@ -224,7 +224,7 @@ class RTSHUDController implements IUIButtonListener {
 
     // Resolve (and cache) the SelectionController attached to GameSystems. May be
     // null until that script has loaded.
-    private function selectionController(): SelectionController {
+    private function selectionController(): SelectionController? {
         if (this.selection != null) {
             return this.selection;
         }

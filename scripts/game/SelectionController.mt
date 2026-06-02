@@ -27,7 +27,7 @@ class SelectionController {
     private int selectedId;
 
     // Registry of selectable buildings, keyed by entity id (boxed as Int).
-    private HashMap<Int, BuildingInfo> registry;
+    private HashMap<Int, BuildingInfo?> registry;
 
     // HUD buttons the world-picker must ignore clicks over, so clicking a command
     // button / build slot does not pick the terrain behind the HUD and deselect.
@@ -126,7 +126,7 @@ class SelectionController {
         this.registry.put(new Int(id), info);
     }
 
-    public function findInfo(int id): BuildingInfo {
+    public function findInfo(int id): BuildingInfo? {
         if (id < 0) {
             return null;
         }

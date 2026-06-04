@@ -537,7 +537,11 @@ class BuildingPlacementController implements IUIButtonListener {
         // lock so the next click selects instead of placing.
         SelectionController sel = this.selection();
         if (sel != null) {
-            sel.registerBuilding(id, this.infoForSlot(this.resolvedSlot()));
+            BuildingInfo info = this.infoForSlot(this.resolvedSlot());
+            // Rotation-adjusted footprint sizes the selection-highlight decal.
+            info.halfX = this.halfXFor(this.rotationSteps);
+            info.halfZ = this.halfZFor(this.rotationSteps);
+            sel.registerBuilding(id, info);
             sel.setPlacementActive(false);
         }
 

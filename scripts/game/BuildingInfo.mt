@@ -21,6 +21,12 @@ class BuildingInfo {
     // which render read-only). Hooked up to real production in VK-1312.
     public string[] commands;
 
+    // Footprint half-extents (world units, rotation-adjusted) driving the
+    // selection-highlight decal size. Set by BuildingPlacementController on
+    // placement; the 4.0 default covers buildings registered without one.
+    public float halfX;
+    public float halfZ;
+
     constructor(string buildingType, string displayName, string iconPath,
                 int faction, float maxHealth, string[] commands) {
         this.buildingType = buildingType;
@@ -30,6 +36,8 @@ class BuildingInfo {
         this.maxHealth = maxHealth;
         this.currentHealth = maxHealth;
         this.commands = commands;
+        this.halfX = 4.0;
+        this.halfZ = 4.0;
     }
 
     // Default constructor so `new BuildingInfo[n]` can default-init its elements.
@@ -41,6 +49,8 @@ class BuildingInfo {
         this.maxHealth = 1.0;
         this.currentHealth = 1.0;
         this.commands = new string[0];
+        this.halfX = 4.0;
+        this.halfZ = 4.0;
     }
 
     public function isPlayer(): bool {

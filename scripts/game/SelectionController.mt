@@ -17,9 +17,11 @@ import * from "../lib/engine/Key.mt";
 import * from "../lib/engine/UI.mt";
 import * from "../lib/engine/Picker.mt";
 import * from "../lib/engine/RaycastHit.mt";
+import * from "../lib/engine/Decal.mt";
 import * from "../lib/engine/Log.mt";
 import * from "../lib/core/collections/HashMap.mt";
 import * from "../lib/core/primitives/Int.mt";
+import * from "../lib/math/Vec3f.mt";
 import * from "./BuildingInfo.mt";
 
 @Script
@@ -36,17 +38,26 @@ class SelectionController {
     private bool prevEscDown;
     private bool prevLeftDown;
 
+    // Reusable ground-projected decal marking the selected building (green =
+    // player, red = enemy). -1 until created; lastHighlightId tracks which
+    // building it is glued to so commands are only re-issued on change.
+    private int highlightId;
+    private int lastHighlightId;
+
     constructor() {
         this.selectedId = -1;
         this.placementActive = false;
         this.prevEscDown = false;
         this.prevLeftDown = false;
+        this.highlightId = -1;
+        this.lastHighlightId = -1;
     }
 
     public function onStart(): void {
         this.registry = new HashMap<Int, BuildingInfo>();
 
         this.registerEnemyBuildings();
+        this.createHighlight();
 
         Log::info("[Selection] ready.");
     }
@@ -60,9 +71,14 @@ class SelectionController {
             this.clearSelection();
         }
 
-        // Select on the left-button RELEASE edge (down -> up this frame).
-        // Input::isMouseButtonReleased is LEVEL (true every frame the button is
-        // up), so derive the edge from isMouseButtonDown instead.
+        this.handleClick();
+        this.updateHighlight();
+    }
+
+    // Select on the left-button RELEASE edge (down -> up this frame).
+    // Input::isMouseButtonReleased is LEVEL (true every frame the button is
+    // up), so derive the edge from isMouseButtonDown instead.
+    private function handleClick(): void {
         bool nowLeft = Input::isMouseButtonDown(Mouse::LEFT);
         bool leftReleased = this.prevLeftDown && !nowLeft;
         this.prevLeftDown = nowLeft;
@@ -134,6 +150,47 @@ class SelectionController {
     }
 
     // ---- helpers ----
+
+    // Build the reusable selection-highlight entity: a color-only decal (no
+    // albedo texture renders as a solid tint) pitched 90 degrees so its local
+    // +Z projection axis points straight down onto the terrain around the
+    // selected building. The default angle fade hides the tint on near-vertical
+    // building walls, leaving a clean ground halo.
+    private function createHighlight(): void {
+        int id = Entity::create("SelectionHighlight");
+        Entity::addComponent(id, "Decal");
+        Entity::setRotation(id, new Vec3f(90.0, 0.0, 0.0));
+        Decal::setEdgeFalloff(id, 0.35);
+        Decal::setSortPriority(id, 10);
+        Entity::setActive(id, false);
+        this.highlightId = id;
+    }
+
+    // Keep the highlight decal glued to the current selection; commands are
+    // only re-issued when the selected building actually changes.
+    private function updateHighlight(): void {
+        if (this.highlightId < 0 || this.selectedId == this.lastHighlightId) {
+            return;
+        }
+        this.lastHighlightId = this.selectedId;
+
+        BuildingInfo? info = this.findInfo(this.selectedId);
+        if (info == null) {
+            Entity::setActive(this.highlightId, false);
+            return;
+        }
+
+        Entity::setPosition(this.highlightId, Entity::getPosition(this.selectedId));
+        // Slightly larger than the footprint so a colored rim shows around the
+        // building; z is the projection depth (covers terrain slope).
+        Decal::setHalfExtents(this.highlightId, info.halfX + 1.5, info.halfZ + 1.5, 4.0);
+        if (info.isPlayer()) {
+            Decal::setColor(this.highlightId, 0.25, 1.0, 0.4, 0.6);
+        } else {
+            Decal::setColor(this.highlightId, 1.0, 0.3, 0.25, 0.6);
+        }
+        Entity::setActive(this.highlightId, true);
+    }
 
     // Optional: register any scene entity named "EnemyBuilding" as an enemy-faction
     // building so the read-only (no command card) path is testable. No-op if none

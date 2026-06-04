@@ -2,9 +2,10 @@
 //
 // Looks up the HUD widget entities by name on startup, then each frame pushes
 // stubbed GameState values into the runtime UI components. Implements
-// IUIButtonListener so the command buttons (Move / A-Move / Stop / Hold /
-// Build) route through GameState.onCommand. Initializes the minimap render
-// target so the top-down camera entity feeds the minimap UIImage.
+// IUIButtonListener so the command buttons route through the selected
+// building's command card (the buttons are hidden while nothing is selected).
+// Initializes the minimap render target so the top-down camera entity feeds
+// the minimap UIImage.
 
 import * from "../lib/engine/Entity.mt";
 import * from "../lib/engine/UI.mt";
@@ -36,14 +37,11 @@ class RTSHUDController implements IUIButtonListener {
     private int cmdHoldId;
     private int cmdBuildId;
 
-    // Command-card buttons in display order + their default (no-selection) labels.
+    // Command-card buttons in display order.
     private int[] cmdButtons;
-    private string[] defaultCmdLabels;
 
-    // Command-card font sizes (VK-1352): the authored size is used for the
-    // single-letter default labels (M/A/S/H/B); word labels (Train/Rally/
-    // Cancel) shrink to WORD_CMD_FONT_SIZE so they fit the button.
-    private float defaultCmdFontSize;
+    // Command-card font size (VK-1352): word labels (Train/Rally/Cancel)
+    // shrink to WORD_CMD_FONT_SIZE so they fit the button.
     private static final float WORD_CMD_FONT_SIZE = 18.0;
     // Extra spacing between letters of word labels so they read clearly (VK-1352).
     private static final float WORD_CMD_LETTER_SPACING = 6.0;
@@ -73,7 +71,6 @@ class RTSHUDController implements IUIButtonListener {
         this.selectionOwnerId = -1;
         this.selection = null;
         this.lastShownId = -2;
-        this.defaultCmdFontSize = 36.0;
     }
 
     public function onStart(): void {
@@ -102,24 +99,12 @@ class RTSHUDController implements IUIButtonListener {
         this.cmdButtons[3] = this.cmdHoldId;
         this.cmdButtons[4] = this.cmdBuildId;
 
-        this.defaultCmdLabels = new string[5];
-        this.defaultCmdLabels[0] = "M";
-        this.defaultCmdLabels[1] = "A";
-        this.defaultCmdLabels[2] = "S";
-        this.defaultCmdLabels[3] = "H";
-        this.defaultCmdLabels[4] = "B";
-
-        // Remember the authored command-card font size so it can be restored
-        // after word labels temporarily shrink it (VK-1352).
-        if (this.cmdMoveId >= 0) {
-            float authored = UI::getLabelFontSize(this.cmdMoveId);
-            if (authored > 0.0) { this.defaultCmdFontSize = authored; }
-        }
-
         this.selectionOwnerId = Entity::findByName("GameSystems");
 
         this.seedWidgets();
         this.skinHud();
+        // Command card stays hidden until a player building is selected.
+        this.hideCommandCard();
     }
 
     public function onUpdate(float deltaTime): void {
@@ -147,7 +132,7 @@ class RTSHUDController implements IUIButtonListener {
         if (info == null) {
             this.clearSelectionPanel();
             if (this.lastShownId != -1) {
-                this.restoreDefaultCommandCard();
+                this.hideCommandCard();
                 this.lastShownId = -1;
             }
         } else {
@@ -198,7 +183,9 @@ class RTSHUDController implements IUIButtonListener {
             }
         }
 
-        // Default (no building selected): existing unit-command stubs.
+        // Fallback unit-command stubs. Unreachable while the command card is
+        // hidden with no selection; kept as a safety net until real unit
+        // commands land (VK-1302).
         if (buttonEntityId == this.cmdMoveId)       { this.state.onCommand("Move"); return; }
         if (buttonEntityId == this.cmdAttackMoveId) { this.state.onCommand("Attack-Move"); return; }
         if (buttonEntityId == this.cmdStopId)       { this.state.onCommand("Stop"); return; }
@@ -333,19 +320,13 @@ class RTSHUDController implements IUIButtonListener {
         }
     }
 
-    // Restore the default (no-selection) command card: all buttons visible with
-    // their original letter labels (preserves the VK-1311 Build flow).
-    private function restoreDefaultCommandCard(): void {
+    // Hide the command card while nothing is selected. The VK-1311 Build flow
+    // stays reachable through the build-queue slots (RTS_HUD_BuildSlot_0..3).
+    private function hideCommandCard(): void {
         for (int i = 0; i < 5; i = i + 1) {
             int bid = this.cmdButtons[i];
             if (bid >= 0) {
-                Entity::setActive(bid, true);
-                UI::setLabelText(bid, this.defaultCmdLabels[i]);
-                // Restore the authored letter-label styling (size, centered,
-                // default spacing).
-                UI::setLabelFontSize(bid, this.defaultCmdFontSize);
-                UI::setLabelAlignment(bid, UI::LABEL_ALIGN_CENTER, UI::LABEL_VALIGN_MIDDLE);
-                UI::setLabelSpacing(bid, 1.0, 0.0);
+                Entity::setActive(bid, false);
             }
         }
     }

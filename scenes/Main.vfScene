@@ -936,7 +936,7 @@
                     ],
                     "anchoredPosition": [
                       708.6541748046875,
-                      192.00003051757813
+                      192.00003051757812
                     ],
                     "pivot": [
                       0.0,
@@ -1179,12 +1179,14 @@
                     ],
                     "colorTint": [
                       1.0,
-                      0.5372549295425415,
-                      0.21176470816135406,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "sourceHeight": 24,
-                    "sourceWidth": 24
+                    "sourceWidth": 24,
+                    "textureRef": "4f69d8e8c8ca3512",
+                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_slot.vfImage"
                   },
                   "uiLabel": {
                     "color": [
@@ -1264,10 +1266,12 @@
                       1.0,
                       1.0,
                       1.0,
-                      0.949999988079071
+                      1.0
                     ],
                     "sourceHeight": 24,
-                    "sourceWidth": 24
+                    "sourceWidth": 24,
+                    "textureRef": "4f69d8e8c8ca3512",
+                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_slot.vfImage"
                   },
                   "uiLabel": {
                     "color": [
@@ -1423,24 +1427,30 @@
                       0.6200000047683716
                     ],
                     "hoveredColor": [
-                      0.23999999463558197,
-                      0.30000001192092896,
-                      0.20000000298023224,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.12999999523162842,
-                      0.1599999964237213,
-                      0.12999999523162842,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "pressedColor": [
-                      0.07000000029802322,
-                      0.10000000149011612,
-                      0.07500000298023224,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
-                    ]
+                    ],
+                    "normalTextureRef": "86d5b52722228380",
+                    "normalTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button.vfImage",
+                    "hoverTextureRef": "f64d9b8f022068ac",
+                    "hoverTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button_hover.vfImage",
+                    "pressedTextureRef": "fa3001048f81eb90",
+                    "pressedTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button_pressed.vfImage"
                   },
                   "uiImage": {
                     "border": [
@@ -1450,9 +1460,9 @@
                       5.0
                     ],
                     "colorTint": [
-                      0.12999999523162842,
-                      0.1599999964237213,
-                      0.12999999523162842,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "imageType": 1,
@@ -1535,24 +1545,30 @@
                       0.6200000047683716
                     ],
                     "hoveredColor": [
-                      0.23999999463558197,
-                      0.30000001192092896,
-                      0.20000000298023224,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.12999999523162842,
-                      0.1599999964237213,
-                      0.12999999523162842,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "pressedColor": [
-                      0.07000000029802322,
-                      0.10000000149011612,
-                      0.07500000298023224,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
-                    ]
+                    ],
+                    "normalTextureRef": "86d5b52722228380",
+                    "normalTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button.vfImage",
+                    "hoverTextureRef": "f64d9b8f022068ac",
+                    "hoverTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button_hover.vfImage",
+                    "pressedTextureRef": "fa3001048f81eb90",
+                    "pressedTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button_pressed.vfImage"
                   },
                   "uiImage": {
                     "border": [
@@ -1562,9 +1578,9 @@
                       5.0
                     ],
                     "colorTint": [
-                      0.12999999523162842,
-                      0.1599999964237213,
-                      0.12999999523162842,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "imageType": 1,
@@ -1647,24 +1663,30 @@
                       0.6200000047683716
                     ],
                     "hoveredColor": [
-                      0.23999999463558197,
-                      0.30000001192092896,
-                      0.20000000298023224,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.12999999523162842,
-                      0.1599999964237213,
-                      0.12999999523162842,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "pressedColor": [
-                      0.07000000029802322,
-                      0.10000000149011612,
-                      0.07500000298023224,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
-                    ]
+                    ],
+                    "normalTextureRef": "86d5b52722228380",
+                    "normalTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button.vfImage",
+                    "hoverTextureRef": "f64d9b8f022068ac",
+                    "hoverTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button_hover.vfImage",
+                    "pressedTextureRef": "fa3001048f81eb90",
+                    "pressedTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button_pressed.vfImage"
                   },
                   "uiImage": {
                     "border": [
@@ -1674,9 +1696,9 @@
                       5.0
                     ],
                     "colorTint": [
-                      0.12999999523162842,
-                      0.1599999964237213,
-                      0.12999999523162842,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "imageType": 1,
@@ -1759,24 +1781,30 @@
                       0.6200000047683716
                     ],
                     "hoveredColor": [
-                      0.23999999463558197,
-                      0.30000001192092896,
-                      0.20000000298023224,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.12999999523162842,
-                      0.1599999964237213,
-                      0.12999999523162842,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "pressedColor": [
-                      0.07000000029802322,
-                      0.10000000149011612,
-                      0.07500000298023224,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
-                    ]
+                    ],
+                    "normalTextureRef": "86d5b52722228380",
+                    "normalTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button.vfImage",
+                    "hoverTextureRef": "f64d9b8f022068ac",
+                    "hoverTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button_hover.vfImage",
+                    "pressedTextureRef": "fa3001048f81eb90",
+                    "pressedTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button_pressed.vfImage"
                   },
                   "uiImage": {
                     "border": [
@@ -1786,9 +1814,9 @@
                       5.0
                     ],
                     "colorTint": [
-                      0.12999999523162842,
-                      0.1599999964237213,
-                      0.12999999523162842,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "imageType": 1,
@@ -1871,24 +1899,30 @@
                       0.6200000047683716
                     ],
                     "hoveredColor": [
-                      0.23999999463558197,
-                      0.30000001192092896,
-                      0.20000000298023224,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "interactable": true,
                     "normalColor": [
-                      0.12999999523162842,
-                      0.1599999964237213,
-                      0.12999999523162842,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "pressedColor": [
-                      0.07000000029802322,
-                      0.10000000149011612,
-                      0.07500000298023224,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
-                    ]
+                    ],
+                    "normalTextureRef": "86d5b52722228380",
+                    "normalTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button.vfImage",
+                    "hoverTextureRef": "f64d9b8f022068ac",
+                    "hoverTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button_hover.vfImage",
+                    "pressedTextureRef": "fa3001048f81eb90",
+                    "pressedTextureRefPath": "C:/matan/RTSDemo/assets/ui/hud/hud_button_pressed.vfImage"
                   },
                   "uiImage": {
                     "border": [
@@ -1898,9 +1932,9 @@
                       5.0
                     ],
                     "colorTint": [
-                      0.12999999523162842,
-                      0.1599999964237213,
-                      0.12999999523162842,
+                      1.0,
+                      1.0,
+                      1.0,
                       1.0
                     ],
                     "imageType": 1,
@@ -2085,7 +2119,7 @@
                   0.0
                 ],
                 "sizeDelta": [
-                  326.0,
+                  640.0,
                   54.0
                 ]
               }
@@ -2243,6 +2277,138 @@
               ]
             },
             "uuid": 9000000000000000402
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "border": [
+                  3.0,
+                  3.0,
+                  3.0,
+                  3.0
+                ],
+                "colorTint": [
+                  0.30000001192092896,
+                  0.8500000238418579,
+                  1.0,
+                  1.0
+                ],
+                "imageType": 1,
+                "sourceHeight": 16,
+                "sourceWidth": 16
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  1.0,
+                  1.0
+                ],
+                "anchoredPosition": [
+                  -634.0,
+                  -25.0
+                ],
+                "pivot": [
+                  0.0,
+                  0.0
+                ],
+                "sizeDelta": [
+                  36.0,
+                  36.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_PowerIcon",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000403
+          },
+          {
+            "children": [],
+            "components": {
+              "uiLabel": {
+                "color": [
+                  0.8799999952316284,
+                  0.8600000143051147,
+                  0.7599999904632568,
+                  1.0
+                ],
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 26.0,
+                "fontStyle": "bold",
+                "horizontalAlignment": "left",
+                "letterSpacing": 6.0,
+                "lineSpacing": 1.0,
+                "overflow": "ellipsis",
+                "text": "Power: 0",
+                "verticalAlignment": "middle",
+                "wordWrap": false
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  1.0,
+                  1.0
+                ],
+                "anchoredPosition": [
+                  -588.0,
+                  -20.0
+                ],
+                "pivot": [
+                  0.0,
+                  0.0
+                ],
+                "sizeDelta": [
+                  250.0,
+                  42.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_PowerLabel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000404
           },
           {
             "children": [],

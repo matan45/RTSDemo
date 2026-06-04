@@ -29,11 +29,6 @@ class SelectionController {
     // Registry of selectable buildings, keyed by entity id (boxed as Int).
     private HashMap<Int, BuildingInfo?> registry;
 
-    // HUD buttons the world-picker must ignore clicks over, so clicking a command
-    // button / build slot does not pick the terrain behind the HUD and deselect.
-    private int[] guardButtons;
-    private int guardCount;
-
     // Pushed by BuildingPlacementController while placing, so the placement click
     // is not also treated as a selection click (keeps imports one-directional).
     private bool placementActive;
@@ -43,7 +38,6 @@ class SelectionController {
 
     constructor() {
         this.selectedId = -1;
-        this.guardCount = 0;
         this.placementActive = false;
         this.prevEscDown = false;
         this.prevLeftDown = false;
@@ -51,18 +45,6 @@ class SelectionController {
 
     public function onStart(): void {
         this.registry = new HashMap<Int, BuildingInfo>();
-
-        this.guardButtons = new int[9];
-        this.guardCount = 0;
-        this.addGuard("RTS_HUD_CmdMove");
-        this.addGuard("RTS_HUD_CmdAttackMove");
-        this.addGuard("RTS_HUD_CmdStop");
-        this.addGuard("RTS_HUD_CmdHold");
-        this.addGuard("RTS_HUD_CmdBuild");
-        this.addGuard("RTS_HUD_BuildSlot_0");
-        this.addGuard("RTS_HUD_BuildSlot_1");
-        this.addGuard("RTS_HUD_BuildSlot_2");
-        this.addGuard("RTS_HUD_BuildSlot_3");
 
         this.registerEnemyBuildings();
 
@@ -92,8 +74,8 @@ class SelectionController {
             Log::info("[Selection] click ignored (placement active)");
             return;
         }
-        if (this.isPointerOverHUD()) {
-            Log::info("[Selection] click ignored (over HUD button)");
+        if (UI::isPointerOverUI()) {
+            Log::info("[Selection] click ignored (over HUD)");
             return;
         }
 
@@ -152,23 +134,6 @@ class SelectionController {
     }
 
     // ---- helpers ----
-
-    private function addGuard(string name): void {
-        int id = Entity::findByName(name);
-        if (id >= 0) {
-            this.guardButtons[this.guardCount] = id;
-            this.guardCount = this.guardCount + 1;
-        }
-    }
-
-    private function isPointerOverHUD(): bool {
-        for (int i = 0; i < this.guardCount; i = i + 1) {
-            if (UI::isButtonHovered(this.guardButtons[i])) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     // Optional: register any scene entity named "EnemyBuilding" as an enemy-faction
     // building so the read-only (no command card) path is testable. No-op if none

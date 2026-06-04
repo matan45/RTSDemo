@@ -9,6 +9,11 @@ class GameState {
     private float goldAccumulator;
     private float goldPerSecond;
 
+    // Net power: power plants produce (+), other buildings consume (-).
+    // Driven by BuildingPlacementController as buildings are placed; display
+    // only for now (negative just renders red, no gameplay effect yet).
+    public int power;
+
     public string selectedName;
     public float health;
     public float maxHealth;
@@ -28,6 +33,8 @@ class GameState {
         this.gold = 100;
         this.goldAccumulator = 0.0;
         this.goldPerSecond = 5.0;
+
+        this.power = 0;
 
         this.selectedName = "Engineer A";
         this.health = 80.0;

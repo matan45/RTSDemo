@@ -22,6 +22,7 @@ class RTSHUDController implements IUIButtonListener {
     private GameState state;
 
     private int goldLabelId;
+    private int powerLabelId;
     private int selectionNameId;
     private int selectionStatusId;
     private int selectionHealthBarId;
@@ -54,8 +55,13 @@ class RTSHUDController implements IUIButtonListener {
     // when the selection actually changes (-2 = nothing applied yet, -1 = none).
     private int lastShownId;
 
+    // Tracks the power label's warning tint so the color command is only
+    // re-issued when the net-power sign actually flips.
+    private bool lastPowerNegative;
+
     constructor() {
         this.goldLabelId = -1;
+        this.powerLabelId = -1;
         this.selectionNameId = -1;
         this.selectionStatusId = -1;
         this.selectionHealthBarId = -1;
@@ -71,12 +77,14 @@ class RTSHUDController implements IUIButtonListener {
         this.selectionOwnerId = -1;
         this.selection = null;
         this.lastShownId = -2;
+        this.lastPowerNegative = false;
     }
 
     public function onStart(): void {
         this.state = new GameState();
 
         this.goldLabelId = this.resolve("RTS_HUD_GoldLabel");
+        this.powerLabelId = this.resolve("RTS_HUD_PowerLabel");
         this.selectionNameId = this.resolve("RTS_HUD_SelectionName");
         this.selectionStatusId = this.resolve("RTS_HUD_SelectionStatus");
         this.selectionHealthBarId = this.resolve("RTS_HUD_SelectionHealthBar");
@@ -113,6 +121,7 @@ class RTSHUDController implements IUIButtonListener {
         if (this.goldLabelId >= 0) {
             UI::setLabelText(this.goldLabelId, "Gold: " + parsePrimitive(this.state.gold));
         }
+        this.updatePowerLabel();
         if (this.alertLabelId >= 0) {
             UI::setLabelText(this.alertLabelId, this.state.alert);
         }
@@ -165,6 +174,15 @@ class RTSHUDController implements IUIButtonListener {
         }
         this.state.gold = this.state.gold - amount;
         return true;
+    }
+
+    public function getPower(): int {
+        return this.state.power;
+    }
+
+    // Apply a building's power delta (+ from power plants, - from consumers).
+    public function addPower(int delta): void {
+        this.state.power = this.state.power + delta;
     }
 
     @Override
@@ -246,10 +264,29 @@ class RTSHUDController implements IUIButtonListener {
         }
     }
 
+    // Push net power into its HUD label; tint red while in deficit (display
+    // only -- low power has no gameplay effect yet).
+    private function updatePowerLabel(): void {
+        if (this.powerLabelId < 0) {
+            return;
+        }
+        UI::setLabelText(this.powerLabelId, "Power: " + parsePrimitive(this.state.power));
+        bool negative = this.state.power < 0;
+        if (negative != this.lastPowerNegative) {
+            if (negative) {
+                UI::setLabelColor(this.powerLabelId, 1.0, 0.35, 0.3, 1.0);
+            } else {
+                UI::setLabelColor(this.powerLabelId, 0.88, 0.86, 0.76, 1.0);
+            }
+            this.lastPowerNegative = negative;
+        }
+    }
+
     private function seedWidgets(): void {
         if (this.goldLabelId >= 0) {
             UI::setLabelText(this.goldLabelId, "Gold: " + parsePrimitive(this.state.gold));
         }
+        this.updatePowerLabel();
         // Nothing is selected at startup -> show the empty selection panel.
         this.clearSelectionPanel();
         if (this.alertLabelId >= 0) {

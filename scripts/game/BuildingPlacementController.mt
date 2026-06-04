@@ -127,8 +127,10 @@ class BuildingPlacementController implements IUIButtonListener {
         this.mapMaxZ = 256.0;
 
         // === DEFINE YOUR BUILDINGS HERE (one per build slot) ===
-        // new BuildingDef(meshPath, materialPath, halfX, halfZ, cost,
+        // new BuildingDef(meshPath, materialPath, halfX, halfZ, cost, power,
         //                 displayType, displayName, iconPath, maxHealth)
+        // power: net contribution to GameState.power once placed -- the Power
+        // Plant produces (+), every other building consumes (-).
         // Use project-relative, forward-slash asset paths (VK-1346),
         // e.g. "assets/buildings/Barracks.vfMesh" (resolved against the project
         // root). Absolute paths still work but are not portable. iconPath is the
@@ -136,10 +138,10 @@ class BuildingPlacementController implements IUIButtonListener {
         this.buildings = new BuildingDef[4];
         // Order must match the build-queue slot labels (GameState.buildQueue):
         // slot 0 = Barracks, slot 1 = Command, slot 2 = Refinery, slot 3 = Power.
-        this.buildings[0] = new BuildingDef("assets/buildings/Barracks_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 6.0, 75, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
-        this.buildings[1] = new BuildingDef("assets/buildings/CommandCenter.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 4.0, 50, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
-        this.buildings[2] = new BuildingDef("assets/buildings/Refinery_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 40, "Refinery", "Refinery", "assets/ui/icons/refinery.vfImage", 800.0);
-        this.buildings[3] = new BuildingDef("assets/buildings/PowerPlant_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 60, "Power", "Power Plant", "assets/ui/icons/power.vfImage", 600.0);
+        this.buildings[0] = new BuildingDef("assets/buildings/Barracks_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 6.0, 75, -20, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
+        this.buildings[1] = new BuildingDef("assets/buildings/CommandCenter.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 4.0, 50, -30, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
+        this.buildings[2] = new BuildingDef("assets/buildings/Refinery_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 40, -25, "Refinery", "Refinery", "assets/ui/icons/refinery.vfImage", 800.0);
+        this.buildings[3] = new BuildingDef("assets/buildings/PowerPlant_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 60, 50, "Power", "Power Plant", "assets/ui/icons/power.vfImage", 600.0);
         this.ghostSlot = -1;
 
         this.ghostMatValid = "assets/buildings/GhostValid_inst.vfMatInstance";
@@ -206,6 +208,14 @@ class BuildingPlacementController implements IUIButtonListener {
             this.rotationSteps = (this.rotationSteps + 1) % 4;
             Log::info("[BuildPlacement] R rotate -> step " + this.rotationSteps
                 + " (yaw " + (this.rotationSteps * 90) + " deg)");
+        }
+
+        // Cursor over the HUD: hide the ghost and swallow the click so a
+        // building can never be committed behind the HUD. Cancel keys above
+        // still work while hovering the HUD.
+        if (UI::isPointerOverUI()) {
+            this.hideGhost();
+            return;
         }
 
         // Resolve the ground point + surface normal under the cursor via physics.
@@ -483,6 +493,8 @@ class BuildingPlacementController implements IUIButtonListener {
             Log::warn("[BuildPlacement] not enough gold (need " + buildCost + ").");
             return;
         }
+        // Apply the building's power delta (Power Plant produces, others consume).
+        hud.addPower(this.buildings[this.resolvedSlot()].power);
 
         // Promote the ghost in place into the placed building (it already has the
         // mesh and is at the right pose). The ghost wears a tint material, so swap
@@ -529,7 +541,8 @@ class BuildingPlacementController implements IUIButtonListener {
             sel.setPlacementActive(false);
         }
 
-        Log::info("[BuildPlacement] placed building; gold now " + hud.getGold());
+        Log::info("[BuildPlacement] placed building; gold now " + hud.getGold()
+            + ", power now " + hud.getPower());
         this.placing = false;
     }
 }

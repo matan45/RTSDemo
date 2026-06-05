@@ -16,35 +16,33 @@
 
 import * from "../math/Vec3f.mt";
 import * from "RaycastHit.mt";
+import * from "ScreenPoint.mt";
 
 public class Picker {
     public constructor() {
     }
 
-    // Terrain pick: CPU heightfield ray-march on the engine side (no physics).
-    // Works even when the terrain has no physics collider. Returns hit + world
-    // point only (no surface normal). Use pickTerrainPhysics if you need a normal.
+    // World-space terrain point under the screen pixel.
+    // RaycastHit.hit is false if the ray misses the loaded terrain.
     public static function pickTerrain(float screenX, float screenY): RaycastHit {
         float[] raw = _native_picker_pickTerrainPoint(screenX, screenY);
         if (raw[0] < 0.5) {
             return new RaycastHit();
         }
-        return new RaycastHit(
-            true,
-            -1,
-            new Vec3f(raw[1], raw[2], raw[3]),
-            new Vec3f(0.0, 0.0, 0.0),
-            0.0
-        );
+        RaycastHit h = new RaycastHit();
+        h.hit = true;
+        h.point = new Vec3f(raw[1], raw[2], raw[3]);
+        return h;
     }
 
-    // Terrain pick: a Jolt physics raycast against the "Static" layer (the terrain
-    // heightfield collider). Returns hit entity + point + surface normal.
+    // Terrain pick via a Jolt physics raycast against the "Static" layer (the terrain
+    // heightfield collider). Returns hit entity + point + surface normal. Requires the
+    // terrain to have a physics collider; use pickTerrain for a collider-free pick.
     public static function pickTerrainPhysics(float screenX, float screenY): RaycastHit {
         return Picker::pickEntity(screenX, screenY, "Static");
     }
 
-    // Jolt-backed terrain pick filtered by comma-separated layer names
+    // Physics terrain pick filtered by comma-separated layer names
     // (e.g. "Static" or "Static,Dynamic").
     public static function pickTerrainPhysics(float screenX, float screenY, string layerMask): RaycastHit {
         return Picker::pickEntity(screenX, screenY, layerMask);
@@ -79,5 +77,17 @@ public class Picker {
             new Vec3f(raw[5], raw[6], raw[7]),
             raw[8]
         );
+    }
+
+    // World position -> viewport pixel (inverse of the screen ray; same pixel space
+    // as Input::getViewportMouseX/Y). ScreenPoint.visible is false when there is no
+    // primary camera or the point is behind the camera; x/y may lie outside the
+    // viewport for in-front-but-offscreen points.
+    public static function worldToScreen(float worldX, float worldY, float worldZ): ScreenPoint {
+        float[] raw = _native_picker_worldToScreen(worldX, worldY, worldZ);
+        if (raw[0] < 0.5) {
+            return new ScreenPoint();
+        }
+        return new ScreenPoint(true, raw[1], raw[2]);
     }
 }

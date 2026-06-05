@@ -1,0 +1,76 @@
+{
+  "actionBindings": {
+    "PanBackward": {
+      "bindings": [
+        {
+          "code": 83,
+          "type": "key"
+        },
+        {
+          "code": 264,
+          "type": "key"
+        }
+      ],
+      "context": "Default"
+    },
+    "PanForward": {
+      "bindings": [
+        {
+          "code": 87,
+          "type": "key"
+        },
+        {
+          "code": 265,
+          "type": "key"
+        }
+      ],
+      "context": "Default"
+    },
+    "PanLeft": {
+      "bindings": [
+        {
+          "code": 65,
+          "type": "key"
+        },
+        {
+          "code": 263,
+          "type": "key"
+        }
+      ],
+      "context": "Default"
+    },
+    "PanRight": {
+      "bindings": [
+        {
+          "code": 68,
+          "type": "key"
+        },
+        {
+          "code": 262,
+          "type": "key"
+        }
+      ],
+      "context": "Default"
+    },
+    "RotateCamera": {
+      "bindings": [
+        {
+          "code": 2,
+          "type": "mouseButton"
+        }
+      ],
+      "context": "Default"
+    }
+  },
+  "axes1D": {},
+  "axes2D": {
+    "CameraPan": {
+      "downAction": "PanBackward",
+      "leftAction": "PanLeft",
+      "rightAction": "PanRight",
+      "upAction": "PanForward"
+    }
+  },
+  "contexts": {},
+  "schemaVersion": "2.0"
+}

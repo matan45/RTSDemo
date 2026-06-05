@@ -1,0 +1,16 @@
+{
+    "name": "GhostValid Instance",
+    "parentMaterialRef": "e3c097bcd81f27eb",
+    "parentMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/CommandCenter.vfMat",
+    "scalarOverrides": {
+        "albedo": [
+            0.2,
+            0.9,
+            0.2,
+            1.0
+        ]
+    },
+    "type": "MaterialInstance",
+    "uuid": "9123456000000000011",
+    "version": "1.0"
+}

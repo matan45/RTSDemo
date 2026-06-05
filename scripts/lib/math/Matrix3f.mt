@@ -109,7 +109,7 @@ public value class Matrix3f {
     public function inverse(): Matrix3f {
         float det = this.determinant();
         if (det == 0.0) {
-            return Matrix3f.identity();
+            return Matrix3f::identity();
         }
 
         float invDet = 1.0 / det;

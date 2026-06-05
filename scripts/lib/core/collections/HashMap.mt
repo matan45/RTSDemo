@@ -12,14 +12,14 @@
 //   - mType/net/HashMapMarshal.cpp    :: stdMapToHashMap (computeSlotIndex)
 // HashSet.mt mirrors the same formula; keep them in sync.
 
-import * from "../../lib/interfaces/Map.mt";
-import * from "../../lib/interfaces/MapEntry.mt";
-import * from "../../lib/Iterator.mt";
-import * from "../../lib/iterators/HashMapKeyIterator.mt";
-import * from "../../lib/iterators/HashMapEntryIterator.mt";
-import * from "../../lib/iterators/HashMapValueIterator.mt";
-import * from "../../lib/stream/Stream.mt";
-import * from "../../lib/stream/StreamImpl.mt";
+import * from "../interfaces/Map.mt";
+import * from "../interfaces/MapEntry.mt";
+import * from "../Iterator.mt";
+import * from "../iterators/HashMapKeyIterator.mt";
+import * from "../iterators/HashMapEntryIterator.mt";
+import * from "../iterators/HashMapValueIterator.mt";
+import * from "../stream/Stream.mt";
+import * from "../stream/StreamImpl.mt";
 
 // Storage layout: 4 parallel flat arrays of length `capacity` (power of 2).
 // `keys[i] == null` marks an empty slot — terminates probe sequences.

@@ -28,7 +28,7 @@ public class Navmesh {
     // Rate limited: max 50 path queries per frame
     public static function findPath(Vec3f start, Vec3f end): Vec3f[] {
         float[] raw = _native_navmesh_findPath(start.x, start.y, start.z, end.x, end.y, end.z);
-        int count = toInt(raw[0]);
+        int count = (int)raw[0];
         if (count <= 0) {
             return new Vec3f[0];
         }
@@ -54,8 +54,8 @@ public class Navmesh {
     // Navmesh raycast for line-of-sight checks
     // Returns float[4]: [hit(0/1), hitX, hitY, hitZ]
     // If hit is 0, the path is clear (no obstacle between from and to on the navmesh)
-    public static function raycast(Vec3f from, Vec3f to): float[] {
-        return _native_navmesh_raycast(from.x, from.y, from.z, to.x, to.y, to.z);
+    public static function raycast(Vec3f fromVec, Vec3f to): float[] {
+        return _native_navmesh_raycast(fromVec.x, fromVec.y, fromVec.z, to.x, to.y, to.z);
     }
 
     // ============================================

@@ -29,8 +29,6 @@ import * from "../lib/engine/Picker.mt";
 import * from "../lib/engine/RaycastHit.mt";
 import * from "../lib/engine/ScreenPoint.mt";
 import * from "../lib/engine/PluginComponent.mt";
-import * from "../lib/engine/Terrain.mt";
-import * from "../lib/engine/Physics.mt";
 import * from "../lib/engine/Decal.mt";
 import * from "../lib/engine/Log.mt";
 import * from "../lib/core/collections/HashMap.mt";
@@ -52,11 +50,9 @@ class UnitSelectionController {
     private bool prevEscDown;
 
     // Selected units: entity id -> ring decal entity id (both boxed as Int).
+    // Rings are created on select and destroyed on deselect, so no entities
+    // linger in the hierarchy while nothing is selected.
     private HashMap<Int, Int> selectedRings;
-
-    // Pool of deactivated ring decals, reused across selections.
-    private int[] ringPool;
-    private int ringPoolCount;
 
     // Scene-authored drag box UIImage ("RTS_DragBox"), -1 if absent.
     private int dragBoxId;
@@ -71,24 +67,12 @@ class UnitSelectionController {
     private int maxSelected;
     private int teamPlayer;
 
-    // Test workers (temporary stand-in until VK-1304 lands the real worker
-    // type; flip spawnTestUnits off once it does).
-    private bool spawnTestUnits;
-    private int testWorkerCount;
-    private string testWorkerMesh;
-    private string testWorkerMaterial;
-    private float testWorkerScale;
-    private float testSpawnX;
-    private float testSpawnZ;
-    private float testSpawnSpacing;
-
     constructor() {
         this.state = 0;
         this.dragStartX = 0.0;
         this.dragStartY = 0.0;
         this.prevLeftDown = false;
         this.prevEscDown = false;
-        this.ringPoolCount = 0;
         this.dragBoxId = -1;
         this.pendingDragClear = false;
 
@@ -96,30 +80,16 @@ class UnitSelectionController {
         this.ringRadius = 1.6;
         this.maxSelected = 64;
         this.teamPlayer = 0;
-
-        this.spawnTestUnits = true;
-        this.testWorkerCount = 8;
-        this.testWorkerMesh = "assets/buildings/Refinery_source.vfMesh";
-        this.testWorkerMaterial = "assets/buildings/CommandCenter_inst.vfMatInstance";
-        this.testWorkerScale = 0.25;
-        this.testSpawnX = 12.0;
-        this.testSpawnZ = 12.0;
-        this.testSpawnSpacing = 6.0;
     }
 
     public function onStart(): void {
         this.selectedRings = new HashMap<Int, Int>();
-        this.ringPool = new int[this.maxSelected];
 
         this.dragBoxId = Entity::findByName("RTS_DragBox");
         if (this.dragBoxId < 0) {
             Log::warn("[UnitSelection] RTS_DragBox UI entity not found; box-drag has no visual.");
         } else {
             Entity::setActive(this.dragBoxId, false);
-        }
-
-        if (this.spawnTestUnits) {
-            this.spawnTestWorkers();
         }
 
         Log::info("[UnitSelection] ready.");
@@ -351,7 +321,7 @@ class UnitSelectionController {
         if (this.selectedRings.size() >= this.maxSelected) {
             return;
         }
-        int ring = this.takeRing();
+        int ring = this.createRing();
         Entity::setPosition(ring, Entity::getPosition(id));
         Entity::setActive(ring, true);
         this.selectedRings.put(key, new Int(ring));
@@ -364,8 +334,8 @@ class UnitSelectionController {
             return;
         }
         Int ring = this.selectedRings.get(key);
-        if (ring != null) {
-            this.returnRing(ring.getValue());
+        if (ring != null && ring.getValue() >= 0) {
+            Entity::destroy(ring.getValue());
         }
         this.selectedRings.remove(key);
         if (Entity::isValid(id)) {
@@ -388,27 +358,6 @@ class UnitSelectionController {
                     Entity::setPosition(ring.getValue(), Entity::getPosition(unitId));
                 }
             }
-        }
-    }
-
-    private function takeRing(): int {
-        if (this.ringPoolCount > 0) {
-            this.ringPoolCount = this.ringPoolCount - 1;
-            return this.ringPool[this.ringPoolCount];
-        }
-        return this.createRing();
-    }
-
-    private function returnRing(int ringId): void {
-        if (ringId < 0) {
-            return;
-        }
-        Entity::setActive(ringId, false);
-        if (this.ringPoolCount < this.maxSelected) {
-            this.ringPool[this.ringPoolCount] = ringId;
-            this.ringPoolCount = this.ringPoolCount + 1;
-        } else {
-            Entity::destroy(ringId);
         }
     }
 
@@ -449,41 +398,4 @@ class UnitSelectionController {
         }
     }
 
-    // ---- test workers (until VK-1304) ----
-
-    // Spawn a small squad of placeholder "workers": scaled-down building meshes
-    // with a Dynamic-layer Jolt body (pickable) and the Selectable + Team plugin
-    // components. VK-1304 replaces this with the real worker type.
-    private function spawnTestWorkers(): void {
-        for (int i = 0; i < this.testWorkerCount; i = i + 1) {
-            int col = i % 4;
-            int row = i / 4;
-            float x = this.testSpawnX + (float)col * this.testSpawnSpacing;
-            float z = this.testSpawnZ + (float)row * this.testSpawnSpacing;
-            float y = 0.0;
-            if (Terrain::hasHeightAt(x, z)) {
-                y = Terrain::heightAt(x, z);
-            }
-
-            int id = Entity::create("TestWorker_" + i);
-            if (this.testWorkerMesh != "") {
-                Entity::setMesh(id, this.testWorkerMesh);
-            }
-            if (this.testWorkerMaterial != "") {
-                Entity::setMaterial(id, this.testWorkerMaterial);
-            }
-            Entity::setUniformScale(id, this.testWorkerScale);
-            Entity::setPosition(id, new Vec3f(x, y, z));
-
-            Entity::addComponent(id, "Collider");
-            Physics::setColliderSize(id, new Vec3f(1.0, 2.0, 1.0));
-            Physics::setCollisionLayer(id, 1);
-            Physics::createBody(id);
-
-            PluginComponent::add(id, "Selectable");
-            PluginComponent::add(id, "Team");
-            PluginComponent::setInt(id, "Team", "teamId", this.teamPlayer);
-        }
-        Log::info("[UnitSelection] spawned " + this.testWorkerCount + " test workers.");
-    }
 }

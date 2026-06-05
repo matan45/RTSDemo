@@ -1,0 +1,30 @@
+{
+  "root": {
+    "children": [],
+    "components": {},
+    "isActive": true,
+    "name": "Root",
+    "transform": {
+      "isStatic": true,
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "uuid": 12897697530608323519
+  },
+  "settingsRef": "ef6e096fd3803018",
+  "settingsRefPath": "main.vfSettings",
+  "version": "1.0"
+}

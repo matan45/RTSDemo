@@ -182,6 +182,9 @@ class UnitSelectionController {
             if (dx * dx + dy * dy > this.dragThreshold * this.dragThreshold) {
                 this.state = 2;
                 this.pushDragActive(true);
+                // Position the box BEFORE activating it, or it renders one
+                // frame at its stale previous/authored rect (flash + offset).
+                this.updateDragBox(mx, my);
                 if (this.dragBoxId >= 0) {
                     Entity::setActive(this.dragBoxId, true);
                 }

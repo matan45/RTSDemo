@@ -12,41 +12,41 @@
           "offset": [
             0.0,
             0.0,
-            1.0
+            2.0
           ],
           "restitution": 0.0,
           "shape": "box",
           "size": [
-            8.0,
-            5.670000076293945,
-            2.0
+            5.0,
+            5.0,
+            5.0
           ],
           "submeshIndex": -1
         },
         "material": {
-          "defaultMaterialRef": "76a8a2622657a6e0",
-          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings2/refinery_inst.vfMatInstance",
+          "defaultMaterialRef": "a800a02046474dc8",
+          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/power_plant_inst.vfMatInstance",
           "parameterOverrides": {},
           "subMeshMaterials": {}
         },
         "mesh": {
-          "meshRef": "c78cbb9bd703457b",
-          "meshRefPath": "C:/matan/RTSDemo/assets/buildings2/refinery.vfMesh",
+          "meshRef": "082b9245adf9e57c",
+          "meshRefPath": "C:/matan/RTSDemo/assets/buildings/power_plant.vfMesh",
           "showBoundingBox": false,
           "submeshIndex": -1
         }
       },
       "isActive": true,
-      "name": "refinery",
+      "name": "power_plant",
       "transform": {
         "isStatic": false,
         "position": [
-          -23.200000762939453,
           0.0,
+          1.0,
           0.0
         ],
         "rotation": [
-          -90.0,
+          0.0,
           0.0,
           0.0
         ],
@@ -57,7 +57,7 @@
         ]
       }
     },
-    "name": "refinery"
+    "name": "power_plant"
   },
   "version": "1.0"
 }

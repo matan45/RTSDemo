@@ -147,14 +147,14 @@ class BuildingPlacementController implements IUIButtonListener {
         this.buildings = new BuildingDef[4];
         // Order must match the build-queue slot labels (GameState.buildQueue):
         // slot 0 = Barracks, slot 1 = Command, slot 2 = Refinery, slot 3 = Power.
-        this.buildings[0] = new BuildingDef("assets/buildings2/barracks_prefab.vfPrefab", "assets/buildings2/barracks_inst.vfMatInstance", 6.0, 6.0, 75, -20, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
-        this.buildings[1] = new BuildingDef("assets/buildings2/command_center_prefab.vfPrefab", "assets/buildings2/command_center_inst.vfMatInstance", 6.0, 4.0, 50, -30, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
-        this.buildings[2] = new BuildingDef("assets/buildings2/refinery_prefab.vfPrefab", "assets/buildings2/refinery_inst.vfMatInstance", 4.0, 4.0, 40, -25, "Refinery", "Refinery", "assets/ui/icons/refinery.vfImage", 800.0);
-        this.buildings[3] = new BuildingDef("assets/buildings2/power_plant_prefab.vfPrefab", "assets/buildings2/power_plant_inst.vfMatInstance", 4.0, 4.0, 60, 50, "Power", "Power Plant", "assets/ui/icons/power.vfImage", 600.0);
+        this.buildings[0] = new BuildingDef("assets/buildings/barracks_prefab.vfPrefab", "assets/buildings/barracks_inst.vfMatInstance", 6.0, 6.0, 75, -20, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
+        this.buildings[1] = new BuildingDef("assets/buildings/command_center_prefab.vfPrefab", "assets/buildings/command_center_inst.vfMatInstance", 6.0, 4.0, 50, -30, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
+        this.buildings[2] = new BuildingDef("assets/buildings/refinery_prefab.vfPrefab", "assets/buildings/refinery_inst.vfMatInstance", 4.0, 4.0, 40, -25, "Refinery", "Refinery", "assets/ui/icons/refinery.vfImage", 800.0);
+        this.buildings[3] = new BuildingDef("assets/buildings/power_plant_prefab.vfPrefab", "assets/buildings/power_plant_inst.vfMatInstance", 4.0, 4.0, 60, 50, "Power", "Power Plant", "assets/ui/icons/power.vfImage", 600.0);
         this.ghostSlot = -1;
 
-        this.ghostMatValid = "assets/buildings/GhostValid_inst.vfMatInstance";
-        this.ghostMatInvalid = "assets/buildings/GhostInvalid_inst.vfMatInstance";
+        this.ghostMatValid = "assets/buildings/selected/GhostValid_inst.vfMatInstance";
+        this.ghostMatInvalid = "assets/buildings/selected/GhostInvalid_inst.vfMatInstance";
         this.lastGhostValid = false;
     }
 

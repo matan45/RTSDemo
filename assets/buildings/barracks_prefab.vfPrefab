@@ -25,13 +25,13 @@
         },
         "material": {
           "defaultMaterialRef": "7d423ebcc1df0757",
-          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings2/barracks_inst.vfMatInstance",
+          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/barracks_inst.vfMatInstance",
           "parameterOverrides": {},
           "subMeshMaterials": {}
         },
         "mesh": {
           "meshRef": "c0e9f6794fdaa94b",
-          "meshRefPath": "C:/matan/RTSDemo/assets/buildings2/barracks.vfMesh",
+          "meshRefPath": "C:/matan/RTSDemo/assets/buildings/barracks.vfMesh",
           "showBoundingBox": false,
           "submeshIndex": -1
         }
@@ -46,7 +46,7 @@
           24.21213150024414
         ],
         "rotation": [
-          -90.0,
+          0.0,
           0.0,
           0.0
         ],

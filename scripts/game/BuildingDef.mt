@@ -11,7 +11,7 @@
 
 value class BuildingDef {
     // prefabPath / materialPath accept project-relative, forward-slash asset
-    // paths (VK-1346), e.g. "assets/buildings2/barracks_prefab.vfPrefab".
+    // paths (VK-1346), e.g. "assets/buildings/barracks_prefab.vfPrefab".
     // Absolute paths still work but are not portable across machines.
     // materialPath is the prefab's own material instance: the ghost wears a
     // tint material while placing, and this is swapped back on confirm.

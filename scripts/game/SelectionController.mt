@@ -1,10 +1,11 @@
 // SelectionController - minimal building click-selection for the RTS demo (VK-1348).
 //
-// VK-1302 (full unit selection) is not implemented; this provides the building
-// half: left-click a building to select it, click empty ground / press ESC to
-// deselect. It is the single source of selection truth -- RTSHUDController reads
+// This is the building half of selection: left-click a building to select it,
+// click empty ground / press ESC to deselect. RTSHUDController reads
 // getSelectedInfo() each frame to drive the selection context panel, and
 // BuildingPlacementController calls registerBuilding() when it places one.
+// Unit selection (single + box-drag, VK-1302) lives in UnitSelectionController,
+// which pushes setUnitDragActive() here so drags never double as building clicks.
 //
 // The engine exposes no per-entity game components to mType, so a registry of
 // (entityId -> BuildingInfo) is kept here in a HashMap (entity id boxed as Int).
@@ -35,6 +36,11 @@ class SelectionController {
     // is not also treated as a selection click (keeps imports one-directional).
     private bool placementActive;
 
+    // Pushed by UnitSelectionController while a box-drag is live (and for one
+    // frame after release), so the drag-release click is not also treated as a
+    // building selection click. Same one-directional pattern as placementActive.
+    private bool unitDragActive;
+
     private bool prevEscDown;
     private bool prevLeftDown;
 
@@ -47,6 +53,7 @@ class SelectionController {
     constructor() {
         this.selectedId = -1;
         this.placementActive = false;
+        this.unitDragActive = false;
         this.prevEscDown = false;
         this.prevLeftDown = false;
         this.highlightId = -1;
@@ -90,6 +97,10 @@ class SelectionController {
             Log::info("[Selection] click ignored (placement active)");
             return;
         }
+        if (this.unitDragActive) {
+            Log::info("[Selection] click ignored (unit box-drag)");
+            return;
+        }
         if (UI::isPointerOverUI()) {
             Log::info("[Selection] click ignored (over HUD)");
             return;
@@ -125,6 +136,10 @@ class SelectionController {
 
     public function setPlacementActive(bool active): void {
         this.placementActive = active;
+    }
+
+    public function setUnitDragActive(bool active): void {
+        this.unitDragActive = active;
     }
 
     public function registerBuilding(int id, BuildingInfo info): void {

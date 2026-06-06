@@ -29,6 +29,7 @@ import * from "../lib/engine/RaycastHit.mt";
 import * from "../lib/engine/Terrain.mt";
 import * from "../lib/engine/Physics.mt";
 import * from "../lib/engine/Log.mt";
+import * from "../lib/engine/PluginComponent.mt";
 import * from "../lib/engine/IUIButtonListener.mt";
 import * from "../lib/math/Vec3f.mt";
 import * from "./RTSHUDController.mt";
@@ -524,6 +525,14 @@ class BuildingPlacementController implements IUIButtonListener {
             // collider is configured, so the building is mouse-pickable / collidable.
             Physics::createBody(id);
         }
+
+        // Fog of war (VK-1314): player buildings are vision sources — reveal a
+        // generous area around the new building. Team marks it player-owned for
+        // the engine-side fog system.
+        PluginComponent::add(id, "Team");
+        PluginComponent::setInt(id, "Team", "teamId", 0);
+        PluginComponent::add(id, "Vision");
+        PluginComponent::setFloat(id, "Vision", "sightRadius", 45.0);
 
         this.ghostEntity = -1;
         this.ghostSlot = -1;

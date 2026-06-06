@@ -46,6 +46,10 @@ class BuildingPlacementController implements IUIButtonListener {
     private int hudControllerId;
     private int[] buildSlotIds;
 
+    // Cached HUD controller script (resolved lazily via hud() -- script init
+    // order across entities is not guaranteed, so onStart may be too early).
+    private RTSHUDController? hudRef;
+
     // Placement state machine.
     private bool placing;
     private int selectedSlot;
@@ -113,6 +117,7 @@ class BuildingPlacementController implements IUIButtonListener {
     constructor() {
         this.cmdBuildId = -1;
         this.hudControllerId = -1;
+        this.hudRef = null;
 
         this.placing = false;
         this.selectedSlot = -1;
@@ -329,14 +334,20 @@ class BuildingPlacementController implements IUIButtonListener {
         return -1;
     }
 
+    // Lazily resolve (then cache) the HUD controller script. The instance is
+    // stable for the whole play session, so the lookup runs at most once.
+    private function hud(): RTSHUDController? {
+        if (this.hudRef == null && this.hudControllerId >= 0) {
+            this.hudRef = Entity::getScript<RTSHUDController>(this.hudControllerId, "RTSHUDController");
+        }
+        return this.hudRef;
+    }
+
     // Disable build-queue buttons the player cannot afford (re-enable once gold
     // recovers). Pushes UI::setButtonInteractable only when affordability flips,
     // mirroring the ghost-tint swap pattern.
     private function updateBuildSlotAffordability(): void {
-        if (this.hudControllerId < 0) {
-            return;
-        }
-        RTSHUDController? hud = Entity::getScript<RTSHUDController>(this.hudControllerId, "RTSHUDController");
+        RTSHUDController? hud = this.hud();
         if (hud == null) {
             return;
         }
@@ -580,11 +591,7 @@ class BuildingPlacementController implements IUIButtonListener {
         }
 
         // Deduct gold from the single source of truth in RTSHUDController/GameState.
-        if (this.hudControllerId < 0) {
-            Log::warn("[BuildPlacement] no HUD controller; cannot deduct gold.");
-            return;
-        }
-        RTSHUDController hud = Entity::getScript<RTSHUDController>(this.hudControllerId, "RTSHUDController");
+        RTSHUDController? hud = this.hud();
         if (hud == null) {
             Log::warn("[BuildPlacement] HUD controller script unavailable; cannot deduct gold.");
             return;

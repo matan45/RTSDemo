@@ -105,6 +105,11 @@ class BuildingPlacementController implements IUIButtonListener {
     private string ghostMatInvalid;
     private bool lastGhostValid;
 
+    // Last-pushed interactable state per build slot, so the queue buttons are
+    // only re-enabled/disabled when affordability actually flips (no per-frame
+    // native spam). Buttons start interactable in the scene, hence true.
+    private bool[] slotAffordable;
+
     constructor() {
         this.cmdBuildId = -1;
         this.hudControllerId = -1;
@@ -166,8 +171,10 @@ class BuildingPlacementController implements IUIButtonListener {
         }
 
         this.buildSlotIds = new int[4];
+        this.slotAffordable = new bool[4];
         for (int i = 0; i < 4; i = i + 1) {
             this.buildSlotIds[i] = Entity::findByName("RTS_HUD_BuildSlot_" + i);
+            this.slotAffordable[i] = true;
         }
 
         this.placedCenters = new Vec3f[this.maxPlaced];
@@ -197,6 +204,10 @@ class BuildingPlacementController implements IUIButtonListener {
         this.prevRightDown = nowRight;
         this.prevRDown = nowR;
         this.prevEscDown = nowEsc;
+
+        // Keep the build-queue buttons in sync with the player's gold even when
+        // not placing (a slot the player cannot afford is disabled/greyed out).
+        this.updateBuildSlotAffordability();
 
         if (!this.placing) {
             return;
@@ -280,6 +291,12 @@ class BuildingPlacementController implements IUIButtonListener {
     public function onButtonClicked(int buttonEntityId, string entityName): void {
         int slot = this.slotIndexFor(buttonEntityId);
         if (slot >= 0) {
+            // Defensive: a disabled button should not deliver clicks, but never
+            // enter placement for a building the player cannot afford.
+            if (!this.slotAffordable[slot]) {
+                Log::info("[BuildPlacement] build slot " + slot + " ignored: not enough gold.");
+                return;
+            }
             this.selectedSlot = slot;
             string label = UI::getLabelText(this.buildSlotIds[slot]);
             this.enterPlacement(label);
@@ -310,6 +327,30 @@ class BuildingPlacementController implements IUIButtonListener {
             }
         }
         return -1;
+    }
+
+    // Disable build-queue buttons the player cannot afford (re-enable once gold
+    // recovers). Pushes UI::setButtonInteractable only when affordability flips,
+    // mirroring the ghost-tint swap pattern.
+    private function updateBuildSlotAffordability(): void {
+        if (this.hudControllerId < 0) {
+            return;
+        }
+        RTSHUDController? hud = Entity::getScript<RTSHUDController>(this.hudControllerId, "RTSHUDController");
+        if (hud == null) {
+            return;
+        }
+        int gold = hud.getGold();
+        for (int i = 0; i < 4; i = i + 1) {
+            if (this.buildSlotIds[i] < 0) {
+                continue;
+            }
+            bool canAfford = gold >= this.buildings[i].cost;
+            if (canAfford != this.slotAffordable[i]) {
+                UI::setButtonInteractable(this.buildSlotIds[i], canAfford);
+                this.slotAffordable[i] = canAfford;
+            }
+        }
     }
 
     // Read by SelectionController so a placement click is not also a selection

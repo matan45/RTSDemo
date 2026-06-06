@@ -1,0 +1,12 @@
+{
+    "name": "building2 Instance",
+    "parentMaterialRef": "dda5311d8d61621c",
+    "parentMaterialRefPath": "C:/matan/RTSDemo/assets/buildings2/building2.vfMat",
+    "textureOverrides": {
+        "Albedo": "c58ccc7403f38eae",
+        "AlbedoPath": "C:/matan/RTSDemo/assets/buildings2/barracks.vfImage"
+    },
+    "type": "MaterialInstance",
+    "uuid": "4480448550978321385",
+    "version": "1.0"
+}

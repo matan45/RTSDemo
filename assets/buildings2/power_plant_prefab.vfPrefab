@@ -1,0 +1,63 @@
+{
+  "prefab": {
+    "entity": {
+      "children": [],
+      "components": {
+        "collider": {
+          "collisionLayer": 1,
+          "friction": 0.5,
+          "height": 2.0,
+          "isTrigger": false,
+          "meshRef": "0000000000000000",
+          "offset": [
+            0.0,
+            0.0,
+            2.0
+          ],
+          "restitution": 0.0,
+          "shape": "box",
+          "size": [
+            5.0,
+            5.0,
+            5.090000152587891
+          ],
+          "submeshIndex": -1
+        },
+        "material": {
+          "defaultMaterialRef": "a800a02046474dc8",
+          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings2/power_plant_inst.vfMatInstance",
+          "parameterOverrides": {},
+          "subMeshMaterials": {}
+        },
+        "mesh": {
+          "meshRef": "082b9245adf9e57c",
+          "meshRefPath": "C:/matan/RTSDemo/assets/buildings2/power_plant.vfMesh",
+          "showBoundingBox": false,
+          "submeshIndex": -1
+        }
+      },
+      "isActive": true,
+      "name": "power_plant",
+      "transform": {
+        "isStatic": false,
+        "position": [
+          -25.200000762939453,
+          1.0,
+          0.0
+        ],
+        "rotation": [
+          -90.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    },
+    "name": "power_plant"
+  },
+  "version": "1.0"
+}

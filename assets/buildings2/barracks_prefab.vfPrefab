@@ -1,0 +1,63 @@
+{
+  "prefab": {
+    "entity": {
+      "children": [],
+      "components": {
+        "collider": {
+          "collisionLayer": 1,
+          "friction": 0.5,
+          "height": 2.0,
+          "isTrigger": false,
+          "meshRef": "0000000000000000",
+          "offset": [
+            0.5,
+            1.0,
+            2.5
+          ],
+          "restitution": 0.0,
+          "shape": "box",
+          "size": [
+            10.0,
+            10.0,
+            4.0
+          ],
+          "submeshIndex": -1
+        },
+        "material": {
+          "defaultMaterialRef": "7d423ebcc1df0757",
+          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings2/barracks_inst.vfMatInstance",
+          "parameterOverrides": {},
+          "subMeshMaterials": {}
+        },
+        "mesh": {
+          "meshRef": "c0e9f6794fdaa94b",
+          "meshRefPath": "C:/matan/RTSDemo/assets/buildings2/barracks.vfMesh",
+          "showBoundingBox": false,
+          "submeshIndex": -1
+        }
+      },
+      "isActive": true,
+      "name": "barracks",
+      "transform": {
+        "isStatic": false,
+        "position": [
+          3.365041732788086,
+          6.448689937591553,
+          24.21213150024414
+        ],
+        "rotation": [
+          -90.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    },
+    "name": "barracks"
+  },
+  "version": "1.0"
+}

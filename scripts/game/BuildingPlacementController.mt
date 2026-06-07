@@ -7,9 +7,11 @@
 // building + deducts gold), right-click / ESC cancels, and R rotates the
 // footprint in 90-degree steps.
 //
-// Spawning creates a fresh entity and assigns a mesh + material to it at runtime
-// via Entity::setMesh / Entity::setMaterial (engine API added for VK-1311) -- no
-// pre-authored pool required.
+// Spawning instantiates the slot's .vfPrefab via Entity::instantiate (engine
+// API added for VK-1359 follow-up) -- the prefab carries the mesh, material,
+// and box collider authored together in the editor, so nothing is assembled by
+// hand here. Prefabs keep their Blender-import base rotation (-90 deg X) and
+// scale; the cursor yaw is composed on top (see composedRotation).
 //
 // Validity (physics-based, no navmesh):
 //   a) terrain slope -- the terrain raycast surface normal must be near-vertical
@@ -29,6 +31,7 @@ import * from "../lib/engine/RaycastHit.mt";
 import * from "../lib/engine/Terrain.mt";
 import * from "../lib/engine/Physics.mt";
 import * from "../lib/engine/Log.mt";
+import * from "../lib/engine/PluginComponent.mt";
 import * from "../lib/engine/IUIButtonListener.mt";
 import * from "../lib/math/Vec3f.mt";
 import * from "./RTSHUDController.mt";
@@ -43,6 +46,10 @@ class BuildingPlacementController implements IUIButtonListener {
     private int hudControllerId;
     private int[] buildSlotIds;
 
+    // Cached HUD controller script (resolved lazily via hud() -- script init
+    // order across entities is not guaranteed, so onStart may be too early).
+    private RTSHUDController? hudRef;
+
     // Placement state machine.
     private bool placing;
     private int selectedSlot;
@@ -50,10 +57,16 @@ class BuildingPlacementController implements IUIButtonListener {
     private Vec3f ghostCenter;
     private bool ghostValid;
 
-    // Reusable ghost entity: a real building mesh that follows the cursor while
-    // placing. On confirm it is promoted in-place into the placed building, and a
-    // fresh ghost is created for the next placement (-1 = none yet).
+    // Reusable ghost entity: a real building prefab instance that follows the
+    // cursor while placing. On confirm it is promoted in-place into the placed
+    // building, and a fresh ghost is created for the next placement (-1 = none yet).
     private int ghostEntity;
+
+    // The prefab's authored base rotation (captured right after instantiate).
+    // Blender OBJ imports arrive Z-up, so prefabs carry a -90 deg X rotation;
+    // the engine transform applies Euler as Rx*Ry*Rz, which means world-up yaw
+    // must be composed into the right component (see composedRotation).
+    private Vec3f ghostBaseRot;
 
     // Placed footprints (for overlap testing).
     private int maxPlaced;
@@ -70,14 +83,13 @@ class BuildingPlacementController implements IUIButtonListener {
 
     // Config.
     private float gridSize;
-    private float buildingHeight;
     private float slopeMinNormalY;
 
-    // Add a box collider to placed buildings (so they can be selected / block).
-    // Layer stays OFF "Static" (0) so the terrain picker keeps hitting the ground;
-    // 1 = Dynamic in this project's physics layers.
+    // Build a physics body for placed buildings (so they can be selected /
+    // block). The collider itself (shape/size/offset/layer) is authored in the
+    // prefab; its layer stays off "Static" (0) so the terrain picker keeps
+    // hitting the ground (1 = Dynamic in this project's physics layers).
     private bool addCollider;
-    private int colliderLayer;
 
     private float mapMinX;
     private float mapMaxX;
@@ -85,7 +97,7 @@ class BuildingPlacementController implements IUIButtonListener {
     private float mapMaxZ;
 
     // One definition per build-slot 0..3 (Barracks / Command / Refinery / Power):
-    // mesh, material, footprint, and cost. Set the asset paths to your imports.
+    // prefab, material, footprint, and cost. Set the asset paths to your imports.
     private BuildingDef[] buildings;
 
     // Which slot's asset the current ghost was built with (-1 = none / stale).
@@ -97,9 +109,20 @@ class BuildingPlacementController implements IUIButtonListener {
     private string ghostMatInvalid;
     private bool lastGhostValid;
 
+    // Last-pushed interactable state per build slot, so the queue buttons are
+    // only re-enabled/disabled when affordability actually flips (no per-frame
+    // native spam). Buttons start interactable in the scene, hence true.
+    private bool[] slotAffordable;
+
+    // Build-slot hover tooltip. Created under the HUD canvas at runtime so the
+    // scene does not need a dedicated authored widget.
+    private int buildTooltipId;
+    private int hoveredBuildSlot;
+
     constructor() {
         this.cmdBuildId = -1;
         this.hudControllerId = -1;
+        this.hudRef = null;
 
         this.placing = false;
         this.selectedSlot = -1;
@@ -110,6 +133,7 @@ class BuildingPlacementController implements IUIButtonListener {
         this.maxPlaced = 64;
         this.placedCount = 0;
         this.ghostEntity = -1;
+        this.ghostBaseRot = new Vec3f(0.0, 0.0, 0.0);
 
         this.prevLeftDown = false;
         this.prevRightDown = false;
@@ -117,36 +141,39 @@ class BuildingPlacementController implements IUIButtonListener {
         this.prevEscDown = false;
 
         this.gridSize = 4.0;
-        this.buildingHeight = 4.0;
         this.slopeMinNormalY = 0.85;
         this.addCollider = true;
-        this.colliderLayer = 1;
         this.mapMinX = -256.0;
         this.mapMaxX = 256.0;
         this.mapMinZ = -256.0;
         this.mapMaxZ = 256.0;
 
         // === DEFINE YOUR BUILDINGS HERE (one per build slot) ===
-        // new BuildingDef(meshPath, materialPath, halfX, halfZ, cost, power,
+        // new BuildingDef(prefabPath, materialPath, halfX, halfZ, cost, power,
         //                 displayType, displayName, iconPath, maxHealth)
         // power: net contribution to GameState.power once placed -- the Power
         // Plant produces (+), every other building consumes (-).
-        // Use project-relative, forward-slash asset paths (VK-1346),
-        // e.g. "assets/buildings/Barracks.vfMesh" (resolved against the project
-        // root). Absolute paths still work but are not portable. iconPath is the
-        // selection-panel portrait (.vfImage) shown by VK-1348.
+        // prefabPath is the self-contained .vfPrefab (mesh + material +
+        // collider); materialPath is the prefab's own material instance, used
+        // to restore the ghost from its tint on confirm. Use project-relative,
+        // forward-slash asset paths (VK-1346, resolved against the project
+        // root). Absolute paths still work but are not portable. iconPath is
+        // the selection-panel portrait (.vfImage) shown by VK-1348.
         this.buildings = new BuildingDef[4];
         // Order must match the build-queue slot labels (GameState.buildQueue):
         // slot 0 = Barracks, slot 1 = Command, slot 2 = Refinery, slot 3 = Power.
-        this.buildings[0] = new BuildingDef("assets/buildings/Barracks_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 6.0, 75, -20, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
-        this.buildings[1] = new BuildingDef("assets/buildings/CommandCenter.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 6.0, 4.0, 50, -30, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
-        this.buildings[2] = new BuildingDef("assets/buildings/Refinery_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 40, -25, "Refinery", "Refinery", "assets/ui/icons/refinery.vfImage", 800.0);
-        this.buildings[3] = new BuildingDef("assets/buildings/PowerPlant_source.vfMesh", "assets/buildings/CommandCenter_inst.vfMatInstance", 4.0, 4.0, 60, 50, "Power", "Power Plant", "assets/ui/icons/power.vfImage", 600.0);
+        this.buildings[0] = new BuildingDef("assets/buildings/barracks_prefab.vfPrefab", "assets/buildings/barracks_inst.vfMatInstance", 6.0, 6.0, 75, -20, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
+        this.buildings[1] = new BuildingDef("assets/buildings/command_center_prefab.vfPrefab", "assets/buildings/command_center_inst.vfMatInstance", 6.0, 4.0, 50, -30, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
+        this.buildings[2] = new BuildingDef("assets/buildings/refinery_prefab.vfPrefab", "assets/buildings/refinery_inst.vfMatInstance", 4.0, 4.0, 40, -25, "Refinery", "Refinery", "assets/ui/icons/refinery.vfImage", 800.0);
+        this.buildings[3] = new BuildingDef("assets/buildings/power_plant_prefab.vfPrefab", "assets/buildings/power_plant_inst.vfMatInstance", 4.0, 4.0, 60, 50, "Power", "Power Plant", "assets/ui/icons/power.vfImage", 600.0);
         this.ghostSlot = -1;
 
-        this.ghostMatValid = "assets/buildings/GhostValid_inst.vfMatInstance";
-        this.ghostMatInvalid = "assets/buildings/GhostInvalid_inst.vfMatInstance";
+        this.ghostMatValid = "assets/buildings/selected/GhostValid_inst.vfMatInstance";
+        this.ghostMatInvalid = "assets/buildings/selected/GhostInvalid_inst.vfMatInstance";
         this.lastGhostValid = false;
+
+        this.buildTooltipId = -1;
+        this.hoveredBuildSlot = -1;
     }
 
     public function onStart(): void {
@@ -157,16 +184,22 @@ class BuildingPlacementController implements IUIButtonListener {
         }
 
         this.buildSlotIds = new int[4];
+        this.slotAffordable = new bool[4];
         for (int i = 0; i < 4; i = i + 1) {
             this.buildSlotIds[i] = Entity::findByName("RTS_HUD_BuildSlot_" + i);
+            this.slotAffordable[i] = true;
+            if (this.buildSlotIds[i] >= 0) {
+                UI::setButtonInteractable(this.buildSlotIds[i], true);
+            }
         }
+        this.setupBuildTooltip();
 
         this.placedCenters = new Vec3f[this.maxPlaced];
         this.placedHalfX = new float[this.maxPlaced];
         this.placedHalfZ = new float[this.maxPlaced];
 
-        if (this.buildings[0].meshPath == "") {
-            Log::warn("[BuildPlacement] building meshes are empty; placed buildings will be invisible until you set BuildingDef mesh/material paths to your imported assets.");
+        if (this.buildings[0].prefabPath == "") {
+            Log::warn("[BuildPlacement] building prefabs are empty; placement will do nothing until you set BuildingDef prefab paths to your authored .vfPrefab assets.");
         }
 
         Log::info("[BuildPlacement] ready.");
@@ -188,6 +221,11 @@ class BuildingPlacementController implements IUIButtonListener {
         this.prevRightDown = nowRight;
         this.prevRDown = nowR;
         this.prevEscDown = nowEsc;
+
+        // Keep the build-queue buttons in sync with the player's gold even when
+        // not placing (a slot the player cannot afford is greyed out).
+        this.updateBuildSlotAffordability();
+        this.updateBuildTooltipPosition();
 
         if (!this.placing) {
             return;
@@ -233,12 +271,12 @@ class BuildingPlacementController implements IUIButtonListener {
         this.ghostCenter = new Vec3f(snapped.x, groundY, snapped.z);
         this.ghostValid = this.isValidPlacement(this.ghostCenter, this.rotationSteps, hit.normal.y);
 
-        // The ghost is the real building mesh following the cursor.
-        Vec3f rot = new Vec3f(0.0, (float)(this.rotationSteps * 90), 0.0);
+        // The ghost is the real building prefab following the cursor. Yaw is
+        // composed on top of the prefab's authored base rotation.
         if (this.ghostEntity >= 0) {
             Entity::setActive(this.ghostEntity, true);
             Entity::setPosition(this.ghostEntity, this.ghostCenter);
-            Entity::setRotation(this.ghostEntity, rot);
+            Entity::setRotation(this.ghostEntity, this.composedRotation());
         }
 
         // Tint the ghost mesh to signal validity (green = valid, red = invalid).
@@ -271,12 +309,20 @@ class BuildingPlacementController implements IUIButtonListener {
     public function onButtonClicked(int buttonEntityId, string entityName): void {
         int slot = this.slotIndexFor(buttonEntityId);
         if (slot >= 0) {
+            // Build slots stay interactable so hover tooltips work even when
+            // unaffordable, so clicks must keep guarding the resource check.
+            if (!this.slotAffordable[slot]) {
+                Log::info("[BuildPlacement] build slot " + slot + " ignored: not enough gold.");
+                return;
+            }
+            this.hideBuildTooltip();
             this.selectedSlot = slot;
             string label = UI::getLabelText(this.buildSlotIds[slot]);
             this.enterPlacement(label);
             return;
         }
         if (buttonEntityId == this.cmdBuildId || entityName == "RTS_HUD_CmdBuild") {
+            this.hideBuildTooltip();
             this.selectedSlot = -1;
             this.enterPlacement("building");
         }
@@ -289,10 +335,20 @@ class BuildingPlacementController implements IUIButtonListener {
     public function onButtonReleased(int buttonEntityId, string entityName): void { }
 
     @Override
-    public function onButtonHoverEnter(int buttonEntityId, string entityName): void { }
+    public function onButtonHoverEnter(int buttonEntityId, string entityName): void {
+        int slot = this.slotIndexFor(buttonEntityId);
+        if (slot >= 0) {
+            this.showBuildTooltip(slot);
+        }
+    }
 
     @Override
-    public function onButtonHoverExit(int buttonEntityId, string entityName): void { }
+    public function onButtonHoverExit(int buttonEntityId, string entityName): void {
+        int slot = this.slotIndexFor(buttonEntityId);
+        if (slot >= 0 && slot == this.hoveredBuildSlot) {
+            this.hideBuildTooltip();
+        }
+    }
 
     private function slotIndexFor(int entityId): int {
         for (int i = 0; i < 4; i = i + 1) {
@@ -301,6 +357,117 @@ class BuildingPlacementController implements IUIButtonListener {
             }
         }
         return -1;
+    }
+
+    // Lazily resolve (then cache) the HUD controller script. The instance is
+    // stable for the whole play session, so the lookup runs at most once.
+    private function hud(): RTSHUDController? {
+        if (this.hudRef == null && this.hudControllerId >= 0) {
+            this.hudRef = Entity::getScript<RTSHUDController>(this.hudControllerId, "RTSHUDController");
+        }
+        return this.hudRef;
+    }
+
+    // Grey build-queue buttons the player cannot afford (restore once gold
+    // recovers). Buttons remain interactable so hover tooltips still fire; the
+    // click path guards affordability before entering placement.
+    private function updateBuildSlotAffordability(): void {
+        RTSHUDController? hud = this.hud();
+        if (hud == null) {
+            return;
+        }
+        int gold = hud.getGold();
+        for (int i = 0; i < 4; i = i + 1) {
+            if (this.buildSlotIds[i] < 0) {
+                continue;
+            }
+            bool canAfford = gold >= this.buildings[i].cost;
+            if (canAfford != this.slotAffordable[i]) {
+                this.applyBuildSlotAffordabilityColor(i, canAfford);
+                this.slotAffordable[i] = canAfford;
+            }
+        }
+    }
+
+    private function applyBuildSlotAffordabilityColor(int slot, bool canAfford): void {
+        int id = this.buildSlotIds[slot];
+        if (id < 0) {
+            return;
+        }
+        if (canAfford) {
+            UI::setButtonColors(id,
+                1.0, 1.0, 1.0, 1.0,
+                0.85, 0.92, 0.8, 1.0,
+                0.6, 0.65, 0.55, 1.0);
+        } else {
+            UI::setButtonColors(id,
+                0.34, 0.34, 0.34, 0.72,
+                0.46, 0.46, 0.42, 0.82,
+                0.32, 0.32, 0.32, 0.82);
+        }
+    }
+
+    private function setupBuildTooltip(): void {
+        this.buildTooltipId = Entity::findByName("RTS_HUD_BuildTooltip");
+        if (this.buildTooltipId < 0) {
+            int canvasId = Entity::findByName("RTS_HUD_Canvas");
+            if (canvasId >= 0) {
+                this.buildTooltipId = Entity::createChild("RTS_HUD_BuildTooltip", canvasId);
+            } else {
+                this.buildTooltipId = Entity::create("RTS_HUD_BuildTooltip");
+            }
+            if (this.buildTooltipId >= 0) {
+                Entity::addComponent(this.buildTooltipId, "UIRect");
+                Entity::addComponent(this.buildTooltipId, "UIImage");
+                Entity::addComponent(this.buildTooltipId, "UILabel");
+            }
+        }
+
+        if (this.buildTooltipId >= 0) {
+            UI::setRectPixels(this.buildTooltipId, 0.0, 0.0,  56.0, 25.0);
+            UI::setImageColor(this.buildTooltipId, 0.02, 0.025, 0.02, 0.96);
+            UI::setLabelText(this.buildTooltipId, "");
+            UI::setLabelFont(this.buildTooltipId, "assets/Roboto-Regular.vfFont");
+            UI::setLabelFontSize(this.buildTooltipId, 18.0);
+            UI::setLabelColor(this.buildTooltipId, 1.0, 0.94, 0.48, 1.0);
+            UI::setLabelStyle(this.buildTooltipId, UI::LABEL_STYLE_BOLD);
+            UI::setLabelAlignment(this.buildTooltipId, UI::LABEL_VALIGN_MIDDLE, UI::LABEL_VALIGN_MIDDLE);
+            UI::setLabelSpacing(this.buildTooltipId, 1.35, 0.0);
+            Entity::setActive(this.buildTooltipId, false);
+        }
+    }
+
+    private function showBuildTooltip(int slot): void {
+        if (this.buildTooltipId < 0) {
+            return;
+        }
+        this.hoveredBuildSlot = slot;
+        BuildingDef def = this.buildings[slot];
+        UI::setLabelText(this.buildTooltipId, parsePrimitive(def.cost));
+        this.updateBuildTooltipPosition();
+        Entity::setActive(this.buildTooltipId, true);
+    }
+
+    private function hideBuildTooltip(): void {
+        this.hoveredBuildSlot = -1;
+        if (this.buildTooltipId >= 0) {
+            Entity::setActive(this.buildTooltipId, false);
+        }
+    }
+
+    private function updateBuildTooltipPosition(): void {
+        if (this.buildTooltipId < 0 || this.hoveredBuildSlot < 0) {
+            return;
+        }
+        float x = Input::getViewportMouseX() - 56.0;
+        float y = Input::getViewportMouseY() - 42.0;
+        if (y < 8.0) {
+            y = Input::getViewportMouseY() + 18.0;
+        }
+        if (x < 8.0) {
+            x = 8.0;
+        }
+        UI::setRectPixels(this.buildTooltipId, x, y, 56.0, 25.0);
     }
 
     // Read by SelectionController so a placement click is not also a selection
@@ -329,7 +496,13 @@ class BuildingPlacementController implements IUIButtonListener {
 
     private function cancel(): void {
         this.placing = false;
-        this.hideGhost();
+        // Destroy (not just hide) the ghost so repeated enter/cancel cycles do
+        // not accumulate hidden tinted prefab instances in the scene.
+        if (this.ghostEntity >= 0) {
+            Entity::destroy(this.ghostEntity);
+            this.ghostEntity = -1;
+            this.ghostSlot = -1;
+        }
         SelectionController sel = this.selection();
         if (sel != null) {
             sel.setPlacementActive(false);
@@ -362,12 +535,28 @@ class BuildingPlacementController implements IUIButtonListener {
         return 0;
     }
 
-    private function meshFor(int slot): string {
-        return this.buildings[slot].meshPath;
+    private function prefabFor(int slot): string {
+        return this.buildings[slot].prefabPath;
     }
 
     private function materialFor(int slot): string {
         return this.buildings[slot].materialPath;
+    }
+
+    // World-up yaw composed onto the prefab's authored base rotation. The engine
+    // applies Euler as Rx*Ry*Rz, so for a Blender-import base of -90 deg X the
+    // identity Ry(yaw)*Rx(-90) == Rx(-90)*Rz(yaw) puts the yaw into the Z slot
+    // (negated for a +90 base); an upright base takes it in Y as usual.
+    private function composedRotation(): Vec3f {
+        float yaw = (float)(this.rotationSteps * 90);
+        float bx = this.ghostBaseRot.x;
+        if (bx < -45.0) {
+            return new Vec3f(bx, this.ghostBaseRot.y, this.ghostBaseRot.z + yaw);
+        }
+        if (bx > 45.0) {
+            return new Vec3f(bx, this.ghostBaseRot.y, this.ghostBaseRot.z - yaw);
+        }
+        return new Vec3f(bx, this.ghostBaseRot.y + yaw, this.ghostBaseRot.z);
     }
 
     // Create/refresh the reusable ghost entity for the selected build slot. Rebuilds
@@ -381,13 +570,25 @@ class BuildingPlacementController implements IUIButtonListener {
             Entity::destroy(this.ghostEntity);
             this.ghostEntity = -1;
         }
-        int id = Entity::create("BuildGhost");
-        string mp = this.meshFor(slot);
-        if (mp != "") {
-            Entity::setMesh(id, mp);
+        string pp = this.prefabFor(slot);
+        if (pp == "") {
+            Log::warn("[BuildPlacement] slot " + slot + " has no prefab path; cannot build ghost.");
+            return;
         }
+        // The prefab carries mesh + material + collider. No physics body is
+        // created for the ghost (colliders are inert until Physics::createBody,
+        // VK-1351), so it never blocks the terrain picker.
+        int id = Entity::instantiate(pp);
+        if (id < 0) {
+            Log::warn("[BuildPlacement] failed to instantiate prefab '" + pp + "'.");
+            return;
+        }
+        Entity::setName(id, "BuildGhost");
+        // Capture the authored base rotation so cursor yaw composes on top of
+        // the Blender-import tilt instead of clobbering it.
+        this.ghostBaseRot = Entity::getRotation(id);
         // The ghost wears a tint material (red until the first valid check); the
-        // real building material is applied only on confirm in commitPlacement().
+        // prefab's real material is restored on confirm in commitPlacement().
         if (this.ghostMatInvalid != "") {
             Entity::setMaterial(id, this.ghostMatInvalid);
         }
@@ -478,52 +679,62 @@ class BuildingPlacementController implements IUIButtonListener {
             return;
         }
 
-        // Deduct gold from the single source of truth in RTSHUDController/GameState.
-        if (this.hudControllerId < 0) {
-            Log::warn("[BuildPlacement] no HUD controller; cannot deduct gold.");
-            return;
+        // Resolve the entity to promote BEFORE spending gold so a failed prefab
+        // instantiate can never burn resources. Normally the ghost already
+        // exists; the fresh-instantiate path is defensive only.
+        int slot = this.resolvedSlot();
+        int id = this.ghostEntity;
+        if (id < 0) {
+            id = Entity::instantiate(this.prefabFor(slot));
+            if (id < 0) {
+                Log::warn("[BuildPlacement] cannot place: prefab instantiate failed for slot " + slot + ".");
+                return;
+            }
+            this.ghostBaseRot = Entity::getRotation(id);
+            // Adopt it as the ghost so it is cleaned up if the gold check fails.
+            this.ghostEntity = id;
+            this.ghostSlot = slot;
         }
-        RTSHUDController hud = Entity::getScript<RTSHUDController>(this.hudControllerId, "RTSHUDController");
+
+        // Deduct gold from the single source of truth in RTSHUDController/GameState.
+        RTSHUDController? hud = this.hud();
         if (hud == null) {
             Log::warn("[BuildPlacement] HUD controller script unavailable; cannot deduct gold.");
             return;
         }
-        int buildCost = this.buildings[this.resolvedSlot()].cost;
+        int buildCost = this.buildings[slot].cost;
         if (!hud.trySpendGold(buildCost)) {
             Log::warn("[BuildPlacement] not enough gold (need " + buildCost + ").");
             return;
         }
         // Apply the building's power delta (Power Plant produces, others consume).
-        hud.addPower(this.buildings[this.resolvedSlot()].power);
+        hud.addPower(this.buildings[slot].power);
 
-        // Promote the ghost in place into the placed building (it already has the
-        // mesh and is at the right pose). The ghost wears a tint material, so swap
-        // the real building material back on before finalizing, then clear the slot
-        // so a fresh ghost is created for the next placement.
-        int slot = this.resolvedSlot();
-        int id = this.ghostEntity;
-        if (id < 0) {
-            id = Entity::create("Building_" + this.placedCount);
-            if (this.meshFor(slot) != "") { Entity::setMesh(id, this.meshFor(slot)); }
-        }
+        // Promote the ghost in place into the placed building (the prefab already
+        // carries the mesh, material, and collider, and the ghost is at the right
+        // pose). The ghost wears a tint material, so restore the prefab's real
+        // material, then clear the slot so a fresh ghost is created for the next
+        // placement.
         if (this.materialFor(slot) != "") { Entity::setMaterial(id, this.materialFor(slot)); }
         Entity::setName(id, "Building_" + this.placedCount);
         Entity::setActive(id, true);
         Entity::setPosition(id, this.ghostCenter);
-        Entity::setRotation(id, new Vec3f(0.0, (float)(this.rotationSteps * 90), 0.0));
+        Entity::setRotation(id, this.composedRotation());
 
-        // The placed building (unlike the ghost) gets a box collider so it can be
-        // picked / block movement. Uses un-rotated footprint extents -- the box
-        // rotates with the entity transform.
+        // The placed building (unlike the ghost) gets a real physics body so it
+        // can be picked / block movement. VK-1351: the Jolt body is built from
+        // the box collider authored in the prefab -- no manual sizing needed.
         if (this.addCollider) {
-            BuildingDef def = this.buildings[slot];
-            Entity::addComponent(id, "Collider");
-            Physics::setColliderSize(id, new Vec3f(def.halfX, this.buildingHeight, def.halfZ));
-            Physics::setCollisionLayer(id, this.colliderLayer);
-            // VK-1351: build the real Jolt body now that the entity is positioned and the
-            // collider is configured, so the building is mouse-pickable / collidable.
             Physics::createBody(id);
         }
+
+        // Fog of war (VK-1314): player buildings are vision sources — reveal a
+        // generous area around the new building. Team marks it player-owned for
+        // the engine-side fog system.
+        PluginComponent::add(id, "Team");
+        PluginComponent::setInt(id, "Team", "teamId", 0);
+        PluginComponent::add(id, "Vision");
+        PluginComponent::setFloat(id, "Vision", "sightRadius", 45.0);
 
         this.ghostEntity = -1;
         this.ghostSlot = -1;

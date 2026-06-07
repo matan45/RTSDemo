@@ -20,6 +20,7 @@ import * from "../lib/engine/Picker.mt";
 import * from "../lib/engine/RaycastHit.mt";
 import * from "../lib/engine/Decal.mt";
 import * from "../lib/engine/Log.mt";
+import * from "../lib/engine/PluginComponent.mt";
 import * from "../lib/core/collections/HashMap.mt";
 import * from "../lib/core/primitives/Int.mt";
 import * from "../lib/math/Vec3f.mt";
@@ -44,6 +45,11 @@ class SelectionController {
     private bool prevEscDown;
     private bool prevLeftDown;
 
+    // Fog of war (VK-1314): frames until the next Vision sweep. Player-team
+    // Selectable entities (units) get a Vision component so they reveal the map;
+    // re-swept periodically to catch units spawned after start.
+    private int visionSweepCooldown;
+
     // Reusable ground-projected decal marking the selected building (green =
     // player, red = enemy). -1 until created; lastHighlightId tracks which
     // building it is glued to so commands are only re-issued on change.
@@ -58,6 +64,7 @@ class SelectionController {
         this.prevLeftDown = false;
         this.highlightId = -1;
         this.lastHighlightId = -1;
+        this.visionSweepCooldown = 0;
     }
 
     public function onStart(): void {
@@ -80,6 +87,14 @@ class SelectionController {
 
         this.handleClick();
         this.updateHighlight();
+
+        // Fog of war: periodically grant Vision to player units (cheap — only
+        // entities missing the component are touched).
+        this.visionSweepCooldown = this.visionSweepCooldown - 1;
+        if (this.visionSweepCooldown <= 0) {
+            this.visionSweepCooldown = 60;
+            this.grantVisionToPlayerUnits();
+        }
     }
 
     // Select on the left-button RELEASE edge (down -> up this frame).
@@ -205,6 +220,26 @@ class SelectionController {
             Decal::setColor(this.highlightId, 1.0, 0.3, 0.25, 0.6);
         }
         Entity::setActive(this.highlightId, true);
+    }
+
+    // Fog of war: every player-team Selectable entity (units; buildings are
+    // covered in registerBuilding) gets a Vision component so it reveals the
+    // map around itself. Entities with a non-player Team are skipped — and the
+    // engine-side fog system filters by Team anyway.
+    private function grantVisionToPlayerUnits(): void {
+        int[] ids = PluginComponent::findAll("Selectable");
+        for (int i = 0; i < ids.length; i = i + 1) {
+            int id = ids[i];
+            if (PluginComponent::has(id, "Vision")) {
+                continue;
+            }
+            if (PluginComponent::has(id, "Team") && PluginComponent::getInt(id, "Team", "teamId") != 0) {
+                continue;
+            }
+            PluginComponent::add(id, "Vision");
+            PluginComponent::setFloat(id, "Vision", "sightRadius", 30.0);
+            Log::info("[Selection] granted Vision to entity " + id);
+        }
     }
 
     // Optional: register any scene entity named "EnemyBuilding" as an enemy-faction

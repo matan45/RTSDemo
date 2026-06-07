@@ -1,0 +1,63 @@
+{
+  "prefab": {
+    "entity": {
+      "children": [],
+      "components": {
+        "collider": {
+          "collisionLayer": 1,
+          "friction": 0.5,
+          "height": 2.0,
+          "isTrigger": false,
+          "meshRef": "0000000000000000",
+          "offset": [
+            0.0,
+            0.0,
+            2.0
+          ],
+          "restitution": 0.0,
+          "shape": "box",
+          "size": [
+            8.0,
+            5,
+            4.0
+          ],
+          "submeshIndex": -1
+        },
+        "material": {
+          "defaultMaterialRef": "c2a2295342efb191",
+          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/command_center_inst.vfMatInstance",
+          "parameterOverrides": {},
+          "subMeshMaterials": {}
+        },
+        "mesh": {
+          "meshRef": "85b448075e8afb7d",
+          "meshRefPath": "C:/matan/RTSDemo/assets/buildings/command_center.vfMesh",
+          "showBoundingBox": false,
+          "submeshIndex": -1
+        }
+      },
+      "isActive": true,
+      "name": "command_center",
+      "transform": {
+        "isStatic": false,
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "name": "command_center"
+  },
+  "version": "1.0"
+}

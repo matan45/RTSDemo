@@ -115,7 +115,19 @@ class RTSCameraController {
     }
 
     public function onDestroy(): void {
-        
+
+    }
+
+    // Snap the camera focal point to a world XZ position (clamped to map bounds).
+    // Used by MinimapController for minimap click-jump / drag-to-pan.
+    public function jumpTo(float x, float z): void {
+        this.focalX = x;
+        this.focalZ = z;
+        if (this.focalX < this.mapMinX) { this.focalX = this.mapMinX; }
+        if (this.focalX > this.mapMaxX) { this.focalX = this.mapMaxX; }
+        if (this.focalZ < this.mapMinZ) { this.focalZ = this.mapMinZ; }
+        if (this.focalZ > this.mapMaxZ) { this.focalZ = this.mapMaxZ; }
+        this.applyTransform();
     }
 
     private function applyTransform(): void {

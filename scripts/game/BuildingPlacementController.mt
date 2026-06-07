@@ -424,14 +424,15 @@ class BuildingPlacementController implements IUIButtonListener {
         }
 
         if (this.buildTooltipId >= 0) {
-            UI::setRectPixels(this.buildTooltipId, 0.0, 0.0, 230.0, 68.0);
-            UI::setImageColor(this.buildTooltipId, 0.04, 0.05, 0.04, 0.92);
+            UI::setRectPixels(this.buildTooltipId, 0.0, 0.0,  56.0, 25.0);
+            UI::setImageColor(this.buildTooltipId, 0.02, 0.025, 0.02, 0.96);
             UI::setLabelText(this.buildTooltipId, "");
+            UI::setLabelFont(this.buildTooltipId, "assets/Roboto-Regular.vfFont");
             UI::setLabelFontSize(this.buildTooltipId, 18.0);
-            UI::setLabelColor(this.buildTooltipId, 0.9, 0.86, 0.68, 1.0);
+            UI::setLabelColor(this.buildTooltipId, 1.0, 0.94, 0.48, 1.0);
             UI::setLabelStyle(this.buildTooltipId, UI::LABEL_STYLE_BOLD);
-            UI::setLabelAlignment(this.buildTooltipId, UI::LABEL_ALIGN_LEFT, UI::LABEL_VALIGN_MIDDLE);
-            UI::setLabelSpacing(this.buildTooltipId, 1.0, 0.0);
+            UI::setLabelAlignment(this.buildTooltipId, UI::LABEL_VALIGN_MIDDLE, UI::LABEL_VALIGN_MIDDLE);
+            UI::setLabelSpacing(this.buildTooltipId, 1.35, 0.0);
             Entity::setActive(this.buildTooltipId, false);
         }
     }
@@ -442,7 +443,7 @@ class BuildingPlacementController implements IUIButtonListener {
         }
         this.hoveredBuildSlot = slot;
         BuildingDef def = this.buildings[slot];
-        UI::setLabelText(this.buildTooltipId, def.displayName + "\nCost: " + def.cost + " gold");
+        UI::setLabelText(this.buildTooltipId, parsePrimitive(def.cost));
         this.updateBuildTooltipPosition();
         Entity::setActive(this.buildTooltipId, true);
     }
@@ -458,12 +459,15 @@ class BuildingPlacementController implements IUIButtonListener {
         if (this.buildTooltipId < 0 || this.hoveredBuildSlot < 0) {
             return;
         }
-        float x = Input::getViewportMouseX() + 18.0;
-        float y = Input::getViewportMouseY() - 82.0;
+        float x = Input::getViewportMouseX() - 56.0;
+        float y = Input::getViewportMouseY() - 42.0;
         if (y < 8.0) {
-            y = Input::getViewportMouseY() + 22.0;
+            y = Input::getViewportMouseY() + 18.0;
         }
-        UI::setRectPixels(this.buildTooltipId, x, y, 230.0, 68.0);
+        if (x < 8.0) {
+            x = 8.0;
+        }
+        UI::setRectPixels(this.buildTooltipId, x, y, 56.0, 25.0);
     }
 
     // Read by SelectionController so a placement click is not also a selection

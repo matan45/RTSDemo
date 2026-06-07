@@ -87,6 +87,11 @@
       "maxSceneColliders": 32
     }
   },
+  "pluginSettings": {
+    "RTSGameplay": {
+      "enabled": true
+    }
+  },
   "renderSettings": {
     "animationLOD": {
       "lod0Distance": 25.0,

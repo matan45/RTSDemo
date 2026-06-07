@@ -114,6 +114,11 @@ class BuildingPlacementController implements IUIButtonListener {
     // native spam). Buttons start interactable in the scene, hence true.
     private bool[] slotAffordable;
 
+    // Build-slot hover tooltip. Created under the HUD canvas at runtime so the
+    // scene does not need a dedicated authored widget.
+    private int buildTooltipId;
+    private int hoveredBuildSlot;
+
     constructor() {
         this.cmdBuildId = -1;
         this.hudControllerId = -1;
@@ -166,6 +171,9 @@ class BuildingPlacementController implements IUIButtonListener {
         this.ghostMatValid = "assets/buildings/selected/GhostValid_inst.vfMatInstance";
         this.ghostMatInvalid = "assets/buildings/selected/GhostInvalid_inst.vfMatInstance";
         this.lastGhostValid = false;
+
+        this.buildTooltipId = -1;
+        this.hoveredBuildSlot = -1;
     }
 
     public function onStart(): void {
@@ -180,7 +188,11 @@ class BuildingPlacementController implements IUIButtonListener {
         for (int i = 0; i < 4; i = i + 1) {
             this.buildSlotIds[i] = Entity::findByName("RTS_HUD_BuildSlot_" + i);
             this.slotAffordable[i] = true;
+            if (this.buildSlotIds[i] >= 0) {
+                UI::setButtonInteractable(this.buildSlotIds[i], true);
+            }
         }
+        this.setupBuildTooltip();
 
         this.placedCenters = new Vec3f[this.maxPlaced];
         this.placedHalfX = new float[this.maxPlaced];
@@ -211,8 +223,9 @@ class BuildingPlacementController implements IUIButtonListener {
         this.prevEscDown = nowEsc;
 
         // Keep the build-queue buttons in sync with the player's gold even when
-        // not placing (a slot the player cannot afford is disabled/greyed out).
+        // not placing (a slot the player cannot afford is greyed out).
         this.updateBuildSlotAffordability();
+        this.updateBuildTooltipPosition();
 
         if (!this.placing) {
             return;
@@ -296,18 +309,20 @@ class BuildingPlacementController implements IUIButtonListener {
     public function onButtonClicked(int buttonEntityId, string entityName): void {
         int slot = this.slotIndexFor(buttonEntityId);
         if (slot >= 0) {
-            // Defensive: a disabled button should not deliver clicks, but never
-            // enter placement for a building the player cannot afford.
+            // Build slots stay interactable so hover tooltips work even when
+            // unaffordable, so clicks must keep guarding the resource check.
             if (!this.slotAffordable[slot]) {
                 Log::info("[BuildPlacement] build slot " + slot + " ignored: not enough gold.");
                 return;
             }
+            this.hideBuildTooltip();
             this.selectedSlot = slot;
             string label = UI::getLabelText(this.buildSlotIds[slot]);
             this.enterPlacement(label);
             return;
         }
         if (buttonEntityId == this.cmdBuildId || entityName == "RTS_HUD_CmdBuild") {
+            this.hideBuildTooltip();
             this.selectedSlot = -1;
             this.enterPlacement("building");
         }
@@ -320,10 +335,20 @@ class BuildingPlacementController implements IUIButtonListener {
     public function onButtonReleased(int buttonEntityId, string entityName): void { }
 
     @Override
-    public function onButtonHoverEnter(int buttonEntityId, string entityName): void { }
+    public function onButtonHoverEnter(int buttonEntityId, string entityName): void {
+        int slot = this.slotIndexFor(buttonEntityId);
+        if (slot >= 0) {
+            this.showBuildTooltip(slot);
+        }
+    }
 
     @Override
-    public function onButtonHoverExit(int buttonEntityId, string entityName): void { }
+    public function onButtonHoverExit(int buttonEntityId, string entityName): void {
+        int slot = this.slotIndexFor(buttonEntityId);
+        if (slot >= 0 && slot == this.hoveredBuildSlot) {
+            this.hideBuildTooltip();
+        }
+    }
 
     private function slotIndexFor(int entityId): int {
         for (int i = 0; i < 4; i = i + 1) {
@@ -343,9 +368,9 @@ class BuildingPlacementController implements IUIButtonListener {
         return this.hudRef;
     }
 
-    // Disable build-queue buttons the player cannot afford (re-enable once gold
-    // recovers). Pushes UI::setButtonInteractable only when affordability flips,
-    // mirroring the ghost-tint swap pattern.
+    // Grey build-queue buttons the player cannot afford (restore once gold
+    // recovers). Buttons remain interactable so hover tooltips still fire; the
+    // click path guards affordability before entering placement.
     private function updateBuildSlotAffordability(): void {
         RTSHUDController? hud = this.hud();
         if (hud == null) {
@@ -358,10 +383,87 @@ class BuildingPlacementController implements IUIButtonListener {
             }
             bool canAfford = gold >= this.buildings[i].cost;
             if (canAfford != this.slotAffordable[i]) {
-                UI::setButtonInteractable(this.buildSlotIds[i], canAfford);
+                this.applyBuildSlotAffordabilityColor(i, canAfford);
                 this.slotAffordable[i] = canAfford;
             }
         }
+    }
+
+    private function applyBuildSlotAffordabilityColor(int slot, bool canAfford): void {
+        int id = this.buildSlotIds[slot];
+        if (id < 0) {
+            return;
+        }
+        if (canAfford) {
+            UI::setButtonColors(id,
+                1.0, 1.0, 1.0, 1.0,
+                0.85, 0.92, 0.8, 1.0,
+                0.6, 0.65, 0.55, 1.0);
+        } else {
+            UI::setButtonColors(id,
+                0.34, 0.34, 0.34, 0.72,
+                0.46, 0.46, 0.42, 0.82,
+                0.32, 0.32, 0.32, 0.82);
+        }
+    }
+
+    private function setupBuildTooltip(): void {
+        this.buildTooltipId = Entity::findByName("RTS_HUD_BuildTooltip");
+        if (this.buildTooltipId < 0) {
+            int canvasId = Entity::findByName("RTS_HUD_Canvas");
+            if (canvasId >= 0) {
+                this.buildTooltipId = Entity::createChild("RTS_HUD_BuildTooltip", canvasId);
+            } else {
+                this.buildTooltipId = Entity::create("RTS_HUD_BuildTooltip");
+            }
+            if (this.buildTooltipId >= 0) {
+                Entity::addComponent(this.buildTooltipId, "UIRect");
+                Entity::addComponent(this.buildTooltipId, "UIImage");
+                Entity::addComponent(this.buildTooltipId, "UILabel");
+            }
+        }
+
+        if (this.buildTooltipId >= 0) {
+            UI::setRectPixels(this.buildTooltipId, 0.0, 0.0, 230.0, 68.0);
+            UI::setImageColor(this.buildTooltipId, 0.04, 0.05, 0.04, 0.92);
+            UI::setLabelText(this.buildTooltipId, "");
+            UI::setLabelFontSize(this.buildTooltipId, 18.0);
+            UI::setLabelColor(this.buildTooltipId, 0.9, 0.86, 0.68, 1.0);
+            UI::setLabelStyle(this.buildTooltipId, UI::LABEL_STYLE_BOLD);
+            UI::setLabelAlignment(this.buildTooltipId, UI::LABEL_ALIGN_LEFT, UI::LABEL_VALIGN_MIDDLE);
+            UI::setLabelSpacing(this.buildTooltipId, 1.0, 0.0);
+            Entity::setActive(this.buildTooltipId, false);
+        }
+    }
+
+    private function showBuildTooltip(int slot): void {
+        if (this.buildTooltipId < 0) {
+            return;
+        }
+        this.hoveredBuildSlot = slot;
+        BuildingDef def = this.buildings[slot];
+        UI::setLabelText(this.buildTooltipId, def.displayName + "\nCost: " + def.cost + " gold");
+        this.updateBuildTooltipPosition();
+        Entity::setActive(this.buildTooltipId, true);
+    }
+
+    private function hideBuildTooltip(): void {
+        this.hoveredBuildSlot = -1;
+        if (this.buildTooltipId >= 0) {
+            Entity::setActive(this.buildTooltipId, false);
+        }
+    }
+
+    private function updateBuildTooltipPosition(): void {
+        if (this.buildTooltipId < 0 || this.hoveredBuildSlot < 0) {
+            return;
+        }
+        float x = Input::getViewportMouseX() + 18.0;
+        float y = Input::getViewportMouseY() - 82.0;
+        if (y < 8.0) {
+            y = Input::getViewportMouseY() + 22.0;
+        }
+        UI::setRectPixels(this.buildTooltipId, x, y, 230.0, 68.0);
     }
 
     // Read by SelectionController so a placement click is not also a selection

@@ -19,8 +19,9 @@
 //   b) the footprint stays inside the configured map bounds
 //   c) the footprint does not overlap an already-placed building (AABB test)
 //   d) the footprint is on currently-visible terrain (fog of war, VK-1314) --
-//      WorldMask::sample reads the fog mask the shaders use; explored-but-unseen
-//      and unexplored cells both reject. No-op while fog is disabled (F10).
+//      RTSFog::isVisible queries the RTSGameplay plugin's visibility grid (the
+//      exact data behind the on-screen mask); explored-but-unseen and unexplored
+//      cells both reject. No-op while fog is disabled (F10).
 //
 // Attach via a ScriptComponent on an always-active entity (e.g. "GameSystems").
 
@@ -32,13 +33,13 @@ import * from "../lib/engine/UI.mt";
 import * from "../lib/engine/Picker.mt";
 import * from "../lib/engine/RaycastHit.mt";
 import * from "../lib/engine/Terrain.mt";
-import * from "../lib/engine/WorldMask.mt";
 import * from "../lib/engine/Physics.mt";
 import * from "../lib/engine/Log.mt";
 import * from "../lib/engine/PluginComponent.mt";
 import * from "../lib/engine/IUIButtonListener.mt";
 import * from "../lib/math/Vec3f.mt";
 import * from "./RTSHUDController.mt";
+import * from "./RTSFog.mt";
 import * from "./BuildingDef.mt";
 import * from "./BuildingInfo.mt";
 import * from "./SelectionController.mt";
@@ -88,11 +89,6 @@ class BuildingPlacementController implements IUIButtonListener {
     // Config.
     private float gridSize;
     private float slopeMinNormalY;
-
-    // Fog of war: every footprint sample must be currently visible. The mask is
-    // 1.0 visible, ~0.4 explored-not-visible, 0.0 unexplored (and 1.0 when fog
-    // is off), so 0.9 accepts only visible cells with headroom for filtering.
-    private float fogVisibleMin;
 
     // Build a physics body for placed buildings (so they can be selected /
     // block). The collider itself (shape/size/offset/layer) is authored in the
@@ -151,7 +147,6 @@ class BuildingPlacementController implements IUIButtonListener {
 
         this.gridSize = 4.0;
         this.slopeMinNormalY = 0.85;
-        this.fogVisibleMin = 0.9;
         this.addCollider = true;
         this.mapMinX = -256.0;
         this.mapMaxX = 256.0;
@@ -680,8 +675,8 @@ class BuildingPlacementController implements IUIButtonListener {
         }
 
         // (d) fog of war: the whole footprint must be on currently-visible
-        // terrain. WorldMask::sample returns 1.0 when fog is off / unbound, so
-        // this rule disappears with the fog (F10).
+        // terrain. RTSFog reports VISIBLE everywhere while fog is inert or
+        // disabled, so this rule disappears with the fog (F10).
         if (!this.footprintVisible(center, hx, hz)) {
             return false;
         }
@@ -690,14 +685,14 @@ class BuildingPlacementController implements IUIButtonListener {
     }
 
     // True only if the footprint center and all four corners are currently
-    // visible (mask >= fogVisibleMin). Five samples are plenty against the
-    // fog grid's 2 m cells at these building sizes.
+    // visible. Five samples are plenty against the fog grid's 2 m cells at
+    // these building sizes.
     private function footprintVisible(Vec3f center, float hx, float hz): bool {
-        if (WorldMask::sample(center.x, center.z) < this.fogVisibleMin) { return false; }
-        if (WorldMask::sample(center.x - hx, center.z - hz) < this.fogVisibleMin) { return false; }
-        if (WorldMask::sample(center.x + hx, center.z - hz) < this.fogVisibleMin) { return false; }
-        if (WorldMask::sample(center.x - hx, center.z + hz) < this.fogVisibleMin) { return false; }
-        if (WorldMask::sample(center.x + hx, center.z + hz) < this.fogVisibleMin) { return false; }
+        if (!RTSFog::isVisible(center.x, center.z)) { return false; }
+        if (!RTSFog::isVisible(center.x - hx, center.z - hz)) { return false; }
+        if (!RTSFog::isVisible(center.x + hx, center.z - hz)) { return false; }
+        if (!RTSFog::isVisible(center.x - hx, center.z + hz)) { return false; }
+        if (!RTSFog::isVisible(center.x + hx, center.z + hz)) { return false; }
         return true;
     }
 

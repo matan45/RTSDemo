@@ -57,8 +57,12 @@ class MinimapController {
     // panning (clamped) even if the cursor slips off the minimap rect.
     private bool draggingFromMinimap;
 
-    // Clamp for view-rect corner rays that point near/above the horizon.
-    private float maxRayDistance = 1000.0;
+    // Far cap for view-rect corner rays, as a multiple of the camera's height
+    // above the ground. With a 90-degree vertical FOV at pitch -50 the top
+    // frustum rays nearly graze the horizon (-5 degrees), so the TRUE ground
+    // footprint reaches the map border; capping at a few camera-heights keeps
+    // the rectangle matched to the readable foreground instead of the horizon.
+    private float viewDistanceFactor = 4.0;
 
     private float DEG_TO_RAD = 0.01745329252;
 
@@ -172,7 +176,8 @@ class MinimapController {
     // under the camera, clamp to the map bounds, and fit the scene-authored
     // view-rect UIImage to their bounding box on the minimap. Analytic ray-plane
     // math (no terrain raycasts) so near-horizon rays degrade gracefully instead
-    // of missing: they clamp to maxRayDistance and then to the map border.
+    // of missing: they clamp to the zoom-adaptive far cap (viewDistanceFactor
+    // camera-heights) and then to the map border.
     private function updateViewRect(float[] rect): void {
         if (this.viewRectId < 0 || this.cameraId < 0) {
             return;
@@ -215,6 +220,11 @@ class MinimapController {
             groundY = Terrain::heightAt(camPos.x, camPos.z);
         }
 
+        // Zoom-adaptive far cap (see viewDistanceFactor).
+        float heightAbove = camPos.y - groundY;
+        if (heightAbove < 1.0) { heightAbove = 1.0; }
+        float tCap = this.viewDistanceFactor * heightAbove;
+
         float minWX = this.mapMaxX;
         float maxWX = this.mapMinX;
         float minWZ = this.mapMaxZ;
@@ -231,10 +241,10 @@ class MinimapController {
             float dirY = fwdY + sv * tanV * upY;
             float dirZ = fwdZ + su * tanH * rightZ + sv * tanV * upZ;
 
-            float t = this.maxRayDistance;
+            float t = tCap;
             if (dirY < -0.001) {
                 t = (groundY - camPos.y) / dirY;
-                if (t > this.maxRayDistance) { t = this.maxRayDistance; }
+                if (t > tCap) { t = tCap; }
             }
 
             float wx = camPos.x + dirX * t;

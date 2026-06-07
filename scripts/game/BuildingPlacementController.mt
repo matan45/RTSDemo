@@ -436,8 +436,9 @@ class BuildingPlacementController implements IUIButtonListener {
             UI::setLabelFontSize(this.buildTooltipId, 18.0);
             UI::setLabelColor(this.buildTooltipId, 1.0, 0.94, 0.48, 1.0);
             UI::setLabelStyle(this.buildTooltipId, UI::LABEL_STYLE_BOLD);
+            UI::setLabelOverflow(this.buildTooltipId, UI::LABEL_CLIP);
             UI::setLabelAlignment(this.buildTooltipId, UI::LABEL_VALIGN_MIDDLE, UI::LABEL_VALIGN_MIDDLE);
-            UI::setLabelSpacing(this.buildTooltipId, 1.35, 0.0);
+            UI::setLabelSpacing(this.buildTooltipId, 1.0, 5.0);
             Entity::setActive(this.buildTooltipId, false);
         }
     }

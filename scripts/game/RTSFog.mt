@@ -28,4 +28,10 @@ public class RTSFog {
     public static function isVisible(float worldX, float worldZ): bool {
         return _rts_fog_state(worldX, worldZ) == RTSFog::VISIBLE;
     }
+
+    // Batch query: one native call for a whole set of points (footprint
+    // corners, AI scans). Returns one state per (xs[i], zs[i]) pair.
+    public static function states(float[] xs, float[] zs): int[] {
+        return _rts_fog_states(xs, zs);
+    }
 }

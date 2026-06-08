@@ -194,6 +194,10 @@
       "terrainFrustumCullingEnabled": false,
       "terrainMeshletCullingEnabled": false
     },
+    "display": {
+      "msaa": 2,
+      "presentMode": 1
+    },
     "distanceCulling": {
       "billboardDistance": 1000.0,
       "decalDistance": 200.0,

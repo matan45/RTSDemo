@@ -370,6 +370,7 @@ class UnitSelectionController {
     private function createRing(): int {
         int id = Entity::create("UnitSelectionRing");
         Entity::addComponent(id, "Decal");
+        Decal::setShape(id, Decal::SHAPE_CIRCLE);
         Entity::setRotation(id, new Vec3f(90.0, 0.0, 0.0));
         Decal::setEdgeFalloff(id, 0.35);
         Decal::setSortPriority(id, 11);

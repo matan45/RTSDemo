@@ -18,6 +18,10 @@
 //      (normal.y >= slopeMinNormalY); rejects cliffs
 //   b) the footprint stays inside the configured map bounds
 //   c) the footprint does not overlap an already-placed building (AABB test)
+//   d) the footprint is on currently-visible terrain (fog of war, VK-1314) --
+//      RTSFog::isVisible queries the RTSGameplay plugin's visibility grid (the
+//      exact data behind the on-screen mask); explored-but-unseen and unexplored
+//      cells both reject. No-op while fog is disabled (F10).
 //
 // Attach via a ScriptComponent on an always-active entity (e.g. "GameSystems").
 
@@ -35,6 +39,7 @@ import * from "../lib/engine/PluginComponent.mt";
 import * from "../lib/engine/IUIButtonListener.mt";
 import * from "../lib/math/Vec3f.mt";
 import * from "./RTSHUDController.mt";
+import * from "./RTSFog.mt";
 import * from "./BuildingDef.mt";
 import * from "./BuildingInfo.mt";
 import * from "./SelectionController.mt";
@@ -297,7 +302,7 @@ class BuildingPlacementController implements IUIButtonListener {
             if (this.ghostValid) {
                 this.commitPlacement();
             } else {
-                Log::info("[BuildPlacement] left-click ignored: invalid spot (slope/bounds/overlap)");
+                Log::info("[BuildPlacement] left-click ignored: invalid spot (slope/bounds/overlap/fog)");
             }
         }
     }
@@ -431,8 +436,9 @@ class BuildingPlacementController implements IUIButtonListener {
             UI::setLabelFontSize(this.buildTooltipId, 18.0);
             UI::setLabelColor(this.buildTooltipId, 1.0, 0.94, 0.48, 1.0);
             UI::setLabelStyle(this.buildTooltipId, UI::LABEL_STYLE_BOLD);
+            UI::setLabelOverflow(this.buildTooltipId, UI::LABEL_CLIP);
             UI::setLabelAlignment(this.buildTooltipId, UI::LABEL_VALIGN_MIDDLE, UI::LABEL_VALIGN_MIDDLE);
-            UI::setLabelSpacing(this.buildTooltipId, 1.35, 0.0);
+            UI::setLabelSpacing(this.buildTooltipId, 1.0, 5.0);
             Entity::setActive(this.buildTooltipId, false);
         }
     }
@@ -669,6 +675,25 @@ class BuildingPlacementController implements IUIButtonListener {
             }
         }
 
+        // (d) fog of war: the whole footprint must be on currently-visible
+        // terrain. RTSFog reports VISIBLE everywhere while fog is inert or
+        // disabled, so this rule disappears with the fog (F10).
+        if (!this.footprintVisible(center, hx, hz)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // True only if the footprint center and all four corners are currently
+    // visible. Five samples are plenty against the fog grid's 2 m cells at
+    // these building sizes.
+    private function footprintVisible(Vec3f center, float hx, float hz): bool {
+        if (!RTSFog::isVisible(center.x, center.z)) { return false; }
+        if (!RTSFog::isVisible(center.x - hx, center.z - hz)) { return false; }
+        if (!RTSFog::isVisible(center.x + hx, center.z - hz)) { return false; }
+        if (!RTSFog::isVisible(center.x - hx, center.z + hz)) { return false; }
+        if (!RTSFog::isVisible(center.x + hx, center.z + hz)) { return false; }
         return true;
     }
 

@@ -87,6 +87,11 @@
       "maxSceneColliders": 32
     }
   },
+  "pluginSettings": {
+    "RTSGameplay": {
+      "enabled": true
+    }
+  },
   "renderSettings": {
     "animationLOD": {
       "lod0Distance": 25.0,
@@ -188,6 +193,10 @@
       "occlusionCullingEnabled": true,
       "terrainFrustumCullingEnabled": false,
       "terrainMeshletCullingEnabled": false
+    },
+    "display": {
+      "msaa": 0,
+      "presentMode": 0
     },
     "distanceCulling": {
       "billboardDistance": 1000.0,

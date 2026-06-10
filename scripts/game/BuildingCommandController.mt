@@ -462,12 +462,14 @@ class BuildingCommandController implements IUIButtonListener {
                 this.moveTargets.remove(keys[i]);
                 continue;
             }
+            // Positive narrowing into the then-branch: mType does not narrow a
+            // variable across an `if (x == null) { continue; }` loop guard.
             Vec3f? target = this.moveTargets.get(keys[i]);
-            if (target == null) {
-                this.moveTargets.remove(keys[i]);
-                continue;
-            }
-            if (this.stepToward(uid, target, dt)) {
+            if (target != null) {
+                if (this.stepToward(uid, target, dt)) {
+                    this.moveTargets.remove(keys[i]);
+                }
+            } else {
                 this.moveTargets.remove(keys[i]);
             }
         }

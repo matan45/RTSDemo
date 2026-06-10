@@ -10,34 +10,34 @@
           "isTrigger": false,
           "meshRef": "0000000000000000",
           "offset": [
-            0.5,
-            1.0,
-            2.5
+            0.0,
+            0.0,
+            0.0
           ],
           "restitution": 0.0,
           "shape": "box",
           "size": [
             10.0,
-            10.0,
-            4.0
+            7.0,
+            5.0
           ],
           "submeshIndex": -1
         },
         "material": {
-          "defaultMaterialRef": "7d423ebcc1df0757",
-          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/barracks_inst.vfMatInstance",
+          "defaultMaterialRef": "c274b29aab9c855d",
+          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/buildings/factory_inst.vfMatInstance",
           "parameterOverrides": {},
           "subMeshMaterials": {}
         },
         "mesh": {
-          "meshRef": "c0e9f6794fdaa94b",
-          "meshRefPath": "C:/matan/RTSDemo/assets/buildings/barracks.vfMesh",
+          "meshRef": "95f17e048cb9bebf",
+          "meshRefPath": "C:/matan/RTSDemo/assets/buildings/factory.vfMesh",
           "showBoundingBox": false,
           "submeshIndex": -1
         }
       },
       "isActive": true,
-      "name": "barracks",
+      "name": "factory",
       "transform": {
         "isStatic": false,
         "position": [
@@ -57,7 +57,7 @@
         ]
       }
     },
-    "name": "barracks"
+    "name": "factory"
   },
   "version": "1.0"
 }

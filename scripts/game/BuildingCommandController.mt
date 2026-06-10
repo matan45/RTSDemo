@@ -144,6 +144,7 @@ class BuildingCommandController implements IUIButtonListener {
 
     public function onUpdate(float deltaTime): void {
         this.handleRallyClick();
+        this.updateRallyMarkers();
         this.tickQueue(deltaTime);
         this.tickMovers(deltaTime);
         this.tickHarvesters(deltaTime);
@@ -311,11 +312,37 @@ class BuildingCommandController implements IUIButtonListener {
     private function clearRally(int buildingId): void {
         Int key = new Int(buildingId);
         Int? existing = this.rallyMarkers.get(key);
-        if (existing != null && Entity::isValid(existing.getValue())) {
-            Entity::destroy(existing.getValue());
+        if (existing != null) {
+            int marker = existing.getValue();
+            if (Entity::isValid(marker)) {
+                Entity::destroy(marker);
+            }
         }
         this.rallyMarkers.remove(key);
         this.rallyPoints.remove(key);
+    }
+
+    // Show only the selected building's rally marker: it appears when its
+    // building is selected and hides again on deselect / other-building select.
+    private function updateRallyMarkers(): void {
+        int selectedId = -1;
+        SelectionController? sel = this.selection();
+        if (sel != null) {
+            selectedId = sel.getSelectedId();
+        }
+        Int[] keys = this.rallyMarkers.getKeys();
+        for (int i = 0; i < keys.length; i = i + 1) {
+            int buildingId = keys[i].getValue();
+            Int? markerBox = this.rallyMarkers.get(keys[i]);
+            if (markerBox == null) {
+                continue;
+            }
+            int marker = markerBox?.getValue();
+            if (marker < 0 || !Entity::isValid(marker)) {
+                continue;
+            }
+            Entity::setActive(marker, buildingId == selectedId);
+        }
     }
 
     private function createRallyMarker(): int {

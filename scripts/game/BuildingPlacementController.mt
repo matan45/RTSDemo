@@ -73,11 +73,13 @@ class BuildingPlacementController implements IUIButtonListener {
     // must be composed into the right component (see composedRotation).
     private Vec3f ghostBaseRot;
 
-    // Placed footprints (for overlap testing).
+    // Placed footprints (for overlap testing). placedEntityIds runs parallel so
+    // a sold building (BuildingCommandController.removePlaced) can free its spot.
     private int maxPlaced;
     private Vec3f[] placedCenters;
     private float[] placedHalfX;
     private float[] placedHalfZ;
+    private int[] placedEntityIds;
     private int placedCount;
 
     // Input edge tracking (Input exposes state, not edges).
@@ -164,13 +166,15 @@ class BuildingPlacementController implements IUIButtonListener {
         // forward-slash asset paths (VK-1346, resolved against the project
         // root). Absolute paths still work but are not portable. iconPath is
         // the selection-panel portrait (.vfImage) shown by VK-1348.
-        this.buildings = new BuildingDef[4];
+        this.buildings = new BuildingDef[5];
         // Order must match the build-queue slot labels (GameState.buildQueue):
-        // slot 0 = Barracks, slot 1 = Command, slot 2 = Refinery, slot 3 = Power.
+        // slot 0 = Barracks, slot 1 = Command, slot 2 = Refinery, slot 3 = Power,
+        // slot 4 = Factory (RTS_HUD_BuildSlot_4).
         this.buildings[0] = new BuildingDef("assets/buildings/barracks_prefab.vfPrefab", "assets/buildings/barracks_inst.vfMatInstance", 6.0, 6.0, 75, -20, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
         this.buildings[1] = new BuildingDef("assets/buildings/command_center_prefab.vfPrefab", "assets/buildings/command_center_inst.vfMatInstance", 6.0, 4.0, 50, -30, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
         this.buildings[2] = new BuildingDef("assets/buildings/refinery_prefab.vfPrefab", "assets/buildings/refinery_inst.vfMatInstance", 4.0, 4.0, 40, -25, "Refinery", "Refinery", "assets/ui/icons/refinery.vfImage", 800.0);
         this.buildings[3] = new BuildingDef("assets/buildings/power_plant_prefab.vfPrefab", "assets/buildings/power_plant_inst.vfMatInstance", 4.0, 4.0, 60, 50, "Power", "Power Plant", "assets/ui/icons/power.vfImage", 600.0);
+        this.buildings[4] = new BuildingDef("assets/buildings/factory_prefab.vfPrefab", "assets/buildings/factory_inst.vfMatInstance", 5.0, 3.5, 90, -30, "Factory", "Factory", "assets/ui/icons/factory.vfImage", 1200.0);
         this.ghostSlot = -1;
 
         this.ghostMatValid = "assets/buildings/selected/GhostValid_inst.vfMatInstance";
@@ -188,9 +192,9 @@ class BuildingPlacementController implements IUIButtonListener {
             Log::warn("[BuildPlacement] HUD controller entity not found; gold deduction disabled.");
         }
 
-        this.buildSlotIds = new int[4];
-        this.slotAffordable = new bool[4];
-        for (int i = 0; i < 4; i = i + 1) {
+        this.buildSlotIds = new int[5];
+        this.slotAffordable = new bool[5];
+        for (int i = 0; i < 5; i = i + 1) {
             this.buildSlotIds[i] = Entity::findByName("RTS_HUD_BuildSlot_" + i);
             this.slotAffordable[i] = true;
             if (this.buildSlotIds[i] >= 0) {
@@ -202,6 +206,7 @@ class BuildingPlacementController implements IUIButtonListener {
         this.placedCenters = new Vec3f[this.maxPlaced];
         this.placedHalfX = new float[this.maxPlaced];
         this.placedHalfZ = new float[this.maxPlaced];
+        this.placedEntityIds = new int[this.maxPlaced];
 
         if (this.buildings[0].prefabPath == "") {
             Log::warn("[BuildPlacement] building prefabs are empty; placement will do nothing until you set BuildingDef prefab paths to your authored .vfPrefab assets.");
@@ -356,7 +361,7 @@ class BuildingPlacementController implements IUIButtonListener {
     }
 
     private function slotIndexFor(int entityId): int {
-        for (int i = 0; i < 4; i = i + 1) {
+        for (int i = 0; i < 5; i = i + 1) {
             if (this.buildSlotIds[i] >= 0 && this.buildSlotIds[i] == entityId) {
                 return i;
             }
@@ -382,7 +387,7 @@ class BuildingPlacementController implements IUIButtonListener {
             return;
         }
         int gold = hud.getGold();
-        for (int i = 0; i < 4; i = i + 1) {
+        for (int i = 0; i < 5; i = i + 1) {
             if (this.buildSlotIds[i] < 0) {
                 continue;
             }
@@ -482,6 +487,23 @@ class BuildingPlacementController implements IUIButtonListener {
         return this.placing;
     }
 
+    // Free a placed building's footprint when it is sold
+    // (BuildingCommandController). Swap-remove keeps the parallel arrays packed
+    // so the spot can be rebuilt on immediately.
+    public function removePlaced(int entityId): void {
+        for (int i = 0; i < this.placedCount; i = i + 1) {
+            if (this.placedEntityIds[i] == entityId) {
+                int last = this.placedCount - 1;
+                this.placedCenters[i] = this.placedCenters[last];
+                this.placedHalfX[i] = this.placedHalfX[last];
+                this.placedHalfZ[i] = this.placedHalfZ[last];
+                this.placedEntityIds[i] = this.placedEntityIds[last];
+                this.placedCount = last;
+                return;
+            }
+        }
+    }
+
     // Resolve the SelectionController sharing this entity (GameSystems). May be
     // null if it is not attached / not yet loaded.
     private function selection(): SelectionController {
@@ -522,20 +544,49 @@ class BuildingPlacementController implements IUIButtonListener {
     // shared/cached value (e.g. from a map) must not be handed out.
     private function infoForSlot(int slot): BuildingInfo {
         BuildingDef d = this.buildings[slot];
-        return new BuildingInfo(d.displayType, d.displayName, d.iconPath, 0, d.maxHealth, this.defaultCommands());
+        BuildingInfo info = new BuildingInfo(d.displayType, d.displayName, d.iconPath, 0, d.maxHealth, this.commandsForType(d.displayType));
+        // Carry cost/power so the command card can sell (70% refund + reverse
+        // power) and upgrade (cost scales off the build cost).
+        info.cost = d.cost;
+        info.power = d.power;
+        info.level = 0;
+        return info;
     }
 
-    private function defaultCommands(): string[] {
-        string[] cmds = new string[3];
-        cmds[0] = "Train";
-        cmds[1] = "Rally";
-        cmds[2] = "Cancel";
+    // Per-building-type command card. BuildingCommandController executes the
+    // clicked label; RTSHUDController just renders them (up to 5 buttons).
+    private function commandsForType(string displayType): string[] {
+        if (displayType == "Barracks") {
+            string[] cmds = new string[4];
+            cmds[0] = "Sell";
+            cmds[1] = "Rally";
+            cmds[2] = "Soldier";
+            cmds[3] = "Engineer";
+            return cmds;
+        }
+        if (displayType == "Factory") {
+            string[] cmds = new string[3];
+            cmds[0] = "Sell";
+            cmds[1] = "Rally";
+            cmds[2] = "Tank";
+            return cmds;
+        }
+        if (displayType == "Refinery") {
+            string[] cmds = new string[2];
+            cmds[0] = "Sell";
+            cmds[1] = "Track";
+            return cmds;
+        }
+        // CommandCenter and Power: sell + upgrade.
+        string[] cmds = new string[2];
+        cmds[0] = "Sell";
+        cmds[1] = "Upgrade";
         return cmds;
     }
 
     // Normalize the active selection to a 0..3 slot index (Build button -> slot 0).
     private function resolvedSlot(): int {
-        if (this.selectedSlot >= 0 && this.selectedSlot < 4) {
+        if (this.selectedSlot >= 0 && this.selectedSlot < 5) {
             return this.selectedSlot;
         }
         return 0;
@@ -767,6 +818,7 @@ class BuildingPlacementController implements IUIButtonListener {
         this.placedCenters[this.placedCount] = this.ghostCenter;
         this.placedHalfX[this.placedCount] = this.halfXFor(this.rotationSteps);
         this.placedHalfZ[this.placedCount] = this.halfZFor(this.rotationSteps);
+        this.placedEntityIds[this.placedCount] = id;
         this.placedCount = this.placedCount + 1;
 
         // Make the new building selectable (VK-1348) and release the placement

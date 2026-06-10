@@ -176,6 +176,17 @@ class RTSHUDController implements IUIButtonListener {
         return true;
     }
 
+    // Refund gold (sell) / harvester deposits, via BuildingCommandController.
+    public function addGold(int amount): void {
+        this.state.gold = this.state.gold + amount;
+    }
+
+    // Surface a command-card action message through the existing alert ticker
+    // (BuildingCommandController has no GameState of its own).
+    public function pushAlertMessage(string message, float seconds): void {
+        this.state.pushAlert(message, seconds);
+    }
+
     public function getPower(): int {
         return this.state.power;
     }
@@ -187,16 +198,17 @@ class RTSHUDController implements IUIButtonListener {
 
     @Override
     public function onButtonClicked(int buttonEntityId, string entityName): void {
-        // If a player building is selected, command buttons issue that building's
-        // (stub) orders against the current selection (VK-1348). Real production
-        // lands with VK-1312.
+        // Command-card execution lives in BuildingCommandController (a separate
+        // IUIButtonListener on GameSystems): Sell / Upgrade / Rally / Train /
+        // Track. This controller only renders the card (applyCommandCard) and
+        // owns the resource labels, so when a player building is selected the
+        // click is left for that controller to act on.
         SelectionController sel = this.selectionController();
         BuildingInfo? info = null;
         if (sel != null) { info = sel.getSelectedInfo(); }
         if (info != null && info.isPlayer()) {
             int idx = this.cmdIndexFor(buttonEntityId);
             if (idx >= 0 && idx < info.commands.length) {
-                this.state.pushAlert(info.displayName + ": " + info.commands[idx], 2.0);
                 return;
             }
         }

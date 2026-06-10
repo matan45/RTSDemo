@@ -165,6 +165,19 @@ class SelectionController {
         Log::info("[Selection] registered building id=" + id + " type=" + info.buildingType);
     }
 
+    // Drop a building from the selectable registry (BuildingCommandController
+    // calls this when a building is sold). Clears the live selection if it was
+    // the one removed so the HUD command card collapses immediately.
+    public function unregister(int id): void {
+        if (id < 0) {
+            return;
+        }
+        this.registry.remove(new Int(id));
+        if (this.selectedId == id) {
+            this.selectedId = -1;
+        }
+    }
+
     public function findInfo(int id): BuildingInfo? {
         if (id < 0) {
             return null;

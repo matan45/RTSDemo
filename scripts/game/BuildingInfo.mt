@@ -17,8 +17,17 @@ class BuildingInfo {
     public float maxHealth;
     public float currentHealth;
 
-    // Stub command labels for the command card (empty for non-player buildings,
-    // which render read-only). Hooked up to real production in VK-1312.
+    // Gold cost + net power delta this building was placed with (copied from its
+    // BuildingDef by BuildingPlacementController). Sell refunds 70% of cost and
+    // reverses power; Upgrade scales off cost. level: 0 = base, 1 = upgraded.
+    public int cost;
+    public int power;
+    public int level;
+
+    // Command labels for the command card (empty for non-player buildings, which
+    // render read-only). Per-building-type lists come from
+    // BuildingPlacementController.commandsForType(); BuildingCommandController
+    // executes the label clicked.
     public string[] commands;
 
     // Footprint half-extents (world units, rotation-adjusted) driving the
@@ -35,6 +44,9 @@ class BuildingInfo {
         this.faction = faction;
         this.maxHealth = maxHealth;
         this.currentHealth = maxHealth;
+        this.cost = 0;
+        this.power = 0;
+        this.level = 0;
         this.commands = commands;
         this.halfX = 4.0;
         this.halfZ = 4.0;
@@ -48,6 +60,9 @@ class BuildingInfo {
         this.faction = 0;
         this.maxHealth = 1.0;
         this.currentHealth = 1.0;
+        this.cost = 0;
+        this.power = 0;
+        this.level = 0;
         this.commands = new string[0];
         this.halfX = 4.0;
         this.halfZ = 4.0;

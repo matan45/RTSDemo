@@ -1155,6 +1155,114 @@
                   ]
                 },
                 "uuid": 8510119611306613113
+              },
+              {
+                "children": [],
+                "components": {
+                  "uiButton": {
+                    "colorTransitionDuration": 0.07999999821186066,
+                    "disabledColor": [
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.11999999731779099,
+                      0.6200000047683716
+                    ],
+                    "hoveredColor": [
+                      0.8500000238418579,
+                      0.9200000166893005,
+                      0.800000011920929,
+                      1.0
+                    ],
+                    "interactable": true,
+                    "normalColor": [
+                      1.0,
+                      1.0,
+                      1.0,
+                      1.0
+                    ],
+                    "pressedColor": [
+                      0.6000000238418579,
+                      0.6499999761581421,
+                      0.550000011920929,
+                      1.0
+                    ]
+                  },
+                  "uiImage": {
+                    "colorTint": [
+                      1.0,
+                      1.0,
+                      1.0,
+                      1.0
+                    ],
+                    "sourceHeight": 1254,
+                    "sourceWidth": 1254,
+                    "textureRef": "9debf78b61673420",
+                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/factory.vfImage"
+                  },
+                  "uiLabel": {
+                    "color": [
+                      0.4627451002597809,
+                      0.501960813999176,
+                      0.0,
+                      1.0
+                    ],
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 16.0,
+                    "fontStyle": "boldItalic",
+                    "horizontalAlignment": "left",
+                    "letterSpacing": 4.0,
+                    "lineSpacing": 1.0,
+                    "overflow": "overflow",
+                    "text": "Factory",
+                    "verticalAlignment": "bottom",
+                    "wordWrap": true
+                  },
+                  "uiRect": {
+                    "anchorMax": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchorMin": [
+                      0.0,
+                      0.0
+                    ],
+                    "anchoredPosition": [
+                      1710.54296875,
+                      724.1854858398438
+                    ],
+                    "blocksRaycast": true,
+                    "pivot": [
+                      0.0,
+                      0.0
+                    ],
+                    "sizeDelta": [
+                      120.0,
+                      70.0
+                    ]
+                  }
+                },
+                "isActive": true,
+                "name": "RTS_HUD_BuildSlot_4",
+                "transform": {
+                  "isStatic": true,
+                  "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                  ]
+                },
+                "uuid": 9000000000000000640
               }
             ],
             "components": {
@@ -2499,6 +2607,11 @@
                 "enabled": true,
                 "scriptRef": "c4d9a1370e5b82f6",
                 "scriptRefPath": "C:/matan/RTSDemo/scripts/game/MinimapController.mt"
+              },
+              {
+                "enabled": true,
+                "scriptRef": "c1a2b3c4d5e6f701",
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/BuildingCommandController.mt"
               }
             ]
           }
@@ -2524,6 +2637,31 @@
           ]
         },
         "uuid": 9000000000000000050
+      },
+      {
+        "children": [],
+        "components": {},
+        "isActive": true,
+        "name": "GoldNode",
+        "transform": {
+          "isStatic": false,
+          "position": [
+            40.0,
+            0.0,
+            40.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "uuid": 9000000000000000660
       },
       {
         "children": [

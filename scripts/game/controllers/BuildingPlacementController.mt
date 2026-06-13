@@ -25,24 +25,28 @@
 //
 // Attach via a ScriptComponent on an always-active entity (e.g. "GameSystems").
 
-import * from "../lib/engine/Entity.mt";
-import * from "../lib/engine/Input.mt";
-import * from "../lib/engine/Mouse.mt";
-import * from "../lib/engine/Key.mt";
-import * from "../lib/engine/UI.mt";
-import * from "../lib/engine/Picker.mt";
-import * from "../lib/engine/RaycastHit.mt";
-import * from "../lib/engine/Terrain.mt";
-import * from "../lib/engine/Physics.mt";
-import * from "../lib/engine/Log.mt";
-import * from "../lib/engine/PluginComponent.mt";
-import * from "../lib/engine/IUIButtonListener.mt";
-import * from "../lib/math/Vec3f.mt";
+import * from "../../lib/engine/Entity.mt";
+import * from "../../lib/engine/Input.mt";
+import * from "../../lib/engine/Mouse.mt";
+import * from "../../lib/engine/Key.mt";
+import * from "../../lib/engine/UI.mt";
+import * from "../../lib/engine/Picker.mt";
+import * from "../../lib/engine/RaycastHit.mt";
+import * from "../../lib/engine/Terrain.mt";
+import * from "../../lib/engine/Physics.mt";
+import * from "../../lib/engine/Log.mt";
+import * from "../../lib/engine/PluginComponent.mt";
+import * from "../../lib/engine/IUIButtonListener.mt";
+import * from "../../lib/math/Vec3f.mt";
 import * from "./RTSHUDController.mt";
-import * from "./RTSFog.mt";
-import * from "./BuildingDef.mt";
-import * from "./BuildingInfo.mt";
+import * from "../util/RTSFog.mt";
+import * from "../data/BuildingDef.mt";
+import * from "../data/BuildingInfo.mt";
 import * from "./SelectionController.mt";
+import * from "../data/PlacedBuilding.mt";
+import * from "../util/Config.mt";
+import * from "../util/Util.mt";
+import * from "../util/InputEdge.mt";
 
 @Script
 class BuildingPlacementController implements IUIButtonListener {
@@ -73,20 +77,17 @@ class BuildingPlacementController implements IUIButtonListener {
     // must be composed into the right component (see composedRotation).
     private Vec3f ghostBaseRot;
 
-    // Placed footprints (for overlap testing). placedEntityIds runs parallel so
-    // a sold building (BuildingCommandController.removePlaced) can free its spot.
+    // Placed footprints (for overlap testing + freeing a sold building's spot
+    // via BuildingCommandController.removePlaced).
     private int maxPlaced;
-    private Vec3f[] placedCenters;
-    private float[] placedHalfX;
-    private float[] placedHalfZ;
-    private int[] placedEntityIds;
+    private PlacedBuilding[] placed;
     private int placedCount;
 
     // Input edge tracking (Input exposes state, not edges).
-    private bool prevLeftDown;
-    private bool prevRightDown;
-    private bool prevRDown;
-    private bool prevEscDown;
+    private InputEdge leftEdge;
+    private InputEdge rightEdge;
+    private InputEdge rotateEdge;
+    private InputEdge escEdge;
 
     // Config.
     private float gridSize;
@@ -97,11 +98,6 @@ class BuildingPlacementController implements IUIButtonListener {
     // prefab; its layer stays off "Static" (0) so the terrain picker keeps
     // hitting the ground (1 = Dynamic in this project's physics layers).
     private bool addCollider;
-
-    private float mapMinX;
-    private float mapMaxX;
-    private float mapMinZ;
-    private float mapMaxZ;
 
     // One definition per build-slot 0..3 (Barracks / Command / Refinery / Power):
     // prefab, material, footprint, and cost. Set the asset paths to your imports.
@@ -121,11 +117,6 @@ class BuildingPlacementController implements IUIButtonListener {
     // native spam). Buttons start interactable in the scene, hence true.
     private bool[] slotAffordable;
 
-    // Build-slot hover tooltip. Created under the HUD canvas at runtime so the
-    // scene does not need a dedicated authored widget.
-    private int buildTooltipId;
-    private int hoveredBuildSlot;
-
     constructor() {
         this.cmdBuildId = -1;
         this.hudControllerId = -1;
@@ -142,18 +133,9 @@ class BuildingPlacementController implements IUIButtonListener {
         this.ghostEntity = -1;
         this.ghostBaseRot = new Vec3f(0.0, 0.0, 0.0);
 
-        this.prevLeftDown = false;
-        this.prevRightDown = false;
-        this.prevRDown = false;
-        this.prevEscDown = false;
-
         this.gridSize = 4.0;
         this.slopeMinNormalY = 0.85;
         this.addCollider = true;
-        this.mapMinX = -256.0;
-        this.mapMaxX = 256.0;
-        this.mapMinZ = -256.0;
-        this.mapMaxZ = 256.0;
 
         // === DEFINE YOUR BUILDINGS HERE (one per build slot) ===
         // new BuildingDef(prefabPath, materialPath, halfX, halfZ, cost, power,
@@ -170,22 +152,23 @@ class BuildingPlacementController implements IUIButtonListener {
         // Order must match the build-queue slot labels (GameState.buildQueue):
         // slot 0 = Barracks, slot 1 = Command, slot 2 = Refinery, slot 3 = Power,
         // slot 4 = Factory (RTS_HUD_BuildSlot_4).
-        this.buildings[0] = new BuildingDef("assets/buildings/barracks_prefab.vfPrefab", "assets/buildings/barracks_inst.vfMatInstance", 6.0, 6.0, 75, -20, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
-        this.buildings[1] = new BuildingDef("assets/buildings/command_center_prefab.vfPrefab", "assets/buildings/command_center_inst.vfMatInstance", 6.0, 4.0, 50, -30, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
-        this.buildings[2] = new BuildingDef("assets/buildings/refinery_prefab.vfPrefab", "assets/buildings/refinery_inst.vfMatInstance", 4.0, 4.0, 40, -25, "Refinery", "Refinery", "assets/ui/icons/refinery.vfImage", 800.0);
-        this.buildings[3] = new BuildingDef("assets/buildings/power_plant_prefab.vfPrefab", "assets/buildings/power_plant_inst.vfMatInstance", 4.0, 4.0, 60, 50, "Power", "Power Plant", "assets/ui/icons/power.vfImage", 600.0);
-        this.buildings[4] = new BuildingDef("assets/buildings/factory_prefab.vfPrefab", "assets/buildings/factory_inst.vfMatInstance", 5.0, 3.5, 90, -30, "Factory", "Factory", "assets/ui/icons/factory.vfImage", 1200.0);
+        this.buildings[0] = new BuildingDef("assets/buildings/barracks_prefab.vfPrefab", "assets/buildings/barracks_inst.vfMatInstance", 6.0, 6.0, 75, -20, "Barracks", "Barracks", "assets/ui/icons/building/barracks.vfImage", 1000.0);
+        this.buildings[1] = new BuildingDef("assets/buildings/command_center_prefab.vfPrefab", "assets/buildings/command_center_inst.vfMatInstance", 6.0, 4.0, 50, -30, "CommandCenter", "Command Center", "assets/ui/icons/building/commandcenter.vfImage", 1500.0);
+        this.buildings[2] = new BuildingDef("assets/buildings/refinery_prefab.vfPrefab", "assets/buildings/refinery_inst.vfMatInstance", 4.0, 4.0, 40, -25, "Refinery", "Refinery", "assets/ui/icons/building/refinery.vfImage", 800.0);
+        this.buildings[3] = new BuildingDef("assets/buildings/power_plant_prefab.vfPrefab", "assets/buildings/power_plant_inst.vfMatInstance", 4.0, 4.0, 60, 50, "Power", "Power Plant", "assets/ui/icons/building/power.vfImage", 600.0);
+        this.buildings[4] = new BuildingDef("assets/buildings/factory_prefab.vfPrefab", "assets/buildings/factory_inst.vfMatInstance", 5.0, 3.5, 90, -30, "Factory", "Factory", "assets/ui/icons/building/factory.vfImage", 1200.0);
         this.ghostSlot = -1;
 
         this.ghostMatValid = "assets/buildings/selected/GhostValid_inst.vfMatInstance";
         this.ghostMatInvalid = "assets/buildings/selected/GhostInvalid_inst.vfMatInstance";
         this.lastGhostValid = false;
-
-        this.buildTooltipId = -1;
-        this.hoveredBuildSlot = -1;
     }
 
     public function onStart(): void {
+        this.leftEdge = new InputEdge();
+        this.rightEdge = new InputEdge();
+        this.rotateEdge = new InputEdge();
+        this.escEdge = new InputEdge();
         this.cmdBuildId = Entity::findByName("RTS_HUD_CmdBuild");
         this.hudControllerId = Entity::findByName("RTS_HUD_Controller");
         if (this.hudControllerId < 0) {
@@ -199,14 +182,11 @@ class BuildingPlacementController implements IUIButtonListener {
             this.slotAffordable[i] = true;
             if (this.buildSlotIds[i] >= 0) {
                 UI::setButtonInteractable(this.buildSlotIds[i], true);
+                this.setupSlotTooltip(this.buildSlotIds[i], this.buildings[i]);
             }
         }
-        this.setupBuildTooltip();
 
-        this.placedCenters = new Vec3f[this.maxPlaced];
-        this.placedHalfX = new float[this.maxPlaced];
-        this.placedHalfZ = new float[this.maxPlaced];
-        this.placedEntityIds = new int[this.maxPlaced];
+        this.placed = new PlacedBuilding[this.maxPlaced];
 
         if (this.buildings[0].prefabPath == "") {
             Log::warn("[BuildPlacement] building prefabs are empty; placement will do nothing until you set BuildingDef prefab paths to your authored .vfPrefab assets.");
@@ -217,25 +197,19 @@ class BuildingPlacementController implements IUIButtonListener {
 
     public function onUpdate(float deltaTime): void {
         // Derive press edges every frame so previous-state tracking stays fresh.
-        bool nowLeft = Input::isMouseButtonDown(Mouse::LEFT);
-        bool nowRight = Input::isMouseButtonDown(Mouse::RIGHT);
-        bool nowR = Input::isKeyDown(Key::R);
-        bool nowEsc = Input::isKeyDown(Key::ESCAPE);
+        this.leftEdge.step(Input::isMouseButtonDown(Mouse::LEFT));
+        this.rightEdge.step(Input::isMouseButtonDown(Mouse::RIGHT));
+        this.rotateEdge.step(Input::isKeyDown(Key::R));
+        this.escEdge.step(Input::isKeyDown(Key::ESCAPE));
 
-        bool leftPressed = !this.prevLeftDown && nowLeft;
-        bool rightPressed = !this.prevRightDown && nowRight;
-        bool rPressed = !this.prevRDown && nowR;
-        bool escPressed = !this.prevEscDown && nowEsc;
-
-        this.prevLeftDown = nowLeft;
-        this.prevRightDown = nowRight;
-        this.prevRDown = nowR;
-        this.prevEscDown = nowEsc;
+        bool leftPressed = this.leftEdge.wasPressed;
+        bool rightPressed = this.rightEdge.wasPressed;
+        bool rPressed = this.rotateEdge.wasPressed;
+        bool escPressed = this.escEdge.wasPressed;
 
         // Keep the build-queue buttons in sync with the player's gold even when
         // not placing (a slot the player cannot afford is greyed out).
         this.updateBuildSlotAffordability();
-        this.updateBuildTooltipPosition();
 
         if (!this.placing) {
             return;
@@ -325,14 +299,12 @@ class BuildingPlacementController implements IUIButtonListener {
                 Log::info("[BuildPlacement] build slot " + slot + " ignored: not enough gold.");
                 return;
             }
-            this.hideBuildTooltip();
             this.selectedSlot = slot;
             string label = UI::getLabelText(this.buildSlotIds[slot]);
             this.enterPlacement(label);
             return;
         }
         if (buttonEntityId == this.cmdBuildId || entityName == "RTS_HUD_CmdBuild") {
-            this.hideBuildTooltip();
             this.selectedSlot = -1;
             this.enterPlacement("building");
         }
@@ -346,18 +318,12 @@ class BuildingPlacementController implements IUIButtonListener {
 
     @Override
     public function onButtonHoverEnter(int buttonEntityId, string entityName): void {
-        int slot = this.slotIndexFor(buttonEntityId);
-        if (slot >= 0) {
-            this.showBuildTooltip(slot);
-        }
+        // Build-slot cost tooltips are engine-managed (UITooltip component), so
+        // hover show/hide/positioning is handled by the engine -- nothing here.
     }
 
     @Override
     public function onButtonHoverExit(int buttonEntityId, string entityName): void {
-        int slot = this.slotIndexFor(buttonEntityId);
-        if (slot >= 0 && slot == this.hoveredBuildSlot) {
-            this.hideBuildTooltip();
-        }
     }
 
     private function slotIndexFor(int entityId): int {
@@ -417,68 +383,22 @@ class BuildingPlacementController implements IUIButtonListener {
         }
     }
 
-    private function setupBuildTooltip(): void {
-        this.buildTooltipId = Entity::findByName("RTS_HUD_BuildTooltip");
-        if (this.buildTooltipId < 0) {
-            int canvasId = Entity::findByName("RTS_HUD_Canvas");
-            if (canvasId >= 0) {
-                this.buildTooltipId = Entity::createChild("RTS_HUD_BuildTooltip", canvasId);
-            } else {
-                this.buildTooltipId = Entity::create("RTS_HUD_BuildTooltip");
-            }
-            if (this.buildTooltipId >= 0) {
-                Entity::addComponent(this.buildTooltipId, "UIRect");
-                Entity::addComponent(this.buildTooltipId, "UIImage");
-                Entity::addComponent(this.buildTooltipId, "UILabel");
-            }
-        }
-
-        if (this.buildTooltipId >= 0) {
-            UI::setRectPixels(this.buildTooltipId, 0.0, 0.0,  56.0, 25.0);
-            UI::setImageColor(this.buildTooltipId, 0.02, 0.025, 0.02, 0.96);
-            UI::setLabelText(this.buildTooltipId, "");
-            UI::setLabelFont(this.buildTooltipId, "assets/Roboto-Regular.vfFont");
-            UI::setLabelFontSize(this.buildTooltipId, 18.0);
-            UI::setLabelColor(this.buildTooltipId, 1.0, 0.94, 0.48, 1.0);
-            UI::setLabelStyle(this.buildTooltipId, UI::LABEL_STYLE_BOLD);
-            UI::setLabelOverflow(this.buildTooltipId, UI::LABEL_CLIP);
-            UI::setLabelAlignment(this.buildTooltipId, UI::LABEL_VALIGN_MIDDLE, UI::LABEL_VALIGN_MIDDLE);
-            UI::setLabelSpacing(this.buildTooltipId, 1.0, 5.0);
-            Entity::setActive(this.buildTooltipId, false);
-        }
-    }
-
-    private function showBuildTooltip(int slot): void {
-        if (this.buildTooltipId < 0) {
-            return;
-        }
-        this.hoveredBuildSlot = slot;
-        BuildingDef def = this.buildings[slot];
-        UI::setLabelText(this.buildTooltipId, parsePrimitive(def.cost));
-        this.updateBuildTooltipPosition();
-        Entity::setActive(this.buildTooltipId, true);
-    }
-
-    private function hideBuildTooltip(): void {
-        this.hoveredBuildSlot = -1;
-        if (this.buildTooltipId >= 0) {
-            Entity::setActive(this.buildTooltipId, false);
-        }
-    }
-
-    private function updateBuildTooltipPosition(): void {
-        if (this.buildTooltipId < 0 || this.hoveredBuildSlot < 0) {
-            return;
-        }
-        float x = Input::getViewportMouseX() - 56.0;
-        float y = Input::getViewportMouseY() - 42.0;
-        if (y < 8.0) {
-            y = Input::getViewportMouseY() + 18.0;
-        }
-        if (x < 8.0) {
-            x = 8.0;
-        }
-        UI::setRectPixels(this.buildTooltipId, x, y, 56.0, 25.0);
+    // Attach an engine-managed tooltip (UITooltip, Text mode) to a build slot
+    // showing its gold cost. The engine handles hover delay, smart placement
+    // (flip/clamp), cursor-follow, and show/hide -- replacing the old
+    // hand-rolled RTS_HUD_BuildTooltip entity and its pixel-offset math. The
+    // cost is static per slot, so the text is set once here.
+    private function setupSlotTooltip(int slotId, BuildingDef def): void {
+        Entity::addComponent(slotId, "UITooltip");
+        UI::setTooltipFont(slotId, "assets/Roboto-Regular.vfFont");
+        UI::setTooltipFontSize(slotId, 18.0);
+        UI::setTooltipDelay(slotId, 0.35);
+        // Wider horizontal padding + letter spacing so the cost bubble is not
+        // cramped (the Text-mode bubble hugs its text).
+        UI::setTooltipPadding(slotId, 16.0, 16.0, 8.0, 8.0);
+        UI::setTooltipLetterSpacing(slotId, 4.0);
+        UI::setTooltipText(slotId, parsePrimitive(def.cost) + " gold");
+        UI::setTooltipEnabled(slotId, true);
     }
 
     // Read by SelectionController so a placement click is not also a selection
@@ -492,12 +412,9 @@ class BuildingPlacementController implements IUIButtonListener {
     // so the spot can be rebuilt on immediately.
     public function removePlaced(int entityId): void {
         for (int i = 0; i < this.placedCount; i = i + 1) {
-            if (this.placedEntityIds[i] == entityId) {
+            if (this.placed[i].entityId == entityId) {
                 int last = this.placedCount - 1;
-                this.placedCenters[i] = this.placedCenters[last];
-                this.placedHalfX[i] = this.placedHalfX[last];
-                this.placedHalfZ[i] = this.placedHalfZ[last];
-                this.placedEntityIds[i] = this.placedEntityIds[last];
+                this.placed[i] = this.placed[last];
                 this.placedCount = last;
                 return;
             }
@@ -664,19 +581,8 @@ class BuildingPlacementController implements IUIButtonListener {
     // Round each axis to the nearest grid node. mType has no floor(), so use the
     // sign-aware add-half-then-truncate idiom ((int) truncates toward zero).
     private function snapToGrid(Vec3f p): Vec3f {
-        float kx = p.x / this.gridSize;
-        int nx = (int)(kx + 0.5);
-        if (kx < 0.0) {
-            nx = (int)(kx - 0.5);
-        }
-
-        float kz = p.z / this.gridSize;
-        int nz = (int)(kz + 0.5);
-        if (kz < 0.0) {
-            nz = (int)(kz - 0.5);
-        }
-
-        return new Vec3f((float)nx * this.gridSize, 0.0, (float)nz * this.gridSize);
+        return new Vec3f(Util::snapToGrid1D(p.x, this.gridSize), 0.0,
+                         Util::snapToGrid1D(p.z, this.gridSize));
     }
 
     // A 90-degree rotation of an axis-aligned rectangle just swaps its extents
@@ -708,20 +614,21 @@ class BuildingPlacementController implements IUIButtonListener {
         float hz = this.halfZFor(steps);
 
         // (b) map bounds.
-        if (center.x - hx < this.mapMinX || center.x + hx > this.mapMaxX) {
+        if (center.x - hx < Config::MAP_MIN_X || center.x + hx > Config::MAP_MAX_X) {
             return false;
         }
-        if (center.z - hz < this.mapMinZ || center.z + hz > this.mapMaxZ) {
+        if (center.z - hz < Config::MAP_MIN_Z || center.z + hz > Config::MAP_MAX_Z) {
             return false;
         }
 
         // (c) overlap against already-placed buildings (AABB vs AABB).
         for (int j = 0; j < this.placedCount; j = j + 1) {
-            float dx = center.x - this.placedCenters[j].x;
+            PlacedBuilding pb = this.placed[j];
+            float dx = center.x - pb.center.x;
             if (dx < 0.0) { dx = -dx; }
-            float dz = center.z - this.placedCenters[j].z;
+            float dz = center.z - pb.center.z;
             if (dz < 0.0) { dz = -dz; }
-            if (dx < hx + this.placedHalfX[j] && dz < hz + this.placedHalfZ[j]) {
+            if (dx < hx + pb.halfX && dz < hz + pb.halfZ) {
                 return false;
             }
         }
@@ -815,10 +722,8 @@ class BuildingPlacementController implements IUIButtonListener {
         this.ghostEntity = -1;
         this.ghostSlot = -1;
 
-        this.placedCenters[this.placedCount] = this.ghostCenter;
-        this.placedHalfX[this.placedCount] = this.halfXFor(this.rotationSteps);
-        this.placedHalfZ[this.placedCount] = this.halfZFor(this.rotationSteps);
-        this.placedEntityIds[this.placedCount] = id;
+        this.placed[this.placedCount] = new PlacedBuilding(this.ghostCenter,
+            this.halfXFor(this.rotationSteps), this.halfZFor(this.rotationSteps), id);
         this.placedCount = this.placedCount + 1;
 
         // Make the new building selectable (VK-1348) and release the placement

@@ -24,25 +24,31 @@
 // Attach this @Script to GameSystems alongside SelectionController /
 // BuildingPlacementController / UnitSelectionController.
 
-import * from "../lib/engine/Entity.mt";
-import * from "../lib/engine/Input.mt";
-import * from "../lib/engine/Mouse.mt";
-import * from "../lib/engine/UI.mt";
-import * from "../lib/engine/Picker.mt";
-import * from "../lib/engine/RaycastHit.mt";
-import * from "../lib/engine/Terrain.mt";
-import * from "../lib/engine/Physics.mt";
-import * from "../lib/engine/Decal.mt";
-import * from "../lib/engine/Log.mt";
-import * from "../lib/engine/PluginComponent.mt";
-import * from "../lib/engine/IUIButtonListener.mt";
-import * from "../lib/core/collections/HashMap.mt";
-import * from "../lib/core/primitives/Int.mt";
-import * from "../lib/math/Vec3f.mt";
+import * from "../../lib/engine/Entity.mt";
+import * from "../../lib/engine/Input.mt";
+import * from "../../lib/engine/Mouse.mt";
+import * from "../../lib/engine/UI.mt";
+import * from "../../lib/engine/Picker.mt";
+import * from "../../lib/engine/RaycastHit.mt";
+import * from "../../lib/engine/Terrain.mt";
+import * from "../../lib/engine/Physics.mt";
+import * from "../../lib/engine/Decal.mt";
+import * from "../../lib/engine/Log.mt";
+import * from "../../lib/engine/PluginComponent.mt";
+import * from "../../lib/engine/IUIButtonListener.mt";
+import * from "../../lib/core/collections/HashMap.mt";
+import * from "../../lib/core/primitives/Int.mt";
+import * from "../../lib/math/Vec3f.mt";
 import * from "./RTSHUDController.mt";
 import * from "./SelectionController.mt";
 import * from "./BuildingPlacementController.mt";
-import * from "./BuildingInfo.mt";
+import * from "../data/BuildingInfo.mt";
+import * from "../data/UnitDef.mt";
+import * from "../data/Harvester.mt";
+import * from "../data/QueueItem.mt";
+import * from "../util/Config.mt";
+import * from "../util/HState.mt";
+import * from "../util/InputEdge.mt";
 
 @Script
 class BuildingCommandController implements IUIButtonListener {
@@ -60,24 +66,18 @@ class BuildingCommandController implements IUIButtonListener {
     // Trained units walking to their rally point: unit id -> destination.
     private HashMap<Int, Vec3f?> moveTargets;
 
-    // Production queue (FIFO, parallel arrays; head = index 0).
+    // Production queue (FIFO; head = index 0).
     private int maxQueue;
-    private int[] queueBuilding;
-    private string[] queueType;
-    private float[] queueRemaining;
-    private float[] queueTotal;
+    private QueueItem[] queue;
     private int queueCount;
 
-    // Active harvesters (parallel arrays). state: 0 to-mine, 1 mining,
-    // 2 to-home, 3 deposit.
+    // Active harvesters (state uses HState::*).
     private int maxHarvesters;
-    private int[] harvId;
-    private int[] harvRefinery;
-    private Vec3f[] harvMine;
-    private Vec3f[] harvHome;
-    private int[] harvState;
-    private float[] harvDwell;
+    private Harvester[] harvesters;
     private int harvCount;
+
+    // Unit definitions (cost / time / prefab / icon), scanned by type.
+    private UnitDef[] unitDefs;
 
     // Queue HUD (created at runtime under RTS_HUD_Canvas, positioned above the
     // command bar each frame while non-empty).
@@ -87,11 +87,16 @@ class BuildingCommandController implements IUIButtonListener {
     private int[] queueSlotIds;
     private int hudCommandBarId;
 
-    private bool prevLeftDown;
+    private InputEdge leftEdge;
     private int unitSerial;
 
     private float unitSpeed;
     private float arriveEps;
+
+    // Gameplay tuning.
+    private int sellRefundPct;
+    private int upgradeCostPct;
+    private int harvestDeposit;
 
     constructor() {
         this.hudControllerId = -1;
@@ -105,13 +110,16 @@ class BuildingCommandController implements IUIButtonListener {
         this.queueLabelId = -1;
         this.queueProgressId = -1;
         this.hudCommandBarId = -1;
-        this.prevLeftDown = false;
         this.unitSerial = 0;
         this.unitSpeed = 8.0;
         this.arriveEps = 0.4;
+        this.sellRefundPct = 70;
+        this.upgradeCostPct = 60;
+        this.harvestDeposit = 10;
     }
 
     public function onStart(): void {
+        this.leftEdge = new InputEdge();
         this.hudControllerId = Entity::findByName("RTS_HUD_Controller");
         this.hudCommandBarId = Entity::findByName("RTS_HUD_CommandBar");
 
@@ -126,20 +134,33 @@ class BuildingCommandController implements IUIButtonListener {
         this.rallyMarkers = new HashMap<Int, Int>();
         this.moveTargets = new HashMap<Int, Vec3f>();
 
-        this.queueBuilding = new int[this.maxQueue];
-        this.queueType = new string[this.maxQueue];
-        this.queueRemaining = new float[this.maxQueue];
-        this.queueTotal = new float[this.maxQueue];
+        this.queue = new QueueItem[this.maxQueue];
+        this.harvesters = new Harvester[this.maxHarvesters];
 
-        this.harvId = new int[this.maxHarvesters];
-        this.harvRefinery = new int[this.maxHarvesters];
-        this.harvMine = new Vec3f[this.maxHarvesters];
-        this.harvHome = new Vec3f[this.maxHarvesters];
-        this.harvState = new int[this.maxHarvesters];
-        this.harvDwell = new float[this.maxHarvesters];
-
+        this.defineUnits();
         this.setupQueueUI();
         Log::info("[BuildingCommand] ready.");
+    }
+
+    // Unit table (single source of cost / build time / prefab / icon). The
+    // "Harvester" entry (index 3) doubles as the default for unknown types.
+    private function defineUnits(): void {
+        this.unitDefs = new UnitDef[4];
+        this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/units/soldier.vfImage");
+        this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/units/engineer.vfImage");
+        this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/units/tank.vfImage");
+        this.unitDefs[3] = new UnitDef("Harvester", 30, 4.0, "assets/units/harvester_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage");
+    }
+
+    // Look up a unit definition by type; falls back to the Harvester entry for
+    // unknown types (preserves the old default behavior of the unit*() tables).
+    private function unitDef(string type): UnitDef {
+        for (int i = 0; i < this.unitDefs.length; i = i + 1) {
+            if (this.unitDefs[i].unitType == type) {
+                return this.unitDefs[i];
+            }
+        }
+        return this.unitDefs[3];
     }
 
     public function onUpdate(float deltaTime): void {
@@ -198,7 +219,7 @@ class BuildingCommandController implements IUIButtonListener {
     }
 
     private function sell(int buildingId, BuildingInfo info): void {
-        int refund = (info.cost * 70) / 100;
+        int refund = (info.cost * this.sellRefundPct) / 100;
         RTSHUDController? hud = this.hud();
         if (hud != null) {
             hud.addGold(refund);
@@ -229,7 +250,7 @@ class BuildingCommandController implements IUIButtonListener {
             hud.pushAlertMessage(info.displayName + " already upgraded", 2.0);
             return;
         }
-        int upCost = (info.cost * 60) / 100;
+        int upCost = (info.cost * this.upgradeCostPct) / 100;
         if (!hud.trySpendGold(upCost)) {
             hud.pushAlertMessage("Need " + parsePrimitive(upCost) + " gold to upgrade", 2.0);
             return;
@@ -260,9 +281,8 @@ class BuildingCommandController implements IUIButtonListener {
     }
 
     private function handleRallyClick(): void {
-        bool nowLeft = Input::isMouseButtonDown(Mouse::LEFT);
-        bool leftReleased = this.prevLeftDown && !nowLeft;
-        this.prevLeftDown = nowLeft;
+        this.leftEdge.step(Input::isMouseButtonDown(Mouse::LEFT));
+        bool leftReleased = this.leftEdge.wasReleased;
 
         if (this.pendingRallyBuilding < 0 || !leftReleased) {
             return;
@@ -375,10 +395,7 @@ class BuildingCommandController implements IUIButtonListener {
             return;
         }
         float time = this.unitTime(type);
-        this.queueBuilding[this.queueCount] = buildingId;
-        this.queueType[this.queueCount] = type;
-        this.queueRemaining[this.queueCount] = time;
-        this.queueTotal[this.queueCount] = time;
+        this.queue[this.queueCount] = new QueueItem(buildingId, type, time);
         this.queueCount = this.queueCount + 1;
         hud.pushAlertMessage("Queued " + type, 1.5);
     }
@@ -387,15 +404,16 @@ class BuildingCommandController implements IUIButtonListener {
         if (this.queueCount <= 0) {
             return;
         }
-        int building = this.queueBuilding[0];
+        QueueItem head = this.queue[0];
         // Building sold while its unit was training: drop the item (no refund).
-        if (!Entity::isValid(building)) {
+        if (!Entity::isValid(head.buildingId)) {
             this.popQueue();
             return;
         }
-        this.queueRemaining[0] = this.queueRemaining[0] - dt;
-        if (this.queueRemaining[0] <= 0.0) {
-            string type = this.queueType[0];
+        head.remaining = head.remaining - dt;
+        if (head.remaining <= 0.0) {
+            int building = head.buildingId;
+            string type = head.unitType;
             this.popQueue();
             this.spawnUnit(building, type);
         }
@@ -403,10 +421,7 @@ class BuildingCommandController implements IUIButtonListener {
 
     private function popQueue(): void {
         for (int i = 1; i < this.queueCount; i = i + 1) {
-            this.queueBuilding[i - 1] = this.queueBuilding[i];
-            this.queueType[i - 1] = this.queueType[i];
-            this.queueRemaining[i - 1] = this.queueRemaining[i];
-            this.queueTotal[i - 1] = this.queueTotal[i];
+            this.queue[i - 1] = this.queue[i];
         }
         this.queueCount = this.queueCount - 1;
     }
@@ -518,12 +533,8 @@ class BuildingCommandController implements IUIButtonListener {
         Entity::setActive(id, true);
 
         Vec3f minePos = Entity::getPosition(node);
-        this.harvId[this.harvCount] = id;
-        this.harvRefinery[this.harvCount] = refineryId;
-        this.harvMine[this.harvCount] = new Vec3f(minePos.x, Terrain::heightAt(minePos.x, minePos.z), minePos.z);
-        this.harvHome[this.harvCount] = home;
-        this.harvState[this.harvCount] = 0;
-        this.harvDwell[this.harvCount] = 0.0;
+        Vec3f mineGround = new Vec3f(minePos.x, Terrain::heightAt(minePos.x, minePos.z), minePos.z);
+        this.harvesters[this.harvCount] = new Harvester(id, refineryId, mineGround, home);
         this.harvCount = this.harvCount + 1;
 
         if (hud != null) {
@@ -534,33 +545,32 @@ class BuildingCommandController implements IUIButtonListener {
     private function tickHarvesters(float dt): void {
         int h = 0;
         while (h < this.harvCount) {
-            int uid = this.harvId[h];
-            if (!Entity::isValid(uid) || !Entity::isValid(this.harvRefinery[h])) {
-                if (Entity::isValid(uid)) { Entity::destroy(uid); }
+            Harvester harv = this.harvesters[h];
+            if (!Entity::isValid(harv.unitId) || !Entity::isValid(harv.refineryId)) {
+                if (Entity::isValid(harv.unitId)) { Entity::destroy(harv.unitId); }
                 this.removeHarvester(h);
                 continue;
             }
-            int state = this.harvState[h];
-            if (state == 0) {
-                if (this.stepToward(uid, this.harvMine[h], dt)) {
-                    this.harvState[h] = 1;
-                    this.harvDwell[h] = 1.0;
+            if (harv.state == HState::TO_MINE) {
+                if (this.stepToward(harv.unitId, harv.minePos, dt)) {
+                    harv.state = HState::MINING;
+                    harv.dwell = 1.0;
                 }
-            } else if (state == 1) {
-                this.harvDwell[h] = this.harvDwell[h] - dt;
-                if (this.harvDwell[h] <= 0.0) {
-                    this.harvState[h] = 2;
+            } else if (harv.state == HState::MINING) {
+                harv.dwell = harv.dwell - dt;
+                if (harv.dwell <= 0.0) {
+                    harv.state = HState::TO_HOME;
                 }
-            } else if (state == 2) {
-                if (this.stepToward(uid, this.harvHome[h], dt)) {
-                    this.harvState[h] = 3;
+            } else if (harv.state == HState::TO_HOME) {
+                if (this.stepToward(harv.unitId, harv.homePos, dt)) {
+                    harv.state = HState::DEPOSIT;
                 }
             } else {
                 RTSHUDController? hud = this.hud();
                 if (hud != null) {
-                    hud.addGold(10);
+                    hud.addGold(this.harvestDeposit);
                 }
-                this.harvState[h] = 0;
+                harv.state = HState::TO_MINE;
             }
             h = h + 1;
         }
@@ -568,12 +578,7 @@ class BuildingCommandController implements IUIButtonListener {
 
     private function removeHarvester(int index): void {
         int last = this.harvCount - 1;
-        this.harvId[index] = this.harvId[last];
-        this.harvRefinery[index] = this.harvRefinery[last];
-        this.harvMine[index] = this.harvMine[last];
-        this.harvHome[index] = this.harvHome[last];
-        this.harvState[index] = this.harvState[last];
-        this.harvDwell[index] = this.harvDwell[last];
+        this.harvesters[index] = this.harvesters[last];
         this.harvCount = last;
     }
 
@@ -596,32 +601,21 @@ class BuildingCommandController implements IUIButtonListener {
 
     // ---- unit tables ----
 
+    // Thin accessors over the unitDefs table (see defineUnits / unitDef).
     private function unitPrefab(string type): string {
-        if (type == "Soldier") { return "assets/units/soldier_prefab.vfPrefab"; }
-        if (type == "Engineer") { return "assets/units/engineer_prefab.vfPrefab"; }
-        if (type == "Tank") { return "assets/units/tank_prefab.vfPrefab"; }
-        return "assets/units/harvester_prefab.vfPrefab";
+        return this.unitDef(type).prefab;
     }
 
     private function unitCost(string type): int {
-        if (type == "Soldier") { return 25; }
-        if (type == "Engineer") { return 40; }
-        if (type == "Tank") { return 75; }
-        return 30;
+        return this.unitDef(type).cost;
     }
 
     private function unitTime(string type): float {
-        if (type == "Soldier") { return 3.0; }
-        if (type == "Engineer") { return 5.0; }
-        if (type == "Tank") { return 8.0; }
-        return 4.0;
+        return this.unitDef(type).buildTime;
     }
 
     private function iconForType(string type): string {
-        if (type == "Soldier") { return "assets/ui/icons/barracks.vfImage"; }
-        if (type == "Engineer") { return "assets/ui/icons/commandcenter.vfImage"; }
-        if (type == "Tank") { return "assets/ui/icons/factory.vfImage"; }
-        return "assets/ui/icons/refinery.vfImage";
+        return this.unitDef(type).icon;
     }
 
     // ---- queue HUD ----
@@ -718,7 +712,7 @@ class BuildingCommandController implements IUIButtonListener {
         if (this.queueLabelId >= 0) {
             Entity::setActive(this.queueLabelId, true);
             UI::setRectPixels(this.queueLabelId, px + 4.0, py - 22.0, panelW, 20.0);
-            UI::setLabelText(this.queueLabelId, "Producing: " + this.queueType[0]);
+            UI::setLabelText(this.queueLabelId, "Producing: " + this.queue[0].unitType);
         }
 
         for (int i = 0; i < this.maxQueue; i = i + 1) {
@@ -728,7 +722,7 @@ class BuildingCommandController implements IUIButtonListener {
             }
             if (i < this.queueCount) {
                 Entity::setActive(slot, true);
-                UI::setImageTexture(slot, this.iconForType(this.queueType[i]));
+                UI::setImageTexture(slot, this.iconForType(this.queue[i].unitType));
                 UI::setImageColor(slot, 1.0, 1.0, 1.0, 1.0);
                 float sx = px + pad + (float)i * (slotW + pad);
                 UI::setRectPixels(slot, sx, py + 6.0, slotW, slotW);
@@ -739,8 +733,9 @@ class BuildingCommandController implements IUIButtonListener {
 
         if (this.queueProgressId >= 0) {
             float frac = 0.0;
-            if (this.queueTotal[0] > 0.0) {
-                frac = 1.0 - this.queueRemaining[0] / this.queueTotal[0];
+            QueueItem head = this.queue[0];
+            if (head.total > 0.0) {
+                frac = 1.0 - head.remaining / head.total;
             }
             if (frac < 0.0) { frac = 0.0; }
             if (frac > 1.0) { frac = 1.0; }

@@ -27,7 +27,9 @@ class GameState {
     private float now;
 
     private float statusTimer;
+    private float statusPeriod;
     private int statusIndex;
+    private string[] statusNames;
 
     constructor() {
         this.gold = 100;
@@ -53,7 +55,12 @@ class GameState {
         this.now = 0.0;
 
         this.statusTimer = 0.0;
+        this.statusPeriod = 3.0;
         this.statusIndex = 0;
+        this.statusNames = new string[3];
+        this.statusNames[0] = "Idle";
+        this.statusNames[1] = "Moving";
+        this.statusNames[2] = "Working";
     }
 
     public function update(float deltaTime): void {
@@ -66,12 +73,10 @@ class GameState {
         }
 
         this.statusTimer = this.statusTimer + deltaTime;
-        if (this.statusTimer >= 3.0) {
+        if (this.statusTimer >= this.statusPeriod) {
             this.statusTimer = 0.0;
-            this.statusIndex = (this.statusIndex + 1) % 3;
-            if (this.statusIndex == 0) { this.status = "Idle"; }
-            if (this.statusIndex == 1) { this.status = "Moving"; }
-            if (this.statusIndex == 2) { this.status = "Working"; }
+            this.statusIndex = (this.statusIndex + 1) % this.statusNames.length;
+            this.status = this.statusNames[this.statusIndex];
         }
 
         if (this.alert != "" && this.now >= this.alertExpiry) {

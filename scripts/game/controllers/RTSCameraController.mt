@@ -14,15 +14,17 @@
 //   PanRight      -> D, Right Arrow
 //   RotateCamera  -> Mouse Middle
 
-import * from "../lib/engine/Camera.mt";
-import * from "../lib/engine/Entity.mt";
-import * from "../lib/engine/Input.mt";
-import * from "../lib/engine/InputAction.mt";
-import * from "../lib/engine/InputAxis.mt";
-import * from "../lib/engine/Log.mt";
-import * from "../lib/engine/Terrain.mt";
-import * from "../lib/engine/Window.mt";
-import * from "../lib/math/Vec3f.mt";
+import * from "../../lib/engine/Camera.mt";
+import * from "../../lib/engine/Entity.mt";
+import * from "../../lib/engine/Input.mt";
+import * from "../../lib/engine/InputAction.mt";
+import * from "../../lib/engine/InputAxis.mt";
+import * from "../../lib/engine/Log.mt";
+import * from "../../lib/engine/Terrain.mt";
+import * from "../../lib/engine/Window.mt";
+import * from "../../lib/math/Vec3f.mt";
+import * from "../util/Config.mt";
+import * from "../util/Util.mt";
 
 @Script
 class RTSCameraController {
@@ -41,16 +43,9 @@ class RTSCameraController {
     private float edgeThresholdPx = 8.0;
     private float rotateSensitivity = 0.25;
 
-    private float mapMinX = -256.0;
-    private float mapMaxX = 256.0;
-    private float mapMinZ = -256.0;
-    private float mapMaxZ = 256.0;
-
     private float focalX = 0.0;
     private float focalZ = 0.0;
     private float lastTerrainY = 0.0;
-
-    private float DEG_TO_RAD = 0.01745329252;
 
     constructor() {
     }
@@ -85,7 +80,7 @@ class RTSCameraController {
         // engine's yaw convention (see EditorCamera): forward=(-sin,-cos), right=(cos,-sin).
         // world = right*dx + forward*dy. The previous formula flipped the cross-term signs,
         // which is a reflection rather than a rotation, so WASD desynced once the camera rotated.
-        float yawRad = this.yaw * this.DEG_TO_RAD;
+        float yawRad = this.yaw * Config::DEG_TO_RAD;
         float sinY = sin(yawRad);
         float cosY = cos(yawRad);
         float worldDX = dx * cosY - dy * sinY;
@@ -95,10 +90,8 @@ class RTSCameraController {
         this.focalX = this.focalX + worldDX * speed * deltaTime;
         this.focalZ = this.focalZ + worldDZ * speed * deltaTime;
 
-        if (this.focalX < this.mapMinX) { this.focalX = this.mapMinX; }
-        if (this.focalX > this.mapMaxX) { this.focalX = this.mapMaxX; }
-        if (this.focalZ < this.mapMinZ) { this.focalZ = this.mapMinZ; }
-        if (this.focalZ > this.mapMaxZ) { this.focalZ = this.mapMaxZ; }
+        this.focalX = Util::clampF(this.focalX, Config::MAP_MIN_X, Config::MAP_MAX_X);
+        this.focalZ = Util::clampF(this.focalZ, Config::MAP_MIN_Z, Config::MAP_MAX_Z);
 
         float scroll = Input::getMouseScrollDeltaY();
         if (scroll != 0.0) {
@@ -123,10 +116,8 @@ class RTSCameraController {
     public function jumpTo(float x, float z): void {
         this.focalX = x;
         this.focalZ = z;
-        if (this.focalX < this.mapMinX) { this.focalX = this.mapMinX; }
-        if (this.focalX > this.mapMaxX) { this.focalX = this.mapMaxX; }
-        if (this.focalZ < this.mapMinZ) { this.focalZ = this.mapMinZ; }
-        if (this.focalZ > this.mapMaxZ) { this.focalZ = this.mapMaxZ; }
+        this.focalX = Util::clampF(this.focalX, Config::MAP_MIN_X, Config::MAP_MAX_X);
+        this.focalZ = Util::clampF(this.focalZ, Config::MAP_MIN_Z, Config::MAP_MAX_Z);
         this.applyTransform();
     }
 

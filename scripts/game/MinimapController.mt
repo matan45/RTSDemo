@@ -109,7 +109,7 @@ class MinimapController {
         }
 
         this.handleInput(rect);
-        this.updateViewRect(rect);
+        this.updateViewRect();
     }
 
     public function onDestroy(): void {
@@ -178,7 +178,7 @@ class MinimapController {
     // math (no terrain raycasts) so near-horizon rays degrade gracefully instead
     // of missing: they clamp to the zoom-adaptive far cap (viewDistanceFactor
     // camera-heights) and then to the map border.
-    private function updateViewRect(float[] rect): void {
+    private function updateViewRect(): void {
         if (this.viewRectId < 0 || this.cameraId < 0) {
             return;
         }
@@ -260,17 +260,49 @@ class MinimapController {
             if (wz > maxWZ) { maxWZ = wz; }
         }
 
-        float px0 = this.worldToMinimapX(rect, minWX);
-        float px1 = this.worldToMinimapX(rect, maxWX);
-        float py0 = this.worldToMinimapY(rect, minWZ);
-        float py1 = this.worldToMinimapY(rect, maxWZ);
-        float minPX = px0; if (px1 < minPX) { minPX = px1; }
-        float maxPX = px0; if (px1 > maxPX) { maxPX = px1; }
-        float minPY = py0; if (py1 < minPY) { minPY = py1; }
-        float maxPY = py0; if (py1 > maxPY) { maxPY = py1; }
+        // World bounds -> [0,1] fractions of the minimap image (u=X, v=Z).
+        float fxA = this.worldFractionX(minWX);
+        float fxB = this.worldFractionX(maxWX);
+        float u0 = fxA; if (fxB < u0) { u0 = fxB; }
+        float u1 = fxA; if (fxB > u1) { u1 = fxB; }
+        float fzA = this.worldFractionZ(minWZ);
+        float fzB = this.worldFractionZ(maxWZ);
+        float v0 = fzA; if (fzB < v0) { v0 = fzB; }
+        float v1 = fzA; if (fzB > v1) { v1 = fzB; }
+
+        // Place the view-rect in the minimap image's OWN canvas-unit basis instead
+        // of via pixel round-trip. getRectPixels resolves against the editor play
+        // panel while the image renders against the framebuffer; when those differ
+        // in aspect (normal in editor play mode) a pixel-based view-rect drifts off
+        // the map. Sharing the image's anchor + canvas-unit sizeDelta/anchoredPos
+        // makes both resolve identically under ANY extent (VK minimap drift fix).
+        // getRectData -> [valid, anchorMinX, anchorMinY, anchorMaxX, anchorMaxY,
+        //   pivotX, pivotY, sizeDeltaX, sizeDeltaY, anchoredX, anchoredY].
+        float[] view = UI::getRectData(this.minimapViewId);
+        if (view[0] < 0.5) {
+            return;
+        }
+        float anchorX = view[1];
+        float anchorY = view[2];
+        float viewPivotX = view[5];
+        float viewPivotY = view[6];
+        float viewSizeX = view[7];
+        float viewSizeY = view[8];
+        float viewAnchoredX = view[9];
+        float viewAnchoredY = view[10];
+
+        // Sub-rectangle of the image with a top-left pivot, anchored to the image's
+        // own anchor so the canvas-scale/extent factors cancel between the two.
+        // (Assumes anchorMin == anchorMax on the image, as the minimap view is
+        // authored; the anchor-span term is zero in that case.)
+        float rectSizeX = (u1 - u0) * viewSizeX;
+        float rectSizeY = (v1 - v0) * viewSizeY;
+        float rectAnchoredX = viewAnchoredX - viewPivotX * viewSizeX + u0 * viewSizeX;
+        float rectAnchoredY = viewAnchoredY + viewPivotY * viewSizeY - v0 * viewSizeY;
 
         Entity::setActive(this.viewRectId, true);
-        UI::setRectPixels(this.viewRectId, minPX, minPY, maxPX - minPX, maxPY - minPY);
+        UI::setRectData(this.viewRectId, anchorX, anchorY, anchorX, anchorY,
+            0.0, 0.0, rectSizeX, rectSizeY, rectAnchoredX, rectAnchoredY);
     }
 
     // ============================================
@@ -299,16 +331,20 @@ class MinimapController {
         return this.mapMinZ + v * (this.mapMaxZ - this.mapMinZ);
     }
 
-    private function worldToMinimapX(float[] rect, float wx): float {
+    // [0,1] fraction of the minimap image for a world X (honoring the axis sign).
+    // 0 = image left edge, 1 = image right edge.
+    private function worldFractionX(float wx): float {
         float u = (wx - this.mapMinX) / (this.mapMaxX - this.mapMinX);
         if (this.mapUToX < 0.0) { u = 1.0 - u; }
-        return rect[1] + u * rect[3];
+        return u;
     }
 
-    private function worldToMinimapY(float[] rect, float wz): float {
+    // [0,1] fraction of the minimap image for a world Z (honoring the axis sign).
+    // 0 = image top edge, 1 = image bottom edge (screen-down = +Z).
+    private function worldFractionZ(float wz): float {
         float v = (wz - this.mapMinZ) / (this.mapMaxZ - this.mapMinZ);
         if (this.mapVToZ < 0.0) { v = 1.0 - v; }
-        return rect[2] + v * rect[4];
+        return v;
     }
 
     // Resolve (and cache) the RTSCameraController attached to the camera entity.

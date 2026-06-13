@@ -7,14 +7,14 @@
 // Initializes the minimap render target so the top-down camera entity feeds
 // the minimap UIImage.
 
-import * from "../lib/engine/Entity.mt";
-import * from "../lib/engine/UI.mt";
-import * from "../lib/engine/Log.mt";
-import * from "../lib/engine/RenderTexture.mt";
-import * from "../lib/engine/RenderTextureUpdateMode.mt";
-import * from "../lib/engine/IUIButtonListener.mt";
-import * from "./GameState.mt";
-import * from "./BuildingInfo.mt";
+import * from "../../lib/engine/Entity.mt";
+import * from "../../lib/engine/UI.mt";
+import * from "../../lib/engine/Log.mt";
+import * from "../../lib/engine/RenderTexture.mt";
+import * from "../../lib/engine/RenderTextureUpdateMode.mt";
+import * from "../../lib/engine/IUIButtonListener.mt";
+import * from "../data/GameState.mt";
+import * from "../data/BuildingInfo.mt";
 import * from "./SelectionController.mt";
 
 @Script
@@ -32,14 +32,9 @@ class RTSHUDController implements IUIButtonListener {
     private int buildSlot0Id;
     private int buildSlot1Id;
 
-    private int cmdMoveId;
-    private int cmdAttackMoveId;
-    private int cmdStopId;
-    private int cmdHoldId;
-    private int cmdBuildId;
-
-    // Command-card buttons in display order.
+    // Command-card buttons + their fallback command names, in display order.
     private int[] cmdButtons;
+    private string[] cmdNames;
 
     // Command-card font size (VK-1352): word labels (Train/Rally/Cancel)
     // shrink to WORD_CMD_FONT_SIZE so they fit the button.
@@ -69,11 +64,6 @@ class RTSHUDController implements IUIButtonListener {
         this.alertLabelId = -1;
         this.buildSlot0Id = -1;
         this.buildSlot1Id = -1;
-        this.cmdMoveId = -1;
-        this.cmdAttackMoveId = -1;
-        this.cmdStopId = -1;
-        this.cmdHoldId = -1;
-        this.cmdBuildId = -1;
         this.selectionOwnerId = -1;
         this.selection = null;
         this.lastShownId = -2;
@@ -94,18 +84,19 @@ class RTSHUDController implements IUIButtonListener {
         this.buildSlot0Id = this.resolve("RTS_HUD_BuildSlot_0");
         this.buildSlot1Id = this.resolve("RTS_HUD_BuildSlot_1");
 
-        this.cmdMoveId = this.resolve("RTS_HUD_CmdMove");
-        this.cmdAttackMoveId = this.resolve("RTS_HUD_CmdAttackMove");
-        this.cmdStopId = this.resolve("RTS_HUD_CmdStop");
-        this.cmdHoldId = this.resolve("RTS_HUD_CmdHold");
-        this.cmdBuildId = this.resolve("RTS_HUD_CmdBuild");
-
         this.cmdButtons = new int[5];
-        this.cmdButtons[0] = this.cmdMoveId;
-        this.cmdButtons[1] = this.cmdAttackMoveId;
-        this.cmdButtons[2] = this.cmdStopId;
-        this.cmdButtons[3] = this.cmdHoldId;
-        this.cmdButtons[4] = this.cmdBuildId;
+        this.cmdButtons[0] = this.resolve("RTS_HUD_CmdMove");
+        this.cmdButtons[1] = this.resolve("RTS_HUD_CmdAttackMove");
+        this.cmdButtons[2] = this.resolve("RTS_HUD_CmdStop");
+        this.cmdButtons[3] = this.resolve("RTS_HUD_CmdHold");
+        this.cmdButtons[4] = this.resolve("RTS_HUD_CmdBuild");
+
+        this.cmdNames = new string[5];
+        this.cmdNames[0] = "Move";
+        this.cmdNames[1] = "Attack-Move";
+        this.cmdNames[2] = "Stop";
+        this.cmdNames[3] = "Hold";
+        this.cmdNames[4] = "Build";
 
         this.selectionOwnerId = Entity::findByName("GameSystems");
 
@@ -216,11 +207,10 @@ class RTSHUDController implements IUIButtonListener {
         // Fallback unit-command stubs. Unreachable while the command card is
         // hidden with no selection; kept as a safety net until real unit
         // commands land (VK-1302).
-        if (buttonEntityId == this.cmdMoveId)       { this.state.onCommand("Move"); return; }
-        if (buttonEntityId == this.cmdAttackMoveId) { this.state.onCommand("Attack-Move"); return; }
-        if (buttonEntityId == this.cmdStopId)       { this.state.onCommand("Stop"); return; }
-        if (buttonEntityId == this.cmdHoldId)       { this.state.onCommand("Hold"); return; }
-        if (buttonEntityId == this.cmdBuildId)      { this.state.onCommand("Build"); return; }
+        int fallbackIdx = this.cmdIndexFor(buttonEntityId);
+        if (fallbackIdx >= 0) {
+            this.state.onCommand(this.cmdNames[fallbackIdx]);
+        }
     }
 
     @Override

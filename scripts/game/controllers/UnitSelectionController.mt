@@ -20,22 +20,26 @@
 // Building click-selection stays in SelectionController; this controller pushes
 // setUnitDragActive() so a box-drag release is never also a building click.
 
-import * from "../lib/engine/Entity.mt";
-import * from "../lib/engine/Input.mt";
-import * from "../lib/engine/Mouse.mt";
-import * from "../lib/engine/Key.mt";
-import * from "../lib/engine/UI.mt";
-import * from "../lib/engine/Picker.mt";
-import * from "../lib/engine/RaycastHit.mt";
-import * from "../lib/engine/ScreenPoint.mt";
-import * from "../lib/engine/PluginComponent.mt";
-import * from "../lib/engine/Decal.mt";
-import * from "../lib/engine/Log.mt";
-import * from "../lib/core/collections/HashMap.mt";
-import * from "../lib/core/primitives/Int.mt";
-import * from "../lib/math/Vec3f.mt";
+import * from "../../lib/engine/Entity.mt";
+import * from "../../lib/engine/Input.mt";
+import * from "../../lib/engine/Mouse.mt";
+import * from "../../lib/engine/Key.mt";
+import * from "../../lib/engine/UI.mt";
+import * from "../../lib/engine/Picker.mt";
+import * from "../../lib/engine/RaycastHit.mt";
+import * from "../../lib/engine/ScreenPoint.mt";
+import * from "../../lib/engine/PluginComponent.mt";
+import * from "../../lib/engine/Decal.mt";
+import * from "../../lib/engine/Log.mt";
+import * from "../../lib/core/collections/HashMap.mt";
+import * from "../../lib/core/primitives/Int.mt";
+import * from "../../lib/math/Vec3f.mt";
 import * from "./SelectionController.mt";
 import * from "./BuildingPlacementController.mt";
+import * from "../util/Config.mt";
+import * from "../util/Util.mt";
+import * from "../util/DragState.mt";
+import * from "../util/InputEdge.mt";
 
 @Script
 class UnitSelectionController {
@@ -46,8 +50,8 @@ class UnitSelectionController {
     private float dragStartY;
 
     // Input edge tracking (Input exposes state, not edges).
-    private bool prevLeftDown;
-    private bool prevEscDown;
+    private InputEdge leftEdge;
+    private InputEdge escEdge;
 
     // Selected units: entity id -> ring decal entity id (both boxed as Int).
     // Rings are created on select and destroyed on deselect, so no entities
@@ -65,24 +69,22 @@ class UnitSelectionController {
     private float dragThreshold;
     private float ringRadius;
     private int maxSelected;
-    private int teamPlayer;
 
     constructor() {
-        this.state = 0;
+        this.state = DragState::IDLE;
         this.dragStartX = 0.0;
         this.dragStartY = 0.0;
-        this.prevLeftDown = false;
-        this.prevEscDown = false;
         this.dragBoxId = -1;
         this.pendingDragClear = false;
 
         this.dragThreshold = 5.0;
         this.ringRadius = 1.6;
         this.maxSelected = 64;
-        this.teamPlayer = 0;
     }
 
     public function onStart(): void {
+        this.leftEdge = new InputEdge();
+        this.escEdge = new InputEdge();
         this.selectedRings = new HashMap<Int, Int>();
 
         this.dragBoxId = Entity::findByName("RTS_DragBox");
@@ -98,17 +100,15 @@ class UnitSelectionController {
     public function onUpdate(float deltaTime): void {
         // Release the building-click suppression one frame after a drag ended,
         // so SelectionController has seen (and skipped) the release edge first.
-        if (this.pendingDragClear && this.state == 0) {
+        if (this.pendingDragClear && this.state == DragState::IDLE) {
             this.pendingDragClear = false;
             this.pushDragActive(false);
         }
 
         // ESC clears the selection (edge-detected) and cancels a live drag.
-        bool nowEsc = Input::isKeyDown(Key::ESCAPE);
-        bool escPressed = !this.prevEscDown && nowEsc;
-        this.prevEscDown = nowEsc;
-        if (escPressed) {
-            if (this.state == 2) {
+        this.escEdge.step(Input::isKeyDown(Key::ESCAPE));
+        if (this.escEdge.wasPressed) {
+            if (this.state == DragState::DRAGGING) {
                 this.cancelDrag();
             }
             this.clearSelection();
@@ -153,34 +153,33 @@ class UnitSelectionController {
     // ---- drag state machine ----
 
     private function updateDrag(): void {
-        bool nowLeft = Input::isMouseButtonDown(Mouse::LEFT);
-        bool leftPressed = !this.prevLeftDown && nowLeft;
-        bool leftReleased = this.prevLeftDown && !nowLeft;
-        this.prevLeftDown = nowLeft;
+        this.leftEdge.step(Input::isMouseButtonDown(Mouse::LEFT));
+        bool leftPressed = this.leftEdge.wasPressed;
+        bool leftReleased = this.leftEdge.wasReleased;
 
         float mx = Input::getViewportMouseX();
         float my = Input::getViewportMouseY();
         bool shift = Input::isKeyDown(Key::LEFT_SHIFT) || Input::isKeyDown(Key::RIGHT_SHIFT);
 
-        if (this.state == 0) {
+        if (this.state == DragState::IDLE) {
             if (leftPressed && !UI::isPointerOverUI() && !this.placementActive()) {
-                this.state = 1;
+                this.state = DragState::MAYBE;
                 this.dragStartX = mx;
                 this.dragStartY = my;
             }
             return;
         }
 
-        if (this.state == 1) {
+        if (this.state == DragState::MAYBE) {
             if (leftReleased) {
-                this.state = 0;
+                this.state = DragState::IDLE;
                 this.handleClick(mx, my, shift);
                 return;
             }
             float dx = mx - this.dragStartX;
             float dy = my - this.dragStartY;
             if (dx * dx + dy * dy > this.dragThreshold * this.dragThreshold) {
-                this.state = 2;
+                this.state = DragState::DRAGGING;
                 this.pushDragActive(true);
                 // Position the box BEFORE activating it, or it renders one
                 // frame at its stale previous/authored rect (flash + offset).
@@ -192,10 +191,10 @@ class UnitSelectionController {
             return;
         }
 
-        // state == 2: dragging.
+        // DRAGGING.
         this.updateDragBox(mx, my);
         if (leftReleased) {
-            this.state = 0;
+            this.state = DragState::IDLE;
             this.pendingDragClear = true;
             if (this.dragBoxId >= 0) {
                 Entity::setActive(this.dragBoxId, false);
@@ -205,7 +204,7 @@ class UnitSelectionController {
     }
 
     private function cancelDrag(): void {
-        this.state = 0;
+        this.state = DragState::IDLE;
         this.pendingDragClear = true;
         if (this.dragBoxId >= 0) {
             Entity::setActive(this.dragBoxId, false);
@@ -216,14 +215,10 @@ class UnitSelectionController {
         if (this.dragBoxId < 0) {
             return;
         }
-        float minX = this.dragStartX;
-        if (mx < minX) { minX = mx; }
-        float minY = this.dragStartY;
-        if (my < minY) { minY = my; }
-        float maxX = this.dragStartX;
-        if (mx > maxX) { maxX = mx; }
-        float maxY = this.dragStartY;
-        if (my > maxY) { maxY = my; }
+        float minX = Util::minF(this.dragStartX, mx);
+        float minY = Util::minF(this.dragStartY, my);
+        float maxX = Util::maxF(this.dragStartX, mx);
+        float maxY = Util::maxF(this.dragStartY, my);
         UI::setRectPixels(this.dragBoxId, minX, minY, maxX - minX, maxY - minY);
     }
 
@@ -267,14 +262,10 @@ class UnitSelectionController {
             this.clearSelection();
         }
 
-        float minX = this.dragStartX;
-        if (mx < minX) { minX = mx; }
-        float minY = this.dragStartY;
-        if (my < minY) { minY = my; }
-        float maxX = this.dragStartX;
-        if (mx > maxX) { maxX = mx; }
-        float maxY = this.dragStartY;
-        if (my > maxY) { maxY = my; }
+        float minX = Util::minF(this.dragStartX, mx);
+        float minY = Util::minF(this.dragStartY, my);
+        float maxX = Util::maxF(this.dragStartX, mx);
+        float maxY = Util::maxF(this.dragStartY, my);
 
         int added = 0;
         int[] ids = PluginComponent::findAll("Selectable");
@@ -313,7 +304,7 @@ class UnitSelectionController {
         if (!PluginComponent::has(id, "Team")) {
             return false;
         }
-        return PluginComponent::getInt(id, "Team", "teamId") == this.teamPlayer;
+        return PluginComponent::getInt(id, "Team", "teamId") == Config::TEAM_PLAYER;
     }
 
     private function addUnit(int id): void {

@@ -17,18 +17,20 @@
 // they early-out on UI::isPointerOverUI(); press edges that start on the
 // minimap never reach their drag state machines.
 
-import * from "../lib/engine/Entity.mt";
-import * from "../lib/engine/Input.mt";
-import * from "../lib/engine/Mouse.mt";
-import * from "../lib/engine/UI.mt";
-import * from "../lib/engine/Camera.mt";
-import * from "../lib/engine/Terrain.mt";
-import * from "../lib/engine/Window.mt";
-import * from "../lib/engine/Navmesh.mt";
-import * from "../lib/engine/PluginComponent.mt";
-import * from "../lib/engine/Log.mt";
-import * from "../lib/math/Vec3f.mt";
+import * from "../../lib/engine/Entity.mt";
+import * from "../../lib/engine/Input.mt";
+import * from "../../lib/engine/Mouse.mt";
+import * from "../../lib/engine/UI.mt";
+import * from "../../lib/engine/Camera.mt";
+import * from "../../lib/engine/Terrain.mt";
+import * from "../../lib/engine/Window.mt";
+import * from "../../lib/engine/Navmesh.mt";
+import * from "../../lib/engine/PluginComponent.mt";
+import * from "../../lib/engine/Log.mt";
+import * from "../../lib/math/Vec3f.mt";
 import * from "./RTSCameraController.mt";
+import * from "../util/Config.mt";
+import * from "../util/InputEdge.mt";
 
 @Script
 class MinimapController {
@@ -37,11 +39,8 @@ class MinimapController {
     private int cameraId;
     private RTSCameraController cameraCtrl;
 
-    // World bounds covered by the minimap camera (orthoSize 256 around origin).
-    private float mapMinX = -256.0;
-    private float mapMaxX = 256.0;
-    private float mapMinZ = -256.0;
-    private float mapMaxZ = 256.0;
+    // World bounds covered by the minimap camera (orthoSize 256 around origin)
+    // are shared via Config::MAP_* (same values as the camera + placement).
 
     // Texture-to-world axis orientation. The minimap camera looks straight down
     // (pitch -90, yaw 0): screen-right = +X, screen-down = +Z. Flip a sign here
@@ -50,8 +49,8 @@ class MinimapController {
     private float mapVToZ = 1.0;
 
     // Input edge tracking (Input exposes state, not edges).
-    private bool prevLeftDown;
-    private bool prevRightDown;
+    private InputEdge leftEdge;
+    private InputEdge rightEdge;
 
     // True while a left-button pan that STARTED on the minimap is live; keeps
     // panning (clamped) even if the cursor slips off the minimap rect.
@@ -64,19 +63,17 @@ class MinimapController {
     // the rectangle matched to the readable foreground instead of the horizon.
     private float viewDistanceFactor = 4.0;
 
-    private float DEG_TO_RAD = 0.01745329252;
-
     constructor() {
         this.minimapViewId = -1;
         this.viewRectId = -1;
         this.cameraId = -1;
         this.cameraCtrl = null;
-        this.prevLeftDown = false;
-        this.prevRightDown = false;
         this.draggingFromMinimap = false;
     }
 
     public function onStart(): void {
+        this.leftEdge = new InputEdge();
+        this.rightEdge = new InputEdge();
         this.minimapViewId = Entity::findByName("RTS_HUD_MinimapView");
         if (this.minimapViewId < 0) {
             Log::warn("[Minimap] RTS_HUD_MinimapView not found; minimap input disabled.");
@@ -124,10 +121,10 @@ class MinimapController {
         float my = Input::getViewportMouseY();
         bool nowLeft = Input::isMouseButtonDown(Mouse::LEFT);
         bool nowRight = Input::isMouseButtonDown(Mouse::RIGHT);
-        bool leftPressed = nowLeft && !this.prevLeftDown;
-        bool rightPressed = nowRight && !this.prevRightDown;
-        this.prevLeftDown = nowLeft;
-        this.prevRightDown = nowRight;
+        this.leftEdge.step(nowLeft);
+        this.rightEdge.step(nowRight);
+        bool leftPressed = this.leftEdge.wasPressed;
+        bool rightPressed = this.rightEdge.wasPressed;
 
         bool inside = this.containsPoint(rect, mx, my);
 
@@ -185,8 +182,8 @@ class MinimapController {
 
         Vec3f camPos = Camera::getPosition(this.cameraId);
         Vec3f camRot = Camera::getRotation(this.cameraId);
-        float pitchRad = camRot.x * this.DEG_TO_RAD;
-        float yawRad = camRot.y * this.DEG_TO_RAD;
+        float pitchRad = camRot.x * Config::DEG_TO_RAD;
+        float yawRad = camRot.y * Config::DEG_TO_RAD;
 
         // Camera basis from the engine's yaw convention (see RTSCameraController):
         // horizontal forward = (-sin, -cos), right = (cos, -sin) in world XZ.
@@ -210,7 +207,7 @@ class MinimapController {
         if (vw <= 0.0 || vh <= 0.0) {
             return;
         }
-        float tanV = tan(Camera::getFOV(this.cameraId) * 0.5 * this.DEG_TO_RAD);
+        float tanV = tan(Camera::getFOV(this.cameraId) * 0.5 * Config::DEG_TO_RAD);
         float tanH = tanV * (vw / vh);
 
         // Ground plane: terrain height directly under the camera (the RTS camera
@@ -225,10 +222,10 @@ class MinimapController {
         if (heightAbove < 1.0) { heightAbove = 1.0; }
         float tCap = this.viewDistanceFactor * heightAbove;
 
-        float minWX = this.mapMaxX;
-        float maxWX = this.mapMinX;
-        float minWZ = this.mapMaxZ;
-        float maxWZ = this.mapMinZ;
+        float minWX = Config::MAP_MAX_X;
+        float maxWX = Config::MAP_MIN_X;
+        float minWZ = Config::MAP_MAX_Z;
+        float maxWZ = Config::MAP_MIN_Z;
 
         // Frustum corners in NDC: (su, sv) with sv = +1 at the top of the screen.
         for (int corner = 0; corner < 4; corner = corner + 1) {
@@ -249,10 +246,10 @@ class MinimapController {
 
             float wx = camPos.x + dirX * t;
             float wz = camPos.z + dirZ * t;
-            if (wx < this.mapMinX) { wx = this.mapMinX; }
-            if (wx > this.mapMaxX) { wx = this.mapMaxX; }
-            if (wz < this.mapMinZ) { wz = this.mapMinZ; }
-            if (wz > this.mapMaxZ) { wz = this.mapMaxZ; }
+            if (wx < Config::MAP_MIN_X) { wx = Config::MAP_MIN_X; }
+            if (wx > Config::MAP_MAX_X) { wx = Config::MAP_MAX_X; }
+            if (wz < Config::MAP_MIN_Z) { wz = Config::MAP_MIN_Z; }
+            if (wz > Config::MAP_MAX_Z) { wz = Config::MAP_MAX_Z; }
 
             if (wx < minWX) { minWX = wx; }
             if (wx > maxWX) { maxWX = wx; }
@@ -320,7 +317,7 @@ class MinimapController {
         if (u < 0.0) { u = 0.0; }
         if (u > 1.0) { u = 1.0; }
         if (this.mapUToX < 0.0) { u = 1.0 - u; }
-        return this.mapMinX + u * (this.mapMaxX - this.mapMinX);
+        return Config::MAP_MIN_X + u * (Config::MAP_MAX_X - Config::MAP_MIN_X);
     }
 
     private function minimapToWorldZ(float[] rect, float py): float {
@@ -328,13 +325,13 @@ class MinimapController {
         if (v < 0.0) { v = 0.0; }
         if (v > 1.0) { v = 1.0; }
         if (this.mapVToZ < 0.0) { v = 1.0 - v; }
-        return this.mapMinZ + v * (this.mapMaxZ - this.mapMinZ);
+        return Config::MAP_MIN_Z + v * (Config::MAP_MAX_Z - Config::MAP_MIN_Z);
     }
 
     // [0,1] fraction of the minimap image for a world X (honoring the axis sign).
     // 0 = image left edge, 1 = image right edge.
     private function worldFractionX(float wx): float {
-        float u = (wx - this.mapMinX) / (this.mapMaxX - this.mapMinX);
+        float u = (wx - Config::MAP_MIN_X) / (Config::MAP_MAX_X - Config::MAP_MIN_X);
         if (this.mapUToX < 0.0) { u = 1.0 - u; }
         return u;
     }
@@ -342,7 +339,7 @@ class MinimapController {
     // [0,1] fraction of the minimap image for a world Z (honoring the axis sign).
     // 0 = image top edge, 1 = image bottom edge (screen-down = +Z).
     private function worldFractionZ(float wz): float {
-        float v = (wz - this.mapMinZ) / (this.mapMaxZ - this.mapMinZ);
+        float v = (wz - Config::MAP_MIN_Z) / (Config::MAP_MAX_Z - Config::MAP_MIN_Z);
         if (this.mapVToZ < 0.0) { v = 1.0 - v; }
         return v;
     }

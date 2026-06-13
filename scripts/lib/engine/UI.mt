@@ -580,6 +580,23 @@ public class UI {
         _native_ui_setTooltipDelay(entityId, seconds);
     }
 
+    // Set the tooltip font (Text mode). A valid font is required for the bubble
+    // text to render.
+    public static function setTooltipFont(int entityId, string fontPath): void {
+        _native_ui_setTooltipFont(entityId, fontPath);
+    }
+
+    // Set the tooltip font size (points, Text mode)
+    public static function setTooltipFontSize(int entityId, float size): void {
+        _native_ui_setTooltipFontSize(entityId, size);
+    }
+
+    // Set the tooltip padding in pixels (left, right, top, bottom). The Text-mode
+    // bubble hugs its text, so larger left/right padding makes the bubble wider.
+    public static function setTooltipPadding(int entityId, float left, float right, float top, float bottom): void {
+        _native_ui_setTooltipPadding(entityId, left, right, top, bottom);
+    }
+
     // ============================================
     // Window
     // ============================================

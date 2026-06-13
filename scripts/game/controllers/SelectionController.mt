@@ -11,20 +11,22 @@
 // (entityId -> BuildingInfo) is kept here in a HashMap (entity id boxed as Int).
 // Attach this @Script to the GameSystems entity alongside BuildingPlacementController.
 
-import * from "../lib/engine/Entity.mt";
-import * from "../lib/engine/Input.mt";
-import * from "../lib/engine/Mouse.mt";
-import * from "../lib/engine/Key.mt";
-import * from "../lib/engine/UI.mt";
-import * from "../lib/engine/Picker.mt";
-import * from "../lib/engine/RaycastHit.mt";
-import * from "../lib/engine/Decal.mt";
-import * from "../lib/engine/Log.mt";
-import * from "../lib/engine/PluginComponent.mt";
-import * from "../lib/core/collections/HashMap.mt";
-import * from "../lib/core/primitives/Int.mt";
-import * from "../lib/math/Vec3f.mt";
-import * from "./BuildingInfo.mt";
+import * from "../../lib/engine/Entity.mt";
+import * from "../../lib/engine/Input.mt";
+import * from "../../lib/engine/Mouse.mt";
+import * from "../../lib/engine/Key.mt";
+import * from "../../lib/engine/UI.mt";
+import * from "../../lib/engine/Picker.mt";
+import * from "../../lib/engine/RaycastHit.mt";
+import * from "../../lib/engine/Decal.mt";
+import * from "../../lib/engine/Log.mt";
+import * from "../../lib/engine/PluginComponent.mt";
+import * from "../../lib/core/collections/HashMap.mt";
+import * from "../../lib/core/primitives/Int.mt";
+import * from "../../lib/math/Vec3f.mt";
+import * from "../data/BuildingInfo.mt";
+import * from "../util/Config.mt";
+import * from "../util/InputEdge.mt";
 
 @Script
 class SelectionController {
@@ -42,8 +44,13 @@ class SelectionController {
     // building selection click. Same one-directional pattern as placementActive.
     private bool unitDragActive;
 
-    private bool prevEscDown;
-    private bool prevLeftDown;
+    private InputEdge escEdge;
+    private InputEdge leftEdge;
+
+    // Tunables.
+    private float unitSightRadius;
+    private int visionSweepFrames;
+    private float highlightMargin;
 
     // Fog of war (VK-1314): frames until the next Vision sweep. Player-team
     // Selectable entities (units) get a Vision component so they reveal the map;
@@ -60,14 +67,17 @@ class SelectionController {
         this.selectedId = -1;
         this.placementActive = false;
         this.unitDragActive = false;
-        this.prevEscDown = false;
-        this.prevLeftDown = false;
         this.highlightId = -1;
         this.lastHighlightId = -1;
         this.visionSweepCooldown = 0;
+        this.unitSightRadius = 30.0;
+        this.visionSweepFrames = 60;
+        this.highlightMargin = 1.5;
     }
 
     public function onStart(): void {
+        this.escEdge = new InputEdge();
+        this.leftEdge = new InputEdge();
         this.registry = new HashMap<Int, BuildingInfo>();
 
         this.registerEnemyBuildings();
@@ -78,10 +88,8 @@ class SelectionController {
 
     public function onUpdate(float deltaTime): void {
         // ESC clears selection (edge-detected).
-        bool nowEsc = Input::isKeyDown(Key::ESCAPE);
-        bool escPressed = !this.prevEscDown && nowEsc;
-        this.prevEscDown = nowEsc;
-        if (escPressed) {
+        this.escEdge.step(Input::isKeyDown(Key::ESCAPE));
+        if (this.escEdge.wasPressed) {
             this.clearSelection();
         }
 
@@ -92,7 +100,7 @@ class SelectionController {
         // entities missing the component are touched).
         this.visionSweepCooldown = this.visionSweepCooldown - 1;
         if (this.visionSweepCooldown <= 0) {
-            this.visionSweepCooldown = 60;
+            this.visionSweepCooldown = this.visionSweepFrames;
             this.grantVisionToPlayerUnits();
         }
     }
@@ -101,10 +109,8 @@ class SelectionController {
     // Input::isMouseButtonReleased is LEVEL (true every frame the button is
     // up), so derive the edge from isMouseButtonDown instead.
     private function handleClick(): void {
-        bool nowLeft = Input::isMouseButtonDown(Mouse::LEFT);
-        bool leftReleased = this.prevLeftDown && !nowLeft;
-        this.prevLeftDown = nowLeft;
-        if (!leftReleased) {
+        this.leftEdge.step(Input::isMouseButtonDown(Mouse::LEFT));
+        if (!this.leftEdge.wasReleased) {
             return;
         }
 
@@ -226,7 +232,7 @@ class SelectionController {
         Entity::setPosition(this.highlightId, Entity::getPosition(this.selectedId));
         // Slightly larger than the footprint so a colored rim shows around the
         // building; z is the projection depth (covers terrain slope).
-        Decal::setHalfExtents(this.highlightId, info.halfX + 1.5, info.halfZ + 1.5, 4.0);
+        Decal::setHalfExtents(this.highlightId, info.halfX + this.highlightMargin, info.halfZ + this.highlightMargin, 4.0);
         if (info.isPlayer()) {
             Decal::setColor(this.highlightId, 0.25, 1.0, 0.4, 0.6);
         } else {
@@ -246,11 +252,11 @@ class SelectionController {
             if (PluginComponent::has(id, "Vision")) {
                 continue;
             }
-            if (PluginComponent::has(id, "Team") && PluginComponent::getInt(id, "Team", "teamId") != 0) {
+            if (PluginComponent::has(id, "Team") && PluginComponent::getInt(id, "Team", "teamId") != Config::TEAM_PLAYER) {
                 continue;
             }
             PluginComponent::add(id, "Vision");
-            PluginComponent::setFloat(id, "Vision", "sightRadius", 30.0);
+            PluginComponent::setFloat(id, "Vision", "sightRadius", this.unitSightRadius);
             Log::info("[Selection] granted Vision to entity " + id);
         }
     }

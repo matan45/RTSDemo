@@ -146,10 +146,10 @@ class BuildingCommandController implements IUIButtonListener {
     // "Harvester" entry (index 3) doubles as the default for unknown types.
     private function defineUnits(): void {
         this.unitDefs = new UnitDef[4];
-        this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/barracks.vfImage");
-        this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/commandcenter.vfImage");
-        this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/factory.vfImage");
-        this.unitDefs[3] = new UnitDef("Harvester", 30, 4.0, "assets/units/harvester_prefab.vfPrefab", "assets/ui/icons/refinery.vfImage");
+        this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/building/barracks.vfImage");
+        this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/building/commandcenter.vfImage");
+        this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/building/factory.vfImage");
+        this.unitDefs[3] = new UnitDef("Harvester", 30, 4.0, "assets/units/harvester_prefab.vfPrefab", "assets/ui/icons/building/refinery.vfImage");
     }
 
     // Look up a unit definition by type; falls back to the Harvester entry for

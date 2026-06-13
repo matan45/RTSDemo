@@ -152,11 +152,11 @@ class BuildingPlacementController implements IUIButtonListener {
         // Order must match the build-queue slot labels (GameState.buildQueue):
         // slot 0 = Barracks, slot 1 = Command, slot 2 = Refinery, slot 3 = Power,
         // slot 4 = Factory (RTS_HUD_BuildSlot_4).
-        this.buildings[0] = new BuildingDef("assets/buildings/barracks_prefab.vfPrefab", "assets/buildings/barracks_inst.vfMatInstance", 6.0, 6.0, 75, -20, "Barracks", "Barracks", "assets/ui/icons/barracks.vfImage", 1000.0);
-        this.buildings[1] = new BuildingDef("assets/buildings/command_center_prefab.vfPrefab", "assets/buildings/command_center_inst.vfMatInstance", 6.0, 4.0, 50, -30, "CommandCenter", "Command Center", "assets/ui/icons/commandcenter.vfImage", 1500.0);
-        this.buildings[2] = new BuildingDef("assets/buildings/refinery_prefab.vfPrefab", "assets/buildings/refinery_inst.vfMatInstance", 4.0, 4.0, 40, -25, "Refinery", "Refinery", "assets/ui/icons/refinery.vfImage", 800.0);
-        this.buildings[3] = new BuildingDef("assets/buildings/power_plant_prefab.vfPrefab", "assets/buildings/power_plant_inst.vfMatInstance", 4.0, 4.0, 60, 50, "Power", "Power Plant", "assets/ui/icons/power.vfImage", 600.0);
-        this.buildings[4] = new BuildingDef("assets/buildings/factory_prefab.vfPrefab", "assets/buildings/factory_inst.vfMatInstance", 5.0, 3.5, 90, -30, "Factory", "Factory", "assets/ui/icons/factory.vfImage", 1200.0);
+        this.buildings[0] = new BuildingDef("assets/buildings/barracks_prefab.vfPrefab", "assets/buildings/barracks_inst.vfMatInstance", 6.0, 6.0, 75, -20, "Barracks", "Barracks", "assets/ui/icons/building/barracks.vfImage", 1000.0);
+        this.buildings[1] = new BuildingDef("assets/buildings/command_center_prefab.vfPrefab", "assets/buildings/command_center_inst.vfMatInstance", 6.0, 4.0, 50, -30, "CommandCenter", "Command Center", "assets/ui/icons/building/commandcenter.vfImage", 1500.0);
+        this.buildings[2] = new BuildingDef("assets/buildings/refinery_prefab.vfPrefab", "assets/buildings/refinery_inst.vfMatInstance", 4.0, 4.0, 40, -25, "Refinery", "Refinery", "assets/ui/icons/building/refinery.vfImage", 800.0);
+        this.buildings[3] = new BuildingDef("assets/buildings/power_plant_prefab.vfPrefab", "assets/buildings/power_plant_inst.vfMatInstance", 4.0, 4.0, 60, 50, "Power", "Power Plant", "assets/ui/icons/building/power.vfImage", 600.0);
+        this.buildings[4] = new BuildingDef("assets/buildings/factory_prefab.vfPrefab", "assets/buildings/factory_inst.vfMatInstance", 5.0, 3.5, 90, -30, "Factory", "Factory", "assets/ui/icons/building/factory.vfImage", 1200.0);
         this.ghostSlot = -1;
 
         this.ghostMatValid = "assets/buildings/selected/GhostValid_inst.vfMatInstance";
@@ -393,10 +393,11 @@ class BuildingPlacementController implements IUIButtonListener {
         UI::setTooltipFont(slotId, "assets/Roboto-Regular.vfFont");
         UI::setTooltipFontSize(slotId, 18.0);
         UI::setTooltipDelay(slotId, 0.35);
-        // Wider horizontal padding so the bubble is not cramped (the Text-mode
-        // bubble hugs its text); richer text also gives it more width.
+        // Wider horizontal padding + letter spacing so the cost bubble is not
+        // cramped (the Text-mode bubble hugs its text).
         UI::setTooltipPadding(slotId, 16.0, 16.0, 8.0, 8.0);
-        UI::setTooltipText(slotId, def.displayName + ": " + parsePrimitive(def.cost) + " gold");
+        UI::setTooltipLetterSpacing(slotId, 4.0);
+        UI::setTooltipText(slotId, parsePrimitive(def.cost) + " gold");
         UI::setTooltipEnabled(slotId, true);
     }
 

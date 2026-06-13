@@ -22,7 +22,7 @@
             "sizeMode": "screenSpace"
           },
           "camera": {
-            "aspectRatio": 2.129277467727661,
+            "aspectRatio": 2.1423356533050537,
             "cameraId": 0,
             "farPlane": 500.0,
             "fieldOfView": 45.0,
@@ -37,7 +37,7 @@
               {
                 "enabled": true,
                 "scriptRef": "20d15f17dc2b61f9",
-                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/RTSCameraController.mt"
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/RTSCameraController.mt"
               }
             ]
           }
@@ -47,9 +47,9 @@
         "transform": {
           "isStatic": true,
           "position": [
-            0.0,
-            58.400001525878906,
-            0.0
+            24.327587127685547,
+            36.79999923706055,
+            -17.303529739379883
           ],
           "rotation": [
             -50.0,
@@ -279,6 +279,7 @@
                 "letterSpacing": 1.5,
                 "lineSpacing": 1.0,
                 "overflow": "ellipsis",
+                "richText": false,
                 "text": "TACTICAL MAP",
                 "verticalAlignment": "middle",
                 "wordWrap": false
@@ -474,6 +475,7 @@
                     "letterSpacing": 6.0,
                     "lineSpacing": 1.0,
                     "overflow": "ellipsis",
+                    "richText": false,
                     "text": "Label",
                     "verticalAlignment": "middle",
                     "wordWrap": false
@@ -612,6 +614,7 @@
                     "letterSpacing": 6.0,
                     "lineSpacing": 1.0,
                     "overflow": "ellipsis",
+                    "richText": false,
                     "text": "Label",
                     "verticalAlignment": "middle",
                     "wordWrap": false
@@ -765,7 +768,7 @@
                     "sourceHeight": 1254,
                     "sourceWidth": 1254,
                     "textureRef": "543d26d201ba7cef",
-                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/barracks.vfImage"
+                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/building/barracks.vfImage"
                   },
                   "uiLabel": {
                     "color": [
@@ -782,6 +785,7 @@
                     "letterSpacing": 4.0,
                     "lineSpacing": 1.0,
                     "overflow": "overflow",
+                    "richText": false,
                     "text": "Barracks",
                     "verticalAlignment": "bottom",
                     "wordWrap": true
@@ -807,6 +811,40 @@
                     "sizeDelta": [
                       120.0,
                       70.0
+                    ]
+                  },
+                  "uiTooltip": {
+                    "backgroundColor": [
+                      0.07999999821186066,
+                      0.07999999821186066,
+                      0.07999999821186066,
+                      0.949999988079071
+                    ],
+                    "enabled": true,
+                    "followCursor": true,
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 18.0,
+                    "letterSpacing": 4.0,
+                    "maxWidth": 280.0,
+                    "mode": 0,
+                    "offset": [
+                      12.0,
+                      16.0
+                    ],
+                    "padding": [
+                      16.0,
+                      16.0,
+                      8.0,
+                      8.0
+                    ],
+                    "showDelay": 0.3499999940395355,
+                    "text": "75 gold",
+                    "textColor": [
+                      1.0,
+                      1.0,
+                      1.0,
+                      1.0
                     ]
                   }
                 },
@@ -873,7 +911,7 @@
                     "sourceHeight": 1254,
                     "sourceWidth": 1254,
                     "textureRef": "70f7d1285063b3ab",
-                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/commandcenter.vfImage"
+                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/building/commandcenter.vfImage"
                   },
                   "uiLabel": {
                     "color": [
@@ -890,6 +928,7 @@
                     "letterSpacing": 4.0,
                     "lineSpacing": 1.0,
                     "overflow": "overflow",
+                    "richText": false,
                     "text": "Command",
                     "verticalAlignment": "bottom",
                     "wordWrap": true
@@ -915,6 +954,40 @@
                     "sizeDelta": [
                       120.0,
                       70.0
+                    ]
+                  },
+                  "uiTooltip": {
+                    "backgroundColor": [
+                      0.07999999821186066,
+                      0.07999999821186066,
+                      0.07999999821186066,
+                      0.949999988079071
+                    ],
+                    "enabled": true,
+                    "followCursor": true,
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 18.0,
+                    "letterSpacing": 4.0,
+                    "maxWidth": 280.0,
+                    "mode": 0,
+                    "offset": [
+                      12.0,
+                      16.0
+                    ],
+                    "padding": [
+                      16.0,
+                      16.0,
+                      8.0,
+                      8.0
+                    ],
+                    "showDelay": 0.3499999940395355,
+                    "text": "50 gold",
+                    "textColor": [
+                      1.0,
+                      1.0,
+                      1.0,
+                      1.0
                     ]
                   }
                 },
@@ -981,7 +1054,7 @@
                     "sourceHeight": 1254,
                     "sourceWidth": 1254,
                     "textureRef": "86dc3f031f064aeb",
-                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/refinery.vfImage"
+                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/building/refinery.vfImage"
                   },
                   "uiLabel": {
                     "color": [
@@ -998,6 +1071,7 @@
                     "letterSpacing": 4.0,
                     "lineSpacing": 1.0,
                     "overflow": "overflow",
+                    "richText": false,
                     "text": "Refinery",
                     "verticalAlignment": "bottom",
                     "wordWrap": true
@@ -1023,6 +1097,40 @@
                     "sizeDelta": [
                       120.0,
                       70.0
+                    ]
+                  },
+                  "uiTooltip": {
+                    "backgroundColor": [
+                      0.07999999821186066,
+                      0.07999999821186066,
+                      0.07999999821186066,
+                      0.949999988079071
+                    ],
+                    "enabled": true,
+                    "followCursor": true,
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 18.0,
+                    "letterSpacing": 4.0,
+                    "maxWidth": 280.0,
+                    "mode": 0,
+                    "offset": [
+                      12.0,
+                      16.0
+                    ],
+                    "padding": [
+                      16.0,
+                      16.0,
+                      8.0,
+                      8.0
+                    ],
+                    "showDelay": 0.3499999940395355,
+                    "text": "40 gold",
+                    "textColor": [
+                      1.0,
+                      1.0,
+                      1.0,
+                      1.0
                     ]
                   }
                 },
@@ -1089,7 +1197,7 @@
                     "sourceHeight": 1254,
                     "sourceWidth": 1254,
                     "textureRef": "f608cda0b5bbd553",
-                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/power.vfImage"
+                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/building/power.vfImage"
                   },
                   "uiLabel": {
                     "color": [
@@ -1106,6 +1214,7 @@
                     "letterSpacing": 4.0,
                     "lineSpacing": 1.0,
                     "overflow": "overflow",
+                    "richText": false,
                     "text": "Power",
                     "verticalAlignment": "bottom",
                     "wordWrap": true
@@ -1131,6 +1240,40 @@
                     "sizeDelta": [
                       120.0,
                       70.0
+                    ]
+                  },
+                  "uiTooltip": {
+                    "backgroundColor": [
+                      0.07999999821186066,
+                      0.07999999821186066,
+                      0.07999999821186066,
+                      0.949999988079071
+                    ],
+                    "enabled": true,
+                    "followCursor": true,
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 18.0,
+                    "letterSpacing": 4.0,
+                    "maxWidth": 280.0,
+                    "mode": 0,
+                    "offset": [
+                      12.0,
+                      16.0
+                    ],
+                    "padding": [
+                      16.0,
+                      16.0,
+                      8.0,
+                      8.0
+                    ],
+                    "showDelay": 0.3499999940395355,
+                    "text": "60 gold",
+                    "textColor": [
+                      1.0,
+                      1.0,
+                      1.0,
+                      1.0
                     ]
                   }
                 },
@@ -1197,7 +1340,7 @@
                     "sourceHeight": 1254,
                     "sourceWidth": 1254,
                     "textureRef": "9debf78b61673420",
-                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/factory.vfImage"
+                    "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/building/factory.vfImage"
                   },
                   "uiLabel": {
                     "color": [
@@ -1214,6 +1357,7 @@
                     "letterSpacing": 4.0,
                     "lineSpacing": 1.0,
                     "overflow": "overflow",
+                    "richText": false,
                     "text": "Factory",
                     "verticalAlignment": "bottom",
                     "wordWrap": true
@@ -1229,7 +1373,7 @@
                     ],
                     "anchoredPosition": [
                       1710.54296875,
-                      724.1854858398438
+                      724.185546875
                     ],
                     "blocksRaycast": true,
                     "pivot": [
@@ -1239,6 +1383,40 @@
                     "sizeDelta": [
                       120.0,
                       70.0
+                    ]
+                  },
+                  "uiTooltip": {
+                    "backgroundColor": [
+                      0.07999999821186066,
+                      0.07999999821186066,
+                      0.07999999821186066,
+                      0.949999988079071
+                    ],
+                    "enabled": true,
+                    "followCursor": true,
+                    "fontRef": "45215717a803d31d",
+                    "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                    "fontSize": 18.0,
+                    "letterSpacing": 4.0,
+                    "maxWidth": 280.0,
+                    "mode": 0,
+                    "offset": [
+                      12.0,
+                      16.0
+                    ],
+                    "padding": [
+                      16.0,
+                      16.0,
+                      8.0,
+                      8.0
+                    ],
+                    "showDelay": 0.3499999940395355,
+                    "text": "90 gold",
+                    "textColor": [
+                      1.0,
+                      1.0,
+                      1.0,
+                      1.0
                     ]
                   }
                 },
@@ -1402,11 +1580,12 @@
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
                     "fontSize": 18.0,
                     "fontStyle": "bold",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
+                    "horizontalAlignment": "left",
+                    "letterSpacing": 6.0,
                     "lineSpacing": 1.0,
                     "overflow": "clip",
-                    "text": "M",
+                    "richText": false,
+                    "text": "Sell",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -1434,7 +1613,7 @@
                     ]
                   }
                 },
-                "isActive": true,
+                "isActive": false,
                 "name": "RTS_HUD_CmdMove",
                 "transform": {
                   "isStatic": true,
@@ -1514,11 +1693,12 @@
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
                     "fontSize": 18.0,
                     "fontStyle": "bold",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
+                    "horizontalAlignment": "left",
+                    "letterSpacing": 6.0,
                     "lineSpacing": 1.0,
                     "overflow": "clip",
-                    "text": "A",
+                    "richText": false,
+                    "text": "Rally",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -1546,7 +1726,7 @@
                     ]
                   }
                 },
-                "isActive": true,
+                "isActive": false,
                 "name": "RTS_HUD_CmdAttackMove",
                 "transform": {
                   "isStatic": true,
@@ -1626,11 +1806,12 @@
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
                     "fontSize": 18.0,
                     "fontStyle": "bold",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
+                    "horizontalAlignment": "left",
+                    "letterSpacing": 6.0,
                     "lineSpacing": 1.0,
                     "overflow": "clip",
-                    "text": "S",
+                    "richText": false,
+                    "text": "Soldier",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -1658,7 +1839,7 @@
                     ]
                   }
                 },
-                "isActive": true,
+                "isActive": false,
                 "name": "RTS_HUD_CmdStop",
                 "transform": {
                   "isStatic": true,
@@ -1738,11 +1919,12 @@
                     "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
                     "fontSize": 18.0,
                     "fontStyle": "bold",
-                    "horizontalAlignment": "center",
-                    "letterSpacing": 0.0,
+                    "horizontalAlignment": "left",
+                    "letterSpacing": 6.0,
                     "lineSpacing": 1.0,
                     "overflow": "clip",
-                    "text": "H",
+                    "richText": false,
+                    "text": "Engineer",
                     "verticalAlignment": "middle",
                     "wordWrap": false
                   },
@@ -1770,7 +1952,7 @@
                     ]
                   }
                 },
-                "isActive": true,
+                "isActive": false,
                 "name": "RTS_HUD_CmdHold",
                 "transform": {
                   "isStatic": true,
@@ -1854,6 +2036,7 @@
                     "letterSpacing": 0.0,
                     "lineSpacing": 1.0,
                     "overflow": "clip",
+                    "richText": false,
                     "text": "B",
                     "verticalAlignment": "middle",
                     "wordWrap": false
@@ -1882,7 +2065,7 @@
                     ]
                   }
                 },
-                "isActive": true,
+                "isActive": false,
                 "name": "RTS_HUD_CmdBuild",
                 "transform": {
                   "isStatic": true,
@@ -2066,7 +2249,8 @@
                 "letterSpacing": 6.0,
                 "lineSpacing": 1.0,
                 "overflow": "ellipsis",
-                "text": "Gold: 311",
+                "richText": false,
+                "text": "Gold: 896",
                 "verticalAlignment": "middle",
                 "wordWrap": false
               },
@@ -2200,6 +2384,7 @@
                 "letterSpacing": 6.0,
                 "lineSpacing": 1.0,
                 "overflow": "ellipsis",
+                "richText": false,
                 "text": "Power: 0",
                 "verticalAlignment": "middle",
                 "wordWrap": false
@@ -2263,7 +2448,7 @@
                 "sourceHeight": 32,
                 "sourceWidth": 32,
                 "textureRef": "543d26d201ba7cef",
-                "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/barracks.vfImage"
+                "textureRefPath": "C:/matan/RTSDemo/assets/ui/icons/building/barracks.vfImage"
               },
               "uiRect": {
                 "anchorMax": [
@@ -2324,12 +2509,12 @@
               },
               "uiRect": {
                 "anchorMax": [
-                  1.0,
-                  1.0
+                  0.5442929863929749,
+                  0.7919707894325256
                 ],
                 "anchorMin": [
-                  0.0,
-                  0.0
+                  0.47614991664886475,
+                  0.35583943128585815
                 ],
                 "anchoredPosition": [
                   0.0,
@@ -2346,7 +2531,7 @@
                 ]
               }
             },
-            "isActive": true,
+            "isActive": false,
             "name": "RTS_DragBox",
             "transform": {
               "isStatic": true,
@@ -2389,21 +2574,21 @@
                   0.0
                 ],
                 "anchoredPosition": [
-                  0.0,
-                  0.0
+                  128.17910766601563,
+                  144.3577117919922
                 ],
                 "blocksRaycast": false,
                 "pivot": [
-                  0.5,
-                  0.5
+                  0.0,
+                  0.0
                 ],
                 "sizeDelta": [
-                  10.0,
-                  10.0
+                  53.598018646240234,
+                  22.735471725463867
                 ]
               }
             },
-            "isActive": false,
+            "isActive": true,
             "name": "RTS_HUD_MinimapViewRect",
             "transform": {
               "isStatic": true,
@@ -2424,6 +2609,2562 @@
               ]
             },
             "uuid": 9000000000000000302
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.029999999329447746,
+                  0.03999999910593033,
+                  0.029999999329447746,
+                  0.8500000238418579
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdQueuePanel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 3994845597301759510
+          },
+          {
+            "children": [],
+            "components": {
+              "uiLabel": {
+                "color": [
+                  1.0,
+                  0.8999999761581421,
+                  0.5,
+                  1.0
+                ],
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 18.0,
+                "fontStyle": "bold",
+                "horizontalAlignment": "left",
+                "letterSpacing": 0.0,
+                "lineSpacing": 1.0,
+                "overflow": "clip",
+                "richText": false,
+                "text": "Label",
+                "verticalAlignment": "middle",
+                "wordWrap": true
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdQueueLabel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 7717869515647406143
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 12643180305019065166
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 1342101159525859862
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 2375478816253953446
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 15010060862498423126
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 4673204220000896541
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_5",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 12678214157910966433
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_6",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 16166031926316426877
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_7",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 10449580769278551769
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.30000001192092896,
+                  1.0,
+                  0.44999998807907104,
+                  0.949999988079071
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdProgress",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 7425880496994082303
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.029999999329447746,
+                  0.03999999910593033,
+                  0.029999999329447746,
+                  0.8500000238418579
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdQueuePanel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 4825579488909873275
+          },
+          {
+            "children": [],
+            "components": {
+              "uiLabel": {
+                "color": [
+                  1.0,
+                  0.8999999761581421,
+                  0.5,
+                  1.0
+                ],
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 18.0,
+                "fontStyle": "bold",
+                "horizontalAlignment": "left",
+                "letterSpacing": 0.0,
+                "lineSpacing": 1.0,
+                "overflow": "clip",
+                "richText": false,
+                "text": "Label",
+                "verticalAlignment": "middle",
+                "wordWrap": true
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdQueueLabel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 15850040231840840536
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 7510847629006406009
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 3574192752734943120
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 15872572323063905350
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 8073923102721649027
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 11530348896895107340
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_5",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 11101911726048426023
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_6",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 4225211788537912495
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_7",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 12204671444784645017
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.30000001192092896,
+                  1.0,
+                  0.44999998807907104,
+                  0.949999988079071
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdProgress",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 3547092830580569092
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.029999999329447746,
+                  0.03999999910593033,
+                  0.029999999329447746,
+                  0.8500000238418579
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdQueuePanel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 6490670286865685484
+          },
+          {
+            "children": [],
+            "components": {
+              "uiLabel": {
+                "color": [
+                  1.0,
+                  0.8999999761581421,
+                  0.5,
+                  1.0
+                ],
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 18.0,
+                "fontStyle": "bold",
+                "horizontalAlignment": "left",
+                "letterSpacing": 0.0,
+                "lineSpacing": 1.0,
+                "overflow": "clip",
+                "richText": false,
+                "text": "Label",
+                "verticalAlignment": "middle",
+                "wordWrap": true
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdQueueLabel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 6515334193825728247
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 7236776094178206801
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 15690492142993690141
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 12304849101599665711
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 7422793664510731414
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 17560960531897041176
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_5",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9542132058978149713
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_6",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 5189850642401952630
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_7",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 11323638543707803833
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.30000001192092896,
+                  1.0,
+                  0.44999998807907104,
+                  0.949999988079071
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdProgress",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 1117914378171515712
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.029999999329447746,
+                  0.03999999910593033,
+                  0.029999999329447746,
+                  0.8500000238418579
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdQueuePanel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 11020448117774063888
+          },
+          {
+            "children": [],
+            "components": {
+              "uiLabel": {
+                "color": [
+                  1.0,
+                  0.8999999761581421,
+                  0.5,
+                  1.0
+                ],
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 18.0,
+                "fontStyle": "bold",
+                "horizontalAlignment": "left",
+                "letterSpacing": 0.0,
+                "lineSpacing": 1.0,
+                "overflow": "clip",
+                "richText": false,
+                "text": "Label",
+                "verticalAlignment": "middle",
+                "wordWrap": true
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdQueueLabel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 1596451682125661190
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_0",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 12987730726005427114
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_1",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9013687841456686914
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_2",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 6445055921259643139
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_3",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 5756599841571519264
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_4",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 12910451683614587130
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_5",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 18133835920792262428
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_6",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 18407982786472462002
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdSlot_7",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 6278119032034852476
+          },
+          {
+            "children": [],
+            "components": {
+              "uiImage": {
+                "colorTint": [
+                  0.30000001192092896,
+                  1.0,
+                  0.44999998807907104,
+                  0.949999988079071
+                ]
+              },
+              "uiRect": {
+                "anchorMax": [
+                  1.0,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.0,
+                  0.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  0.0
+                ],
+                "blocksRaycast": true,
+                "pivot": [
+                  0.5,
+                  0.5
+                ],
+                "sizeDelta": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "isActive": false,
+            "name": "RTS_HUD_ProdProgress",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 5710115766904093552
           }
         ],
         "components": {
@@ -2488,7 +5229,7 @@
               {
                 "enabled": true,
                 "scriptRef": "b2c3d4e5f6071829",
-                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/RTSHUDController.mt"
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/RTSHUDController.mt"
               }
             ]
           }
@@ -2557,6 +5298,7 @@
             "fixedIntervalSeconds": 0.03333333507180214,
             "height": 512,
             "priority": 0,
+            "renderShadows": false,
             "updateMode": "everyFrame",
             "width": 512
           }
@@ -2591,27 +5333,27 @@
               {
                 "enabled": true,
                 "scriptRef": "b1f3c2d4e5a60718",
-                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/BuildingPlacementController.mt"
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/BuildingPlacementController.mt"
               },
               {
                 "enabled": true,
                 "scriptRef": "a3b5c7d9e1f20a14",
-                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/SelectionController.mt"
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/SelectionController.mt"
               },
               {
                 "enabled": true,
                 "scriptRef": "af2bb94ea93fd8c3",
-                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/UnitSelectionController.mt"
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/UnitSelectionController.mt"
               },
               {
                 "enabled": true,
                 "scriptRef": "c4d9a1370e5b82f6",
-                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/MinimapController.mt"
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/MinimapController.mt"
               },
               {
                 "enabled": true,
                 "scriptRef": "c1a2b3c4d5e6f701",
-                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/BuildingCommandController.mt"
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/BuildingCommandController.mt"
               }
             ]
           }
@@ -2664,6 +5406,105 @@
         "uuid": 9000000000000000660
       },
       {
+        "children": [],
+        "components": {
+          "billboard": {
+            "atlasIndex": 0,
+            "colorTint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "editorOnly": true,
+            "iconType": "directionalLight",
+            "selectable": true,
+            "size": [
+              64.0,
+              64.0
+            ],
+            "sizeMode": "screenSpace"
+          },
+          "directionalLight": {
+            "color": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "intensity": 1.0,
+            "lightSize": 1.0,
+            "showGizmo": false
+          }
+        },
+        "isActive": true,
+        "name": "sun",
+        "transform": {
+          "isStatic": false,
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            -12.600000381469727,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "uuid": 12386541759156948446
+      },
+      {
+        "children": [],
+        "components": {
+          "decal": {
+            "angleFadeEnd": 0.30000001192092896,
+            "angleFadeStart": 0.699999988079071,
+            "color": [
+              0.25,
+              1.0,
+              0.4000000059604645,
+              0.6000000238418579
+            ],
+            "edgeFalloff": 0.3499999940395355,
+            "halfExtents": [
+              7.5,
+              7.5,
+              4.0
+            ],
+            "modifyNormals": true,
+            "normalStrength": 1.0,
+            "shape": "Rectangle",
+            "sortPriority": 10
+          }
+        },
+        "isActive": false,
+        "name": "SelectionHighlight",
+        "transform": {
+          "isStatic": true,
+          "position": [
+            8.0,
+            0.0,
+            -40.0
+          ],
+          "rotation": [
+            90.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "uuid": 7759403028293154021
+      },
+      {
         "children": [
           {
             "children": [],
@@ -2698,7 +5539,7 @@
                 1.0
               ]
             },
-            "uuid": 9473444266570087712
+            "uuid": 130690875363206313
           },
           {
             "children": [],
@@ -2733,7 +5574,7 @@
                 1.0
               ]
             },
-            "uuid": 13217697493448869912
+            "uuid": 13100210246441965002
           },
           {
             "children": [],
@@ -2768,7 +5609,7 @@
                 1.0
               ]
             },
-            "uuid": 15548529868786560156
+            "uuid": 12805672488639750258
           },
           {
             "children": [],
@@ -2803,7 +5644,7 @@
                 1.0
               ]
             },
-            "uuid": 129160972890371190
+            "uuid": 17726577886909287208
           },
           {
             "children": [],
@@ -2838,7 +5679,7 @@
                 1.0
               ]
             },
-            "uuid": 8943168687458416680
+            "uuid": 3589290622083877516
           },
           {
             "children": [],
@@ -2873,7 +5714,7 @@
                 1.0
               ]
             },
-            "uuid": 2401590174465394094
+            "uuid": 8906021788671310835
           },
           {
             "children": [],
@@ -2908,7 +5749,7 @@
                 1.0
               ]
             },
-            "uuid": 15227560439794939800
+            "uuid": 17520987729353971612
           },
           {
             "children": [],
@@ -2943,7 +5784,7 @@
                 1.0
               ]
             },
-            "uuid": 5651805158100735690
+            "uuid": 8344404321064144676
           },
           {
             "children": [],
@@ -2978,7 +5819,7 @@
                 1.0
               ]
             },
-            "uuid": 10265583323763493325
+            "uuid": 5714753640813604535
           },
           {
             "children": [],
@@ -3013,7 +5854,7 @@
                 1.0
               ]
             },
-            "uuid": 12609087957786389530
+            "uuid": 11412873298988441912
           },
           {
             "children": [],
@@ -3048,7 +5889,7 @@
                 1.0
               ]
             },
-            "uuid": 4434648394119085552
+            "uuid": 7348375668776132156
           },
           {
             "children": [],
@@ -3083,7 +5924,7 @@
                 1.0
               ]
             },
-            "uuid": 2051591373242243610
+            "uuid": 14332956355011616071
           },
           {
             "children": [],
@@ -3118,7 +5959,7 @@
                 1.0
               ]
             },
-            "uuid": 11498107066657293930
+            "uuid": 14982189152934078728
           },
           {
             "children": [],
@@ -3153,7 +5994,7 @@
                 1.0
               ]
             },
-            "uuid": 12038188099178566384
+            "uuid": 13064488806095299401
           },
           {
             "children": [],
@@ -3188,7 +6029,7 @@
                 1.0
               ]
             },
-            "uuid": 13281923053723555488
+            "uuid": 16879269861876442549
           },
           {
             "children": [],
@@ -3223,7 +6064,7 @@
                 1.0
               ]
             },
-            "uuid": 11304694794069765846
+            "uuid": 6816822633653603256
           },
           {
             "children": [],
@@ -3258,7 +6099,7 @@
                 1.0
               ]
             },
-            "uuid": 12331664583014927014
+            "uuid": 17066925944721845688
           },
           {
             "children": [],
@@ -3293,7 +6134,7 @@
                 1.0
               ]
             },
-            "uuid": 11889874733013909845
+            "uuid": 3040697509221866329
           },
           {
             "children": [],
@@ -3328,7 +6169,7 @@
                 1.0
               ]
             },
-            "uuid": 5436324471056923599
+            "uuid": 17222767762873802107
           },
           {
             "children": [],
@@ -3363,7 +6204,7 @@
                 1.0
               ]
             },
-            "uuid": 17390569046520460887
+            "uuid": 13004702100807389903
           },
           {
             "children": [],
@@ -3398,7 +6239,7 @@
                 1.0
               ]
             },
-            "uuid": 3549585193494294007
+            "uuid": 15249218546691522881
           },
           {
             "children": [],
@@ -3433,7 +6274,7 @@
                 1.0
               ]
             },
-            "uuid": 16258697550494756713
+            "uuid": 15404206068822165463
           },
           {
             "children": [],
@@ -3468,7 +6309,7 @@
                 1.0
               ]
             },
-            "uuid": 7325219286267774466
+            "uuid": 15208169712078938843
           },
           {
             "children": [],
@@ -3503,7 +6344,7 @@
                 1.0
               ]
             },
-            "uuid": 3717749511451336772
+            "uuid": 13519038918093638898
           },
           {
             "children": [],
@@ -3538,7 +6379,7 @@
                 1.0
               ]
             },
-            "uuid": 16718978918281759605
+            "uuid": 13010279183502028747
           },
           {
             "children": [],
@@ -3573,7 +6414,7 @@
                 1.0
               ]
             },
-            "uuid": 1945452089397853448
+            "uuid": 17047378068127860541
           },
           {
             "children": [],
@@ -3608,7 +6449,7 @@
                 1.0
               ]
             },
-            "uuid": 11791251988582901233
+            "uuid": 8566523883410209029
           },
           {
             "children": [],
@@ -3643,7 +6484,7 @@
                 1.0
               ]
             },
-            "uuid": 11927525456850477562
+            "uuid": 3025319660460766607
           },
           {
             "children": [],
@@ -3678,7 +6519,7 @@
                 1.0
               ]
             },
-            "uuid": 8094049177685364986
+            "uuid": 2918525238147223514
           },
           {
             "children": [],
@@ -3713,7 +6554,7 @@
                 1.0
               ]
             },
-            "uuid": 17326757651379924906
+            "uuid": 1481634961333301643
           },
           {
             "children": [],
@@ -3748,7 +6589,7 @@
                 1.0
               ]
             },
-            "uuid": 15340511267223598255
+            "uuid": 1738350866283607833
           },
           {
             "children": [],
@@ -3783,7 +6624,7 @@
                 1.0
               ]
             },
-            "uuid": 10734156299061076145
+            "uuid": 8025703596374351724
           },
           {
             "children": [],
@@ -3818,7 +6659,7 @@
                 1.0
               ]
             },
-            "uuid": 9836767675124633356
+            "uuid": 4966680936897363339
           },
           {
             "children": [],
@@ -3853,7 +6694,7 @@
                 1.0
               ]
             },
-            "uuid": 9389148703326257094
+            "uuid": 1369775912691128696
           },
           {
             "children": [],
@@ -3888,7 +6729,7 @@
                 1.0
               ]
             },
-            "uuid": 1960632277871912574
+            "uuid": 10241888930312032179
           },
           {
             "children": [],
@@ -3923,7 +6764,7 @@
                 1.0
               ]
             },
-            "uuid": 3593843741980127592
+            "uuid": 6055376266118068543
           },
           {
             "children": [],
@@ -3958,7 +6799,7 @@
                 1.0
               ]
             },
-            "uuid": 9300522714477886857
+            "uuid": 13786480495719102645
           },
           {
             "children": [],
@@ -3993,7 +6834,7 @@
                 1.0
               ]
             },
-            "uuid": 3916189972336238731
+            "uuid": 16002047807607392425
           },
           {
             "children": [],
@@ -4028,7 +6869,7 @@
                 1.0
               ]
             },
-            "uuid": 16659077203271384488
+            "uuid": 12528635082895799106
           },
           {
             "children": [],
@@ -4063,7 +6904,7 @@
                 1.0
               ]
             },
-            "uuid": 2149675507239694446
+            "uuid": 10249409338791079724
           },
           {
             "children": [],
@@ -4098,7 +6939,7 @@
                 1.0
               ]
             },
-            "uuid": 10322831537745158248
+            "uuid": 13711154210345207678
           },
           {
             "children": [],
@@ -4133,7 +6974,7 @@
                 1.0
               ]
             },
-            "uuid": 10041809688536468183
+            "uuid": 4411699666884227885
           },
           {
             "children": [],
@@ -4168,7 +7009,7 @@
                 1.0
               ]
             },
-            "uuid": 15331917303441879912
+            "uuid": 13491695312779733264
           },
           {
             "children": [],
@@ -4203,7 +7044,7 @@
                 1.0
               ]
             },
-            "uuid": 2163872071983395276
+            "uuid": 5321758883658642855
           },
           {
             "children": [],
@@ -4238,7 +7079,7 @@
                 1.0
               ]
             },
-            "uuid": 7476437659894469906
+            "uuid": 2327767558312327995
           },
           {
             "children": [],
@@ -4273,7 +7114,7 @@
                 1.0
               ]
             },
-            "uuid": 4965142682088290215
+            "uuid": 14170238756308037754
           },
           {
             "children": [],
@@ -4308,7 +7149,7 @@
                 1.0
               ]
             },
-            "uuid": 15910911222011467288
+            "uuid": 3628160196459788614
           },
           {
             "children": [],
@@ -4343,7 +7184,7 @@
                 1.0
               ]
             },
-            "uuid": 9408355368137410933
+            "uuid": 1141631528948342456
           },
           {
             "children": [],
@@ -4378,7 +7219,7 @@
                 1.0
               ]
             },
-            "uuid": 5703395916123188873
+            "uuid": 1571009750900374011
           },
           {
             "children": [],
@@ -4413,7 +7254,7 @@
                 1.0
               ]
             },
-            "uuid": 9247825635429692504
+            "uuid": 2990329989622338655
           },
           {
             "children": [],
@@ -4448,7 +7289,7 @@
                 1.0
               ]
             },
-            "uuid": 14578904203378091485
+            "uuid": 4312382869808977043
           },
           {
             "children": [],
@@ -4483,7 +7324,7 @@
                 1.0
               ]
             },
-            "uuid": 8401713110882302140
+            "uuid": 1902259687671810401
           },
           {
             "children": [],
@@ -4518,7 +7359,7 @@
                 1.0
               ]
             },
-            "uuid": 6363463031435521877
+            "uuid": 12199272138645144271
           },
           {
             "children": [],
@@ -4553,7 +7394,7 @@
                 1.0
               ]
             },
-            "uuid": 10547422735528077034
+            "uuid": 9753265727037389297
           },
           {
             "children": [],
@@ -4588,7 +7429,7 @@
                 1.0
               ]
             },
-            "uuid": 12040806196618353805
+            "uuid": 8047706582501688895
           },
           {
             "children": [],
@@ -4623,7 +7464,7 @@
                 1.0
               ]
             },
-            "uuid": 2008418768919611938
+            "uuid": 16699462197127602983
           },
           {
             "children": [],
@@ -4658,7 +7499,7 @@
                 1.0
               ]
             },
-            "uuid": 8794729985381190700
+            "uuid": 1457134267059144846
           },
           {
             "children": [],
@@ -4693,7 +7534,7 @@
                 1.0
               ]
             },
-            "uuid": 18308027753671352923
+            "uuid": 11671419083942895893
           },
           {
             "children": [],
@@ -4728,7 +7569,7 @@
                 1.0
               ]
             },
-            "uuid": 842674947599540097
+            "uuid": 8111575579851099935
           },
           {
             "children": [],
@@ -4763,7 +7604,7 @@
                 1.0
               ]
             },
-            "uuid": 18214333930360531565
+            "uuid": 13463328273207582115
           },
           {
             "children": [],
@@ -4798,7 +7639,7 @@
                 1.0
               ]
             },
-            "uuid": 9155958725063494894
+            "uuid": 1391556907621843906
           },
           {
             "children": [],
@@ -4833,7 +7674,7 @@
                 1.0
               ]
             },
-            "uuid": 617664277690263340
+            "uuid": 9059015343780649606
           },
           {
             "children": [],
@@ -4868,7 +7709,7 @@
                 1.0
               ]
             },
-            "uuid": 15059762278167094727
+            "uuid": 3267403599821009491
           },
           {
             "children": [],
@@ -4903,7 +7744,7 @@
                 1.0
               ]
             },
-            "uuid": 11622254459622266781
+            "uuid": 1834168342753249998
           }
         ],
         "components": {
@@ -4943,7 +7784,7 @@
             1.0
           ]
         },
-        "uuid": 6969562808269007935
+        "uuid": 12554295917939382384
       }
     ],
     "components": {
@@ -4952,7 +7793,8 @@
         "hdrRefPath": "C:/matan/RTSDemo/assets/skyBox/sky.vfHdr"
       },
       "navmesh": {
-        "navmeshRef": "1af5c43c47227bd8"
+        "navmeshRef": "1af5c43c47227bd8",
+        "navmeshRefPath": "C:/matan/RTSDemo/assets/navmesh/Skirmish_01/index.vfNavIndex"
       }
     },
     "isActive": true,

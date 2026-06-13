@@ -188,14 +188,14 @@
       "lodCrossfadeEnabled": true,
       "lodSelectionEnabled": true,
       "meshletBackfaceCullingEnabled": true,
-      "meshletFrustumCullingEnabled": false,
-      "meshletOcclusionCullingEnabled": false,
+      "meshletFrustumCullingEnabled": true,
+      "meshletOcclusionCullingEnabled": true,
       "occlusionCullingEnabled": true,
-      "terrainFrustumCullingEnabled": false,
-      "terrainMeshletCullingEnabled": false
+      "terrainFrustumCullingEnabled": true,
+      "terrainMeshletCullingEnabled": true
     },
     "display": {
-      "msaa": 0,
+      "msaa": 1,
       "presentMode": 0
     },
     "distanceCulling": {
@@ -302,6 +302,14 @@
         "intensity": 0.10000000149011612,
         "size": 1.600000023841858
       },
+      "frameGen": {
+        "enabled": false,
+        "numFramesToGenerate": 1
+      },
+      "reflex": {
+        "enabled": false,
+        "mode": 1
+      },
       "ssao": {
         "bias": 0.02500000037252903,
         "enabled": false,
@@ -339,6 +347,11 @@
         "meniscusDistortion": 0.029999999329447746,
         "meniscusWidth": 0.019999999552965164
       },
+      "upscale": {
+        "enabled": false,
+        "mode": 1,
+        "quality": 1
+      },
       "vignette": {
         "enabled": false,
         "intensity": 0.30000001192092896,
@@ -374,7 +387,7 @@
     },
     "rtShadows": {
       "depthThreshold": 0.009999999776482582,
-      "enabled": true,
+      "enabled": false,
       "maxRayDistance": 500.0,
       "normalBias": 0.05000000074505806,
       "normalThreshold": 0.8999999761581421,
@@ -385,6 +398,9 @@
       "temporalBlend": 0.8999999761581421
     },
     "shadows": {
+      "clipmapBaseExtent": 100.0,
+      "clipmapDepthRange": 400.0,
+      "clipmapLevelCount": 5,
       "enabled": true,
       "normalBias": 0.019999999552965164,
       "pointResolution": 512,

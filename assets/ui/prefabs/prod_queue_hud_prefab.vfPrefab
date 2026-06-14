@@ -1,0 +1,258 @@
+{
+  "prefab": {
+    "entity": {
+      "children": [
+        {
+          "children": [],
+          "components": {
+            "uiLabel": {
+              "color": [
+                1.0,
+                0.8999999761581421,
+                0.5,
+                1.0
+              ],
+              "fontRef": "45215717a803d31d",
+              "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+              "fontSize": 18.0,
+              "fontStyle": "bold",
+              "horizontalAlignment": "left",
+              "letterSpacing": 0.0,
+              "lineSpacing": 1.0,
+              "overflow": "clip",
+              "richText": false,
+              "text": "Producing",
+              "verticalAlignment": "middle",
+              "wordWrap": true
+            },
+            "uiRect": {
+              "anchorMax": [
+                0.0,
+                0.0
+              ],
+              "anchorMin": [
+                0.0,
+                0.0
+              ],
+              "anchoredPosition": [
+                0.0,
+                0.0
+              ],
+              "blocksRaycast": false,
+              "pivot": [
+                0.5,
+                0.5
+              ],
+              "sizeDelta": [
+                200.0,
+                20.0
+              ]
+            }
+          },
+          "isActive": true,
+          "name": "RTS_HUD_ProdQueueLabel",
+          "transform": {
+            "isStatic": true,
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "children": [],
+          "components": {
+            "uiLayoutGroup": {
+              "childAlignment": "center",
+              "constraintCount": 2,
+              "direction": "horizontal",
+              "padding": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "spacing": 6.0
+            },
+            "uiListView": {
+              "itemCount": 0,
+              "itemTemplateRef": "C:/matan/RTSDemo/assets/ui/prefabs/prod_slot_prefab.vfPrefab",
+              "selectable": false,
+              "selectedTint": [
+                0.30000001192092896,
+                0.5,
+                0.800000011920929,
+                0.0
+              ]
+            },
+            "uiRect": {
+              "anchorMax": [
+                0.0,
+                0.0
+              ],
+              "anchorMin": [
+                0.0,
+                0.0
+              ],
+              "anchoredPosition": [
+                0.0,
+                0.0
+              ],
+              "blocksRaycast": false,
+              "pivot": [
+                0.5,
+                0.5
+              ],
+              "sizeDelta": [
+                500.0,
+                56.0
+              ]
+            }
+          },
+          "isActive": true,
+          "name": "RTS_HUD_ProdQueueList",
+          "transform": {
+            "isStatic": true,
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "children": [],
+          "components": {
+            "uiImage": {
+              "colorTint": [
+                0.30000001192092896,
+                1.0,
+                0.44999998807907104,
+                0.949999988079071
+              ]
+            },
+            "uiRect": {
+              "anchorMax": [
+                0.0,
+                0.0
+              ],
+              "anchorMin": [
+                0.0,
+                0.0
+              ],
+              "anchoredPosition": [
+                0.0,
+                0.0
+              ],
+              "blocksRaycast": false,
+              "pivot": [
+                0.5,
+                0.5
+              ],
+              "sizeDelta": [
+                56.0,
+                4.0
+              ]
+            }
+          },
+          "isActive": true,
+          "name": "RTS_HUD_ProdProgress",
+          "transform": {
+            "isStatic": true,
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        }
+      ],
+      "components": {
+        "uiImage": {
+          "colorTint": [
+            0.029999999329447746,
+            0.03999999910593033,
+            0.029999999329447746,
+            0.8500000238418579
+          ]
+        },
+        "uiRect": {
+          "anchorMax": [
+            0.0,
+            0.0
+          ],
+          "anchorMin": [
+            0.0,
+            0.0
+          ],
+          "anchoredPosition": [
+            0.0,
+            0.0
+          ],
+          "blocksRaycast": true,
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "sizeDelta": [
+            520.0,
+            70.0
+          ]
+        }
+      },
+      "isActive": false,
+      "name": "RTS_HUD_ProdQueueHUD",
+      "transform": {
+        "isStatic": true,
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "name": "RTS_HUD_ProdQueueHUD"
+  },
+  "version": "1.0"
+}

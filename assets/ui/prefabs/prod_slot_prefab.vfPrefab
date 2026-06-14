@@ -1,0 +1,62 @@
+{
+  "prefab": {
+    "entity": {
+      "children": [],
+      "components": {
+        "uiImage": {
+          "colorTint": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "uiRect": {
+          "anchorMax": [
+            0.0,
+            0.0
+          ],
+          "anchorMin": [
+            0.0,
+            0.0
+          ],
+          "anchoredPosition": [
+            0.0,
+            0.0
+          ],
+          "blocksRaycast": true,
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "sizeDelta": [
+            56.0,
+            56.0
+          ]
+        }
+      },
+      "isActive": true,
+      "name": "ProdSlot",
+      "transform": {
+        "isStatic": true,
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "name": "ProdSlot"
+  },
+  "version": "1.0"
+}

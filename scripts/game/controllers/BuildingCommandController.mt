@@ -79,12 +79,12 @@ class BuildingCommandController implements IUIButtonListener {
     // Unit definitions (cost / time / prefab / icon), scanned by type.
     private UnitDef[] unitDefs;
 
-    // Queue HUD (created at runtime under RTS_HUD_Canvas, positioned above the
-    // command bar each frame while non-empty).
-    private int queuePanelId;
+    // Queue HUD (spawned once from a prefab under RTS_HUD_Canvas, positioned above
+    // the command bar each frame while non-empty). Slots are pooled UIListView items.
+    private int queueHudId;
     private int queueLabelId;
+    private int queueListId;
     private int queueProgressId;
-    private int[] queueSlotIds;
     private int hudCommandBarId;
 
     private InputEdge leftEdge;
@@ -106,8 +106,9 @@ class BuildingCommandController implements IUIButtonListener {
         this.harvCount = 0;
         this.maxQueue = 8;
         this.maxHarvesters = 16;
-        this.queuePanelId = -1;
+        this.queueHudId = -1;
         this.queueLabelId = -1;
+        this.queueListId = -1;
         this.queueProgressId = -1;
         this.hudCommandBarId = -1;
         this.unitSerial = 0;
@@ -173,6 +174,15 @@ class BuildingCommandController implements IUIButtonListener {
     }
 
     public function onDestroy(): void {
+        // Tear down the spawned HUD (root -> list -> pooled item instances) so it
+        // does not leak across script reloads.
+        if (this.queueHudId >= 0 && Entity::isValid(this.queueHudId)) {
+            Entity::destroy(this.queueHudId);
+        }
+        this.queueHudId = -1;
+        this.queueListId = -1;
+        this.queueLabelId = -1;
+        this.queueProgressId = -1;
     }
 
     // ---- IUIButtonListener ----
@@ -620,71 +630,35 @@ class BuildingCommandController implements IUIButtonListener {
 
     // ---- queue HUD ----
 
+    // Spawn the production-queue HUD once from a prefab under RTS_HUD_Canvas. The
+    // slots are engine-pooled UIListView items (template = prod_slot_prefab), so no
+    // per-slot entities are created here and nothing leaks into the saved scene.
+    // Idempotent: if a HUD root already exists (e.g. saved during a play session)
+    // it is reused instead of spawning a duplicate.
     private function setupQueueUI(): void {
-        int canvasId = Entity::findByName("RTS_HUD_Canvas");
-
-        this.queuePanelId = this.makeUIImage("RTS_HUD_ProdQueuePanel", canvasId);
-        if (this.queuePanelId >= 0) {
-            UI::setImageColor(this.queuePanelId, 0.03, 0.04, 0.03, 0.85);
-            Entity::setActive(this.queuePanelId, false);
-        }
-
-        this.queueLabelId = this.makeUILabel("RTS_HUD_ProdQueueLabel", canvasId);
-        if (this.queueLabelId >= 0) {
-            UI::setLabelFont(this.queueLabelId, "assets/Roboto-Regular.vfFont");
-            UI::setLabelFontSize(this.queueLabelId, 18.0);
-            UI::setLabelColor(this.queueLabelId, 1.0, 0.9, 0.5, 1.0);
-            UI::setLabelStyle(this.queueLabelId, UI::LABEL_STYLE_BOLD);
-            UI::setLabelAlignment(this.queueLabelId, UI::LABEL_ALIGN_LEFT, UI::LABEL_VALIGN_MIDDLE);
-            UI::setLabelOverflow(this.queueLabelId, UI::LABEL_CLIP);
-            Entity::setActive(this.queueLabelId, false);
-        }
-
-        this.queueSlotIds = new int[this.maxQueue];
-        for (int i = 0; i < this.maxQueue; i = i + 1) {
-            int slot = this.makeUIImage("RTS_HUD_ProdSlot_" + i, canvasId);
-            this.queueSlotIds[i] = slot;
-            if (slot >= 0) {
-                Entity::setActive(slot, false);
+        this.queueHudId = Entity::findByName("RTS_HUD_ProdQueueHUD");
+        if (this.queueHudId < 0) {
+            int canvasId = Entity::findByName("RTS_HUD_Canvas");
+            if (canvasId < 0) {
+                Log::warn("[BuildingCommand] RTS_HUD_Canvas missing; no queue HUD.");
+                return;
             }
+            this.queueHudId = Entity::instantiateChild("assets/ui/prefabs/prod_queue_hud_prefab.vfPrefab", canvasId);
         }
-
-        this.queueProgressId = this.makeUIImage("RTS_HUD_ProdProgress", canvasId);
-        if (this.queueProgressId >= 0) {
-            UI::setImageColor(this.queueProgressId, 0.3, 1.0, 0.45, 0.95);
-            Entity::setActive(this.queueProgressId, false);
+        if (this.queueHudId < 0) {
+            Log::warn("[BuildingCommand] Failed to spawn prod queue HUD prefab.");
+            return;
         }
-    }
-
-    private function makeUIImage(string name, int parentId): int {
-        int id = -1;
-        if (parentId >= 0) {
-            id = Entity::createChild(name, parentId);
-        } else {
-            id = Entity::create(name);
-        }
-        if (id >= 0) {
-            Entity::addComponent(id, "UIRect");
-            Entity::addComponent(id, "UIImage");
-        }
-        return id;
-    }
-
-    private function makeUILabel(string name, int parentId): int {
-        int id = -1;
-        if (parentId >= 0) {
-            id = Entity::createChild(name, parentId);
-        } else {
-            id = Entity::create(name);
-        }
-        if (id >= 0) {
-            Entity::addComponent(id, "UIRect");
-            Entity::addComponent(id, "UILabel");
-        }
-        return id;
+        this.queueLabelId = Entity::findByName("RTS_HUD_ProdQueueLabel");
+        this.queueListId = Entity::findByName("RTS_HUD_ProdQueueList");
+        this.queueProgressId = Entity::findByName("RTS_HUD_ProdProgress");
+        Entity::setActive(this.queueHudId, false);
     }
 
     private function updateQueueUI(): void {
+        if (this.queueHudId < 0) {
+            return;
+        }
         if (this.queueCount <= 0) {
             this.hideQueueUI();
             return;
@@ -705,32 +679,34 @@ class BuildingCommandController implements IUIButtonListener {
         float px = bx + (bw - panelW) / 2.0;
         float py = by - panelH - 10.0;
 
-        if (this.queuePanelId >= 0) {
-            Entity::setActive(this.queuePanelId, true);
-            UI::setRectPixels(this.queuePanelId, px, py, panelW, panelH);
-        }
+        // This engine's screen-space UI is flat: child rects resolve against the
+        // canvas, not their parent, so every element is positioned in viewport
+        // pixels each frame. The list's UILayoutGroup then arranges the pooled
+        // slot items within the list's own rect.
+        Entity::setActive(this.queueHudId, true);
+        UI::setRectPixels(this.queueHudId, px, py, panelW, panelH);
+
         if (this.queueLabelId >= 0) {
-            Entity::setActive(this.queueLabelId, true);
             UI::setRectPixels(this.queueLabelId, px + 4.0, py - 22.0, panelW, 20.0);
             UI::setLabelText(this.queueLabelId, "Producing: " + this.queue[0].unitType);
         }
 
-        for (int i = 0; i < this.maxQueue; i = i + 1) {
-            int slot = this.queueSlotIds[i];
-            if (slot < 0) {
-                continue;
-            }
-            if (i < this.queueCount) {
-                Entity::setActive(slot, true);
-                UI::setImageTexture(slot, this.iconForType(this.queue[i].unitType));
-                UI::setImageColor(slot, 1.0, 1.0, 1.0, 1.0);
-                float sx = px + pad + (float)i * (slotW + pad);
-                UI::setRectPixels(slot, sx, py + 6.0, slotW, slotW);
-            } else {
-                Entity::setActive(slot, false);
+        if (this.queueListId >= 0) {
+            // Position the slot strip; the layout group lays slots out left-to-right.
+            UI::setRectPixels(this.queueListId, px + pad, py + 6.0, panelW - pad * 2.0, slotW);
+            // Reconciles synchronously: getListItem(i) is valid this same frame.
+            UI::setListItemCount(this.queueListId, this.queueCount);
+            for (int i = 0; i < this.queueCount; i = i + 1) {
+                int item = UI::getListItem(this.queueListId, i);
+                if (item < 0) {
+                    continue;
+                }
+                UI::setImageTexture(item, this.iconForType(this.queue[i].unitType));
+                UI::setImageColor(item, 1.0, 1.0, 1.0, 1.0);
             }
         }
 
+        // Single progress bar over the head slot (only the head is building).
         if (this.queueProgressId >= 0) {
             float frac = 0.0;
             QueueItem head = this.queue[0];
@@ -745,14 +721,8 @@ class BuildingCommandController implements IUIButtonListener {
     }
 
     private function hideQueueUI(): void {
-        if (this.queuePanelId >= 0) { Entity::setActive(this.queuePanelId, false); }
-        if (this.queueLabelId >= 0) { Entity::setActive(this.queueLabelId, false); }
-        if (this.queueProgressId >= 0) { Entity::setActive(this.queueProgressId, false); }
-        for (int i = 0; i < this.maxQueue; i = i + 1) {
-            if (this.queueSlotIds[i] >= 0) {
-                Entity::setActive(this.queueSlotIds[i], false);
-            }
-        }
+        if (this.queueHudId >= 0) { Entity::setActive(this.queueHudId, false); }
+        if (this.queueListId >= 0) { UI::setListItemCount(this.queueListId, 0); }
     }
 
     // ---- script resolution ----

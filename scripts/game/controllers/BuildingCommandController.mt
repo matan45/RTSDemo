@@ -459,12 +459,13 @@ class BuildingCommandController implements IUIButtonListener {
         PluginComponent::setBool(id, "Selectable", "canBeSelected", true);
         PluginComponent::add(id, "Team");
         PluginComponent::setInt(id, "Team", "teamId", 0);
-        // NavmeshAgent so the unit pathfinds + avoids on the baked navmesh; the
-        // agent owns movement and rotates the mesh to face travel. No runtime
-        // physics body is created -- it would fight the agent (a static body
-        // won't follow it; a dynamic one falls). Selection is screen-space (see
-        // UnitSelectionController.pickUnit), so no collider body is needed.
-        Entity::addComponent(id, "NavmeshAgent");
+        // The unit's NavmeshAgent comes from its prefab (track_prefab carries one
+        // sized to the vehicle) -- it pathfinds + avoids on the baked navmesh and
+        // the agent owns movement + facing. No runtime physics body is created: it
+        // would fight the agent (a static body won't follow it, a dynamic one
+        // falls), and selection is screen-space (UnitSelectionController.pickUnit),
+        // so no collider body is needed. setSpeed applies the controller's speed
+        // (and persists onto the agent component before crowd registration).
         Navmesh::setSpeed(id, this.unitSpeed);
 
         // The Track is a harvester: it auto-loops the refinery <-> nearest gold

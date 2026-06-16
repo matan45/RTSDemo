@@ -34,6 +34,16 @@
           "meshRefPath": "C:/matan/RTSDemo/assets/units/track/track.vfMesh",
           "showBoundingBox": false,
           "submeshIndex": -1
+        },
+        "navmeshAgent": {
+          "avoidanceQuality": 3,
+          "height": 2.0,
+          "maxAcceleration": 10.0,
+          "maxSpeed": 8.0,
+          "radius": 2.0,
+          "separationWeight": 2.0,
+          "stoppingDistance": 0.1,
+          "useCustomCosts": false
         }
       },
       "isActive": true,

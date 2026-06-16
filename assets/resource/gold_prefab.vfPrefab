@@ -1,0 +1,63 @@
+{
+  "prefab": {
+    "entity": {
+      "children": [],
+      "components": {
+        "collider": {
+          "collisionLayer": 1,
+          "friction": 0.5,
+          "height": 2.0,
+          "isTrigger": false,
+          "meshRef": "0000000000000000",
+          "offset": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "restitution": 0.0,
+          "shape": "box",
+          "size": [
+            4.0,
+            2.0,
+            4.0
+          ],
+          "submeshIndex": -1
+        },
+        "material": {
+          "defaultMaterialRef": "19a4e740a13ce3ef",
+          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/resource/gold.vfMat",
+          "parameterOverrides": {},
+          "subMeshMaterials": {}
+        },
+        "mesh": {
+          "meshRef": "64fc1b3bfb6c3c9c",
+          "meshRefPath": "C:/matan/RTSDemo/assets/resource/gold_mine.vfMesh",
+          "showBoundingBox": false,
+          "submeshIndex": -1
+        }
+      },
+      "isActive": true,
+      "name": "gold",
+      "transform": {
+        "isStatic": true,
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "name": "gold"
+  },
+  "version": "1.0"
+}

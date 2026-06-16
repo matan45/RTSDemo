@@ -159,6 +159,10 @@ class SelectionController {
         this.placementActive = active;
     }
 
+    public function isPlacementActive(): bool {
+        return this.placementActive;
+    }
+
     public function setUnitDragActive(bool active): void {
         this.unitDragActive = active;
     }

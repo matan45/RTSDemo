@@ -11,15 +11,16 @@
 //              gains +25 power output). One level.
 //   Rally    - the next ground click sets a rally point; units trained at that
 //              building walk to it on spawn.
-//   Soldier / Engineer / Tank - queue a unit (gold + build time); the unit
-//              spawns when the queue head finishes.
-//   Track    - spawn a harvester that loops the refinery <-> nearest GoldNode,
-//              depositing gold each trip.
+//   Soldier / Engineer / Tank / Track - queue a unit (gold + build time); the
+//              unit spawns when the queue head finishes.
 //
 // Units are placeholder prefabs (assets/units/*_prefab.vfPrefab) reusing an
 // imported mesh until real unit art lands; they get Selectable + Team(0) +
-// a physics body so the existing UnitSelectionController can select them, and
-// move via a self-contained straight-line stepper (no NavmeshAgent dependency).
+// a physics body (UnitSelectionController selection) + a NavmeshAgent so they
+// pathfind on the baked navmesh. A world right-click on the ground issues a
+// Navmesh::moveTo order to every selected unit (the agent handles pathfinding,
+// crowd avoidance and facing rotation); the minimap right-click move uses the
+// same path.
 //
 // Attach this @Script to GameSystems alongside SelectionController /
 // BuildingPlacementController / UnitSelectionController.
@@ -31,7 +32,7 @@ import * from "../../lib/engine/UI.mt";
 import * from "../../lib/engine/Picker.mt";
 import * from "../../lib/engine/RaycastHit.mt";
 import * from "../../lib/engine/Terrain.mt";
-import * from "../../lib/engine/Physics.mt";
+import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/Decal.mt";
 import * from "../../lib/engine/Log.mt";
 import * from "../../lib/engine/PluginComponent.mt";
@@ -44,10 +45,8 @@ import * from "./SelectionController.mt";
 import * from "./BuildingPlacementController.mt";
 import * from "../data/BuildingInfo.mt";
 import * from "../data/UnitDef.mt";
-import * from "../data/Harvester.mt";
 import * from "../data/QueueItem.mt";
 import * from "../util/Config.mt";
-import * from "../util/HState.mt";
 import * from "../util/InputEdge.mt";
 
 @Script
@@ -63,18 +62,10 @@ class BuildingCommandController implements IUIButtonListener {
     private HashMap<Int, Int?> rallyMarkers;
     private int pendingRallyBuilding;
 
-    // Trained units walking to their rally point: unit id -> destination.
-    private HashMap<Int, Vec3f?> moveTargets;
-
     // Production queue (FIFO; head = index 0).
     private int maxQueue;
     private QueueItem[] queue;
     private int queueCount;
-
-    // Active harvesters (state uses HState::*).
-    private int maxHarvesters;
-    private Harvester[] harvesters;
-    private int harvCount;
 
     // Unit definitions (cost / time / prefab / icon), scanned by type.
     private UnitDef[] unitDefs;
@@ -88,24 +79,22 @@ class BuildingCommandController implements IUIButtonListener {
     private int hudCommandBarId;
 
     private InputEdge leftEdge;
+    private InputEdge rightEdge;
     private int unitSerial;
 
+    // Max agent speed applied to each spawned unit's NavmeshAgent.
     private float unitSpeed;
-    private float arriveEps;
 
     // Gameplay tuning.
     private int sellRefundPct;
     private int upgradeCostPct;
-    private int harvestDeposit;
 
     constructor() {
         this.hudControllerId = -1;
         this.hudRef = null;
         this.pendingRallyBuilding = -1;
         this.queueCount = 0;
-        this.harvCount = 0;
         this.maxQueue = 8;
-        this.maxHarvesters = 16;
         this.queueHudId = -1;
         this.queueLabelId = -1;
         this.queueListId = -1;
@@ -113,14 +102,13 @@ class BuildingCommandController implements IUIButtonListener {
         this.hudCommandBarId = -1;
         this.unitSerial = 0;
         this.unitSpeed = 8.0;
-        this.arriveEps = 0.4;
         this.sellRefundPct = 70;
         this.upgradeCostPct = 60;
-        this.harvestDeposit = 10;
     }
 
     public function onStart(): void {
         this.leftEdge = new InputEdge();
+        this.rightEdge = new InputEdge();
         this.hudControllerId = Entity::findByName("RTS_HUD_Controller");
         this.hudCommandBarId = Entity::findByName("RTS_HUD_CommandBar");
 
@@ -133,10 +121,8 @@ class BuildingCommandController implements IUIButtonListener {
 
         this.rallyPoints = new HashMap<Int, Vec3f>();
         this.rallyMarkers = new HashMap<Int, Int>();
-        this.moveTargets = new HashMap<Int, Vec3f>();
 
         this.queue = new QueueItem[this.maxQueue];
-        this.harvesters = new Harvester[this.maxHarvesters];
 
         this.defineUnits();
         this.setupQueueUI();
@@ -144,16 +130,16 @@ class BuildingCommandController implements IUIButtonListener {
     }
 
     // Unit table (single source of cost / build time / prefab / icon). The
-    // "Harvester" entry (index 3) doubles as the default for unknown types.
+    // Track entry (index 3) also serves as the default for unknown types.
     private function defineUnits(): void {
         this.unitDefs = new UnitDef[4];
         this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/units/soldier.vfImage");
         this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/units/engineer.vfImage");
         this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/units/tank.vfImage");
-        this.unitDefs[3] = new UnitDef("Harvester", 30, 4.0, "assets/units/track_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage");
+        this.unitDefs[3] = new UnitDef("Track", 30, 4.0, "assets/units/track/track_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage");
     }
 
-    // Look up a unit definition by type; falls back to the Harvester entry for
+    // Look up a unit definition by type; falls back to the Track entry for
     // unknown types (preserves the old default behavior of the unit*() tables).
     private function unitDef(string type): UnitDef {
         for (int i = 0; i < this.unitDefs.length; i = i + 1) {
@@ -168,8 +154,7 @@ class BuildingCommandController implements IUIButtonListener {
         this.handleRallyClick();
         this.updateRallyMarkers();
         this.tickQueue(deltaTime);
-        this.tickMovers(deltaTime);
-        this.tickHarvesters(deltaTime);
+        this.handleMoveCommand();
         this.updateQueueUI();
     }
 
@@ -222,7 +207,7 @@ class BuildingCommandController implements IUIButtonListener {
         if (cmd == "Sell") { this.sell(buildingId, info); return; }
         if (cmd == "Upgrade") { this.upgrade(buildingId, info); return; }
         if (cmd == "Rally") { this.beginRally(buildingId); return; }
-        if (cmd == "Track") { this.spawnHarvester(buildingId); return; }
+        if (cmd == "Track") { this.enqueue(buildingId, "Track"); return; }
         if (cmd == "Soldier") { this.enqueue(buildingId, "Soldier"); return; }
         if (cmd == "Engineer") { this.enqueue(buildingId, "Engineer"); return; }
         if (cmd == "Tank") { this.enqueue(buildingId, "Tank"); return; }
@@ -457,13 +442,18 @@ class BuildingCommandController implements IUIButtonListener {
         PluginComponent::setBool(id, "Selectable", "canBeSelected", true);
         PluginComponent::add(id, "Team");
         PluginComponent::setInt(id, "Team", "teamId", 0);
-        // Physics body so single-click picking (Picker "Dynamic") hits the unit.
-        Physics::createBody(id);
+        // NavmeshAgent so the unit pathfinds + avoids on the baked navmesh; the
+        // agent owns movement and rotates the mesh to face travel. No runtime
+        // physics body is created -- it would fight the agent (a static body
+        // won't follow it; a dynamic one falls). Selection is screen-space (see
+        // UnitSelectionController.pickUnit), so no collider body is needed.
+        Entity::addComponent(id, "NavmeshAgent");
+        Navmesh::setSpeed(id, this.unitSpeed);
 
-        // Walk to the building's rally point if one is set.
+        // Pathfind to the building's rally point if one is set.
         Vec3f? rally = this.rallyPoints.get(new Int(buildingId));
         if (rally != null) {
-            this.moveTargets.put(new Int(id), rally);
+            Navmesh::moveTo(id, rally);
         }
     }
 
@@ -479,134 +469,65 @@ class BuildingCommandController implements IUIButtonListener {
         return new Vec3f(x, Terrain::heightAt(x, z), z);
     }
 
-    private function tickMovers(float dt): void {
-        Int[] keys = this.moveTargets.getKeys();
-        for (int i = 0; i < keys.length; i = i + 1) {
-            int uid = keys[i].getValue();
+    // ---- world move command ----
+
+    // Right-click on open ground issues a Navmesh::moveTo order to every selected
+    // player unit (the "Selected" marker is written by UnitSelectionController);
+    // each unit's NavmeshAgent pathfinds + rotates to face travel. Suppressed
+    // while placing a building / capturing a rally click (right-click cancels
+    // placement there) and while the pointer is over UI (which also covers the
+    // minimap, so its own right-click move never double-fires).
+    private function handleMoveCommand(): void {
+        this.rightEdge.step(Input::isMouseButtonDown(Mouse::RIGHT));
+        if (!this.rightEdge.wasReleased) {
+            return;
+        }
+        if (this.pendingRallyBuilding >= 0) {
+            return;
+        }
+        SelectionController? sel = this.selection();
+        if (sel != null && sel.isPlacementActive()) {
+            return;
+        }
+        if (UI::isPointerOverUI()) {
+            return;
+        }
+        float mx = Input::getViewportMouseX();
+        float my = Input::getViewportMouseY();
+        RaycastHit hit = Picker::pickTerrainPhysics(mx, my);
+        if (!hit.hit) {
+            Log::warn("[Move] right-click ignored: terrain raycast missed");
+            return;
+        }
+        Vec3f dest = new Vec3f(hit.point.x, Terrain::heightAt(hit.point.x, hit.point.z), hit.point.z);
+
+        // setDestination is rejected for off-mesh targets; snap onto the navmesh.
+        bool destOnMesh = Navmesh::isPointOnNavmesh(dest);
+        if (!destOnMesh) {
+            dest = Navmesh::getClosestPoint(dest);
+        }
+
+        int[] selected = PluginComponent::findAll("Selected");
+        Log::info("[Move] right-click: selected=" + parsePrimitive(selected.length)
+            + " destOnMesh=" + this.boolStr(destOnMesh));
+        for (int i = 0; i < selected.length; i = i + 1) {
+            int uid = selected[i];
             if (!Entity::isValid(uid)) {
-                this.moveTargets.remove(keys[i]);
                 continue;
             }
-            // Positive narrowing into the then-branch: mType does not narrow a
-            // variable across an `if (x == null) { continue; }` loop guard.
-            Vec3f? target = this.moveTargets.get(keys[i]);
-            if (target != null) {
-                if (this.stepToward(uid, target, dt)) {
-                    this.moveTargets.remove(keys[i]);
-                }
-            } else {
-                this.moveTargets.remove(keys[i]);
-            }
+            bool hasAgent = Entity::hasComponent(uid, "NavmeshAgent");
+            bool unitOnMesh = Navmesh::isPointOnNavmesh(Entity::getPosition(uid));
+            Log::info("[Move] unit=" + parsePrimitive(uid) + " hasAgent=" + this.boolStr(hasAgent)
+                + " unitOnMesh=" + this.boolStr(unitOnMesh));
+            Navmesh::moveTo(uid, dest);
         }
     }
 
-    // Straight-line step toward target on the XZ plane, riding the terrain
-    // height. Returns true once arrived.
-    private function stepToward(int id, Vec3f target, float dt): bool {
-        Vec3f p = Entity::getPosition(id);
-        float dx = target.x - p.x;
-        float dz = target.z - p.z;
-        float dist = new Vec3f(dx, 0.0, dz).length();
-        float step = this.unitSpeed * dt;
-        if (dist <= this.arriveEps || step >= dist) {
-            Entity::setPosition(id, new Vec3f(target.x, Terrain::heightAt(target.x, target.z), target.z));
-            return true;
+    private function boolStr(bool b): string {
+        if (b) {
+            return "true";
         }
-        float nx = p.x + dx / dist * step;
-        float nz = p.z + dz / dist * step;
-        Entity::setPosition(id, new Vec3f(nx, Terrain::heightAt(nx, nz), nz));
-        return false;
-    }
-
-    // ---- harvesters (refinery Track) ----
-
-    private function spawnHarvester(int refineryId): void {
-        RTSHUDController? hud = this.hud();
-        if (this.harvCount >= this.maxHarvesters) {
-            if (hud != null) { hud.pushAlertMessage("Too many harvesters", 1.5); }
-            return;
-        }
-        int node = this.nearestGoldNode(Entity::getPosition(refineryId));
-        if (node < 0) {
-            if (hud != null) { hud.pushAlertMessage("No GoldNode found on map", 2.0); }
-            return;
-        }
-        int id = Entity::instantiate(this.unitPrefab("Harvester"));
-        if (id < 0) {
-            Log::warn("[BuildingCommand] failed to spawn harvester");
-            return;
-        }
-        this.unitSerial = this.unitSerial + 1;
-        Entity::setName(id, "Harvester_" + parsePrimitive(this.unitSerial));
-        Vec3f home = this.spawnPointNear(Entity::getPosition(refineryId));
-        Entity::setPosition(id, home);
-        Entity::setActive(id, true);
-
-        Vec3f minePos = Entity::getPosition(node);
-        Vec3f mineGround = new Vec3f(minePos.x, Terrain::heightAt(minePos.x, minePos.z), minePos.z);
-        this.harvesters[this.harvCount] = new Harvester(id, refineryId, mineGround, home);
-        this.harvCount = this.harvCount + 1;
-
-        if (hud != null) {
-            hud.pushAlertMessage("Harvester dispatched", 1.5);
-        }
-    }
-
-    private function tickHarvesters(float dt): void {
-        int h = 0;
-        while (h < this.harvCount) {
-            Harvester harv = this.harvesters[h];
-            if (!Entity::isValid(harv.unitId) || !Entity::isValid(harv.refineryId)) {
-                if (Entity::isValid(harv.unitId)) { Entity::destroy(harv.unitId); }
-                this.removeHarvester(h);
-                continue;
-            }
-            if (harv.state == HState::TO_MINE) {
-                if (this.stepToward(harv.unitId, harv.minePos, dt)) {
-                    harv.state = HState::MINING;
-                    harv.dwell = 1.0;
-                }
-            } else if (harv.state == HState::MINING) {
-                harv.dwell = harv.dwell - dt;
-                if (harv.dwell <= 0.0) {
-                    harv.state = HState::TO_HOME;
-                }
-            } else if (harv.state == HState::TO_HOME) {
-                if (this.stepToward(harv.unitId, harv.homePos, dt)) {
-                    harv.state = HState::DEPOSIT;
-                }
-            } else {
-                RTSHUDController? hud = this.hud();
-                if (hud != null) {
-                    hud.addGold(this.harvestDeposit);
-                }
-                harv.state = HState::TO_MINE;
-            }
-            h = h + 1;
-        }
-    }
-
-    private function removeHarvester(int index): void {
-        int last = this.harvCount - 1;
-        this.harvesters[index] = this.harvesters[last];
-        this.harvCount = last;
-    }
-
-    private function nearestGoldNode(Vec3f fromVec): int {
-        int[] nodes = Entity::findAll("GoldNode");
-        int best = -1;
-        float bestSq = 0.0;
-        for (int i = 0; i < nodes.length; i = i + 1) {
-            Vec3f p = Entity::getPosition(nodes[i]);
-            float dx = p.x - fromVec.x;
-            float dz = p.z - fromVec.z;
-            float d = dx * dx + dz * dz;
-            if (best < 0 || d < bestSq) {
-                best = nodes[i];
-                bestSq = d;
-            }
-        }
-        return best;
+        return "false";
     }
 
     // ---- unit tables ----

@@ -1,4 +1,5 @@
-// BuildingCommandController - executes the per-building command card.
+// BuildingCommandController - executes the per-building command card (VK-1352)
+// and the world move/gather orders it produces (VK-1303).
 //
 // RTSHUDController renders each selected building's command card (Sell / Upgrade
 // / Rally / Soldier / Engineer / Tank / Track) but is display-only; this script
@@ -369,7 +370,7 @@ class BuildingCommandController implements IUIButtonListener {
             if (markerBox == null) {
                 continue;
             }
-            int marker = markerBox?.getValue();
+            int marker = markerBox.getValue();
             if (marker < 0 || !Entity::isValid(marker)) {
                 continue;
             }
@@ -444,7 +445,18 @@ class BuildingCommandController implements IUIButtonListener {
         string prefab = this.unitPrefab(type);
         int id = Entity::instantiate(prefab);
         if (id < 0) {
+            // Spawn failed (e.g. the prefab is missing): refund the gold that
+            // enqueue() spent up front so the player isn't silently charged for
+            // a unit that never appears.
             Log::warn("[BuildingCommand] failed to spawn unit '" + type + "' (" + prefab + ")");
+            RTSHUDController? hud = this.hud();
+            if (hud != null) {
+                // Workaround for MYT-393: passing this.unitCost(type) inline is
+                // miscompiled as "void"; hoist it into a local first.
+                int refund = this.unitCost(type);
+                hud.addGold(refund);
+                hud.pushAlertMessage("Could not build " + type + " (refunded)", 2.0);
+            }
             return;
         }
         this.unitSerial = this.unitSerial + 1;

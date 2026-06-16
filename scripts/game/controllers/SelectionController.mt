@@ -132,7 +132,7 @@ class SelectionController {
         RaycastHit e = Picker::pickEntity(mx, my, "Dynamic");
         if (e.hit && this.isRegistered(e.entityId)) {
             this.selectedId = e.entityId;
-            Log::info("[Selection] SELECTED building id=" + this.selectedId);
+            Log::info("[Selection] SELECTED building id=" + parsePrimitive(this.selectedId));
         } else {
             this.selectedId = -1;
         }
@@ -172,7 +172,7 @@ class SelectionController {
             return;
         }
         this.registry.put(new Int(id), info);
-        Log::info("[Selection] registered building id=" + id + " type=" + info.buildingType);
+        Log::info("[Selection] registered building id=" + parsePrimitive(id) + " type=" + info.buildingType);
     }
 
     // Drop a building from the selectable registry (BuildingCommandController
@@ -261,7 +261,7 @@ class SelectionController {
             }
             PluginComponent::add(id, "Vision");
             PluginComponent::setFloat(id, "Vision", "sightRadius", this.unitSightRadius);
-            Log::info("[Selection] granted Vision to entity " + id);
+            Log::info("[Selection] granted Vision to entity " + parsePrimitive(id));
         }
     }
 

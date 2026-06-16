@@ -249,7 +249,7 @@ class UnitSelectionController {
             if (sel != null) {
                 sel.clearSelection();
             }
-            Log::info("[UnitSelection] selected " + this.getSelectedCount() + " unit(s)");
+            Log::info("[UnitSelection] selected " + parsePrimitive(this.getSelectedCount()) + " unit(s)");
         } else {
             if (!shift) {
                 this.clearSelection();
@@ -324,7 +324,7 @@ class UnitSelectionController {
                 sel.clearSelection();
             }
         }
-        Log::info("[UnitSelection] box-selected " + this.getSelectedCount() + " unit(s)");
+        Log::info("[UnitSelection] box-selected " + parsePrimitive(this.getSelectedCount()) + " unit(s)");
     }
 
     // Friendly + selectable filter: needs the RTSGameplay plugin components.
@@ -365,7 +365,7 @@ class UnitSelectionController {
             return;
         }
         Int ring = this.selectedRings.get(key);
-        if (ring != null && ring.getValue() >= 0) {
+        if (ring.getValue() >= 0) {
             Entity::destroy(ring.getValue());
         }
         this.selectedRings.remove(key);
@@ -385,9 +385,7 @@ class UnitSelectionController {
                 this.removeUnit(unitId);
             } else {
                 Int ring = this.selectedRings.get(keys[i]);
-                if (ring != null) {
-                    Entity::setPosition(ring.getValue(), Entity::getPosition(unitId));
-                }
+                Entity::setPosition(ring.getValue(), Entity::getPosition(unitId));
             }
         }
     }

@@ -150,7 +150,7 @@ class BuildingCommandController implements IUIButtonListener {
         this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/units/soldier.vfImage");
         this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/units/engineer.vfImage");
         this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/units/tank.vfImage");
-        this.unitDefs[3] = new UnitDef("Harvester", 30, 4.0, "assets/units/harvester_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage");
+        this.unitDefs[3] = new UnitDef("Harvester", 30, 4.0, "assets/units/track_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage");
     }
 
     // Look up a unit definition by type; falls back to the Harvester entry for

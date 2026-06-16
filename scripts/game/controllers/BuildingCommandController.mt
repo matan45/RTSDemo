@@ -496,38 +496,22 @@ class BuildingCommandController implements IUIButtonListener {
         float my = Input::getViewportMouseY();
         RaycastHit hit = Picker::pickTerrainPhysics(mx, my);
         if (!hit.hit) {
-            Log::warn("[Move] right-click ignored: terrain raycast missed");
             return;
         }
         Vec3f dest = new Vec3f(hit.point.x, Terrain::heightAt(hit.point.x, hit.point.z), hit.point.z);
 
         // setDestination is rejected for off-mesh targets; snap onto the navmesh.
-        bool destOnMesh = Navmesh::isPointOnNavmesh(dest);
-        if (!destOnMesh) {
+        if (!Navmesh::isPointOnNavmesh(dest)) {
             dest = Navmesh::getClosestPoint(dest);
         }
 
         int[] selected = PluginComponent::findAll("Selected");
-        Log::info("[Move] right-click: selected=" + parsePrimitive(selected.length)
-            + " destOnMesh=" + this.boolStr(destOnMesh));
         for (int i = 0; i < selected.length; i = i + 1) {
             int uid = selected[i];
-            if (!Entity::isValid(uid)) {
-                continue;
+            if (Entity::isValid(uid)) {
+                Navmesh::moveTo(uid, dest);
             }
-            bool hasAgent = Entity::hasComponent(uid, "NavmeshAgent");
-            bool unitOnMesh = Navmesh::isPointOnNavmesh(Entity::getPosition(uid));
-            Log::info("[Move] unit=" + parsePrimitive(uid) + " hasAgent=" + this.boolStr(hasAgent)
-                + " unitOnMesh=" + this.boolStr(unitOnMesh));
-            Navmesh::moveTo(uid, dest);
         }
-    }
-
-    private function boolStr(bool b): string {
-        if (b) {
-            return "true";
-        }
-        return "false";
     }
 
     // ---- unit tables ----

@@ -453,10 +453,7 @@ class BuildingCommandController implements IUIButtonListener {
             Log::warn("[BuildingCommand] failed to spawn unit '" + type + "' (" + prefab + ")");
             RTSHUDController? hud = this.hud();
             if (hud != null) {
-                // Workaround for MYT-393: passing this.unitCost(type) inline is
-                // miscompiled as "void"; hoist it into a local first.
-                int refund = this.unitCost(type);
-                hud.addGold(refund);
+                hud.addGold(this.unitCost(type));
                 hud.pushAlertMessage("Could not build " + type + " (refunded)", 2.0);
             }
             return;

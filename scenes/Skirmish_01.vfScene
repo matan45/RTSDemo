@@ -5224,8 +5224,8 @@
         "hdrRefPath": "C:/matan/RTSDemo/assets/skyBox/sky.vfHdr"
       },
       "navmesh": {
-        "navmeshRef": "1af5c43c47227bd8",
-        "navmeshRefPath": "C:/matan/RTSDemo/assets/navmesh/Skirmish_01/index.vfNavIndex"
+        "navmeshRef": "9a253d130ba40dbc",
+        "navmeshRefPath": "C:/matan/RTSDemo/assets/navmesh/index.vfNavIndex"
       }
     },
     "isActive": true,

@@ -13,14 +13,16 @@ value class UnitDef {
     public int cost;          // gold
     public float buildTime;   // seconds in the production queue
     public string prefab;     // .vfPrefab to instantiate
-    public string icon;       // .vfImage shown in the queue HUD
+    public string icon;       // .vfImage shown in the queue HUD + selection portrait
+    public float maxHealth;   // full HP the spawned unit's UnitInfo starts at (VK-1302)
 
-    constructor(string unitType, int cost, float buildTime, string prefab, string icon) {
+    constructor(string unitType, int cost, float buildTime, string prefab, string icon, float maxHealth) {
         this.unitType = unitType;
         this.cost = cost;
         this.buildTime = buildTime;
         this.prefab = prefab;
         this.icon = icon;
+        this.maxHealth = maxHealth;
     }
 
     // Default constructor so `new UnitDef[n]` can default-init its elements.
@@ -30,5 +32,6 @@ value class UnitDef {
         this.buildTime = 0.0;
         this.prefab = "";
         this.icon = "";
+        this.maxHealth = 1.0;
     }
 }

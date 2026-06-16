@@ -1,4 +1,5 @@
-// BuildingCommandController - executes the per-building command card.
+// BuildingCommandController - executes the per-building command card (VK-1352)
+// and the world move/gather orders it produces (VK-1303).
 //
 // RTSHUDController renders each selected building's command card (Sell / Upgrade
 // / Rally / Soldier / Engineer / Tank / Track) but is display-only; this script
@@ -11,15 +12,16 @@
 //              gains +25 power output). One level.
 //   Rally    - the next ground click sets a rally point; units trained at that
 //              building walk to it on spawn.
-//   Soldier / Engineer / Tank - queue a unit (gold + build time); the unit
-//              spawns when the queue head finishes.
-//   Track    - spawn a harvester that loops the refinery <-> nearest GoldNode,
-//              depositing gold each trip.
+//   Soldier / Engineer / Tank / Track - queue a unit (gold + build time); the
+//              unit spawns when the queue head finishes.
 //
 // Units are placeholder prefabs (assets/units/*_prefab.vfPrefab) reusing an
 // imported mesh until real unit art lands; they get Selectable + Team(0) +
-// a physics body so the existing UnitSelectionController can select them, and
-// move via a self-contained straight-line stepper (no NavmeshAgent dependency).
+// a physics body (UnitSelectionController selection) + a NavmeshAgent so they
+// pathfind on the baked navmesh. A world right-click on the ground issues a
+// Navmesh::moveTo order to every selected unit (the agent handles pathfinding,
+// crowd avoidance and facing rotation); the minimap right-click move uses the
+// same path.
 //
 // Attach this @Script to GameSystems alongside SelectionController /
 // BuildingPlacementController / UnitSelectionController.
@@ -31,7 +33,7 @@ import * from "../../lib/engine/UI.mt";
 import * from "../../lib/engine/Picker.mt";
 import * from "../../lib/engine/RaycastHit.mt";
 import * from "../../lib/engine/Terrain.mt";
-import * from "../../lib/engine/Physics.mt";
+import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/Decal.mt";
 import * from "../../lib/engine/Log.mt";
 import * from "../../lib/engine/PluginComponent.mt";
@@ -42,10 +44,12 @@ import * from "../../lib/math/Vec3f.mt";
 import * from "./RTSHUDController.mt";
 import * from "./SelectionController.mt";
 import * from "./BuildingPlacementController.mt";
+import * from "./UnitSelectionController.mt";
 import * from "../data/BuildingInfo.mt";
 import * from "../data/UnitDef.mt";
-import * from "../data/Harvester.mt";
+import * from "../data/UnitInfo.mt";
 import * from "../data/QueueItem.mt";
+import * from "../data/Harvester.mt";
 import * from "../util/Config.mt";
 import * from "../util/HState.mt";
 import * from "../util/InputEdge.mt";
@@ -63,15 +67,14 @@ class BuildingCommandController implements IUIButtonListener {
     private HashMap<Int, Int?> rallyMarkers;
     private int pendingRallyBuilding;
 
-    // Trained units walking to their rally point: unit id -> destination.
-    private HashMap<Int, Vec3f?> moveTargets;
-
     // Production queue (FIFO; head = index 0).
     private int maxQueue;
     private QueueItem[] queue;
     private int queueCount;
 
-    // Active harvesters (state uses HState::*).
+    // Active Track harvesters. A Track starts IDLE; right-clicking a gold node
+    // starts its refinery <-> node loop, and a move order cancels it back to
+    // IDLE (state uses HState::*).
     private int maxHarvesters;
     private Harvester[] harvesters;
     private int harvCount;
@@ -88,10 +91,13 @@ class BuildingCommandController implements IUIButtonListener {
     private int hudCommandBarId;
 
     private InputEdge leftEdge;
+    private InputEdge rightEdge;
     private int unitSerial;
 
+    // Max agent speed applied to each spawned unit's NavmeshAgent.
     private float unitSpeed;
-    private float arriveEps;
+    // Squared arrival radius for harvester waypoint detection.
+    private float arriveEps2;
 
     // Gameplay tuning.
     private int sellRefundPct;
@@ -103,8 +109,8 @@ class BuildingCommandController implements IUIButtonListener {
         this.hudRef = null;
         this.pendingRallyBuilding = -1;
         this.queueCount = 0;
-        this.harvCount = 0;
         this.maxQueue = 8;
+        this.harvCount = 0;
         this.maxHarvesters = 16;
         this.queueHudId = -1;
         this.queueLabelId = -1;
@@ -113,7 +119,7 @@ class BuildingCommandController implements IUIButtonListener {
         this.hudCommandBarId = -1;
         this.unitSerial = 0;
         this.unitSpeed = 8.0;
-        this.arriveEps = 0.4;
+        this.arriveEps2 = 9.0;
         this.sellRefundPct = 70;
         this.upgradeCostPct = 60;
         this.harvestDeposit = 10;
@@ -121,6 +127,7 @@ class BuildingCommandController implements IUIButtonListener {
 
     public function onStart(): void {
         this.leftEdge = new InputEdge();
+        this.rightEdge = new InputEdge();
         this.hudControllerId = Entity::findByName("RTS_HUD_Controller");
         this.hudCommandBarId = Entity::findByName("RTS_HUD_CommandBar");
 
@@ -133,7 +140,6 @@ class BuildingCommandController implements IUIButtonListener {
 
         this.rallyPoints = new HashMap<Int, Vec3f>();
         this.rallyMarkers = new HashMap<Int, Int>();
-        this.moveTargets = new HashMap<Int, Vec3f>();
 
         this.queue = new QueueItem[this.maxQueue];
         this.harvesters = new Harvester[this.maxHarvesters];
@@ -144,16 +150,16 @@ class BuildingCommandController implements IUIButtonListener {
     }
 
     // Unit table (single source of cost / build time / prefab / icon). The
-    // "Harvester" entry (index 3) doubles as the default for unknown types.
+    // Track entry (index 3) also serves as the default for unknown types.
     private function defineUnits(): void {
         this.unitDefs = new UnitDef[4];
-        this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/units/soldier.vfImage");
-        this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/units/engineer.vfImage");
-        this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/units/tank.vfImage");
-        this.unitDefs[3] = new UnitDef("Harvester", 30, 4.0, "assets/units/harvester_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage");
+        this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/units/soldier.vfImage", 60.0);
+        this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/units/engineer.vfImage", 50.0);
+        this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/units/tank.vfImage", 200.0);
+        this.unitDefs[3] = new UnitDef("Track", 30, 4.0, "assets/units/track/track_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage", 120.0);
     }
 
-    // Look up a unit definition by type; falls back to the Harvester entry for
+    // Look up a unit definition by type; falls back to the Track entry for
     // unknown types (preserves the old default behavior of the unit*() tables).
     private function unitDef(string type): UnitDef {
         for (int i = 0; i < this.unitDefs.length; i = i + 1) {
@@ -168,7 +174,7 @@ class BuildingCommandController implements IUIButtonListener {
         this.handleRallyClick();
         this.updateRallyMarkers();
         this.tickQueue(deltaTime);
-        this.tickMovers(deltaTime);
+        this.handleMoveCommand();
         this.tickHarvesters(deltaTime);
         this.updateQueueUI();
     }
@@ -222,7 +228,7 @@ class BuildingCommandController implements IUIButtonListener {
         if (cmd == "Sell") { this.sell(buildingId, info); return; }
         if (cmd == "Upgrade") { this.upgrade(buildingId, info); return; }
         if (cmd == "Rally") { this.beginRally(buildingId); return; }
-        if (cmd == "Track") { this.spawnHarvester(buildingId); return; }
+        if (cmd == "Track") { this.enqueue(buildingId, "Track"); return; }
         if (cmd == "Soldier") { this.enqueue(buildingId, "Soldier"); return; }
         if (cmd == "Engineer") { this.enqueue(buildingId, "Engineer"); return; }
         if (cmd == "Tank") { this.enqueue(buildingId, "Tank"); return; }
@@ -367,7 +373,7 @@ class BuildingCommandController implements IUIButtonListener {
             if (markerBox == null) {
                 continue;
             }
-            int marker = markerBox?.getValue();
+            int marker = markerBox.getValue();
             if (marker < 0 || !Entity::isValid(marker)) {
                 continue;
             }
@@ -442,7 +448,15 @@ class BuildingCommandController implements IUIButtonListener {
         string prefab = this.unitPrefab(type);
         int id = Entity::instantiate(prefab);
         if (id < 0) {
+            // Spawn failed (e.g. the prefab is missing): refund the gold that
+            // enqueue() spent up front so the player isn't silently charged for
+            // a unit that never appears.
             Log::warn("[BuildingCommand] failed to spawn unit '" + type + "' (" + prefab + ")");
+            RTSHUDController? hud = this.hud();
+            if (hud != null) {
+                hud.addGold(this.unitCost(type));
+                hud.pushAlertMessage("Could not build " + type + " (refunded)", 2.0);
+            }
             return;
         }
         this.unitSerial = this.unitSerial + 1;
@@ -457,13 +471,37 @@ class BuildingCommandController implements IUIButtonListener {
         PluginComponent::setBool(id, "Selectable", "canBeSelected", true);
         PluginComponent::add(id, "Team");
         PluginComponent::setInt(id, "Team", "teamId", 0);
-        // Physics body so single-click picking (Picker "Dynamic") hits the unit.
-        Physics::createBody(id);
+        // The unit's NavmeshAgent comes from its prefab (track_prefab carries one
+        // sized to the vehicle) -- it pathfinds + avoids on the baked navmesh and
+        // the agent owns movement + facing. No runtime physics body is created: it
+        // would fight the agent (a static body won't follow it, a dynamic one
+        // falls), and selection is screen-space (UnitSelectionController.pickUnit),
+        // so no collider body is needed. setSpeed applies the controller's speed
+        // (and persists onto the agent component before crowd registration).
+        Navmesh::setSpeed(id, this.unitSpeed);
 
-        // Walk to the building's rally point if one is set.
+        // Register the unit's selection-panel info (icon + health) so the HUD can
+        // show it when the unit is selected. Routed through UnitSelectionController
+        // -> SelectionController (the HUD's single selection source); see UnitInfo.
+        UnitSelectionController? usel = this.unitSelection();
+        if (usel != null) {
+            UnitDef def = this.unitDef(type);
+            UnitInfo ui = new UnitInfo(def.unitType, def.icon, Config::TEAM_PLAYER, def.maxHealth);
+            usel.registerUnit(id, ui);
+        }
+
+        // The Track is a harvester, but it spawns IDLE -- it only starts the
+        // refinery <-> gold-node loop once the player right-clicks a gold node
+        // (so no rally move here). Other unit types just walk to the rally point.
+        if (type == "Track") {
+            this.registerHarvester(id, buildingId, spawn);
+            return;
+        }
+
+        // Pathfind to the building's rally point if one is set.
         Vec3f? rally = this.rallyPoints.get(new Int(buildingId));
         if (rally != null) {
-            this.moveTargets.put(new Int(id), rally);
+            Navmesh::moveTo(id, rally);
         }
     }
 
@@ -479,77 +517,83 @@ class BuildingCommandController implements IUIButtonListener {
         return new Vec3f(x, Terrain::heightAt(x, z), z);
     }
 
-    private function tickMovers(float dt): void {
-        Int[] keys = this.moveTargets.getKeys();
-        for (int i = 0; i < keys.length; i = i + 1) {
-            int uid = keys[i].getValue();
+    // ---- world move command ----
+
+    // Right-click on open ground issues a Navmesh::moveTo order to every selected
+    // player unit (the "Selected" marker is written by UnitSelectionController);
+    // each unit's NavmeshAgent pathfinds + rotates to face travel. Suppressed
+    // while placing a building / capturing a rally click (right-click cancels
+    // placement there) and while the pointer is over UI (which also covers the
+    // minimap, so its own right-click move never double-fires).
+    private function handleMoveCommand(): void {
+        this.rightEdge.step(Input::isMouseButtonDown(Mouse::RIGHT));
+        if (!this.rightEdge.wasReleased) {
+            return;
+        }
+        if (this.pendingRallyBuilding >= 0) {
+            return;
+        }
+        SelectionController? sel = this.selection();
+        if (sel != null && sel.isPlacementActive()) {
+            return;
+        }
+        if (UI::isPointerOverUI()) {
+            return;
+        }
+        float mx = Input::getViewportMouseX();
+        float my = Input::getViewportMouseY();
+        RaycastHit hit = Picker::pickTerrainPhysics(mx, my);
+        if (!hit.hit) {
+            return;
+        }
+        Vec3f dest = new Vec3f(hit.point.x, Terrain::heightAt(hit.point.x, hit.point.z), hit.point.z);
+
+        // setDestination is rejected for off-mesh targets; snap onto the navmesh.
+        if (!Navmesh::isPointOnNavmesh(dest)) {
+            dest = Navmesh::getClosestPoint(dest);
+        }
+
+        // Right-click on (or near) a gold mine is a "gather that node" order for
+        // harvesters; anywhere else is a plain move.
+        int goldNode = this.goldNodeNear(dest, 6.0);
+
+        int[] selected = PluginComponent::findAll("Selected");
+        for (int i = 0; i < selected.length; i = i + 1) {
+            int uid = selected[i];
             if (!Entity::isValid(uid)) {
-                this.moveTargets.remove(keys[i]);
                 continue;
             }
-            // Positive narrowing into the then-branch: mType does not narrow a
-            // variable across an `if (x == null) { continue; }` loop guard.
-            Vec3f? target = this.moveTargets.get(keys[i]);
-            if (target != null) {
-                if (this.stepToward(uid, target, dt)) {
-                    this.moveTargets.remove(keys[i]);
-                }
+            Harvester? harv = this.harvesterFor(uid);
+            if (harv != null && goldNode >= 0) {
+                // Gather order: retarget the clicked gold node and (re)start the
+                // refinery <-> node loop from wherever the Track currently is.
+                Vec3f mp = Entity::getPosition(goldNode);
+                harv.minePos = new Vec3f(mp.x, Terrain::heightAt(mp.x, mp.z), mp.z);
+                harv.state = HState::TO_MINE;
+                Navmesh::moveTo(uid, harv.minePos);
+            } else if (harv != null) {
+                // Move order CANCELS the gather loop: the Track drives to the
+                // point and stays idle there until told to gather a node again.
+                harv.state = HState::IDLE;
+                Navmesh::moveTo(uid, dest);
             } else {
-                this.moveTargets.remove(keys[i]);
+                Navmesh::moveTo(uid, dest);
             }
         }
     }
 
-    // Straight-line step toward target on the XZ plane, riding the terrain
-    // height. Returns true once arrived.
-    private function stepToward(int id, Vec3f target, float dt): bool {
-        Vec3f p = Entity::getPosition(id);
-        float dx = target.x - p.x;
-        float dz = target.z - p.z;
-        float dist = new Vec3f(dx, 0.0, dz).length();
-        float step = this.unitSpeed * dt;
-        if (dist <= this.arriveEps || step >= dist) {
-            Entity::setPosition(id, new Vec3f(target.x, Terrain::heightAt(target.x, target.z), target.z));
-            return true;
-        }
-        float nx = p.x + dx / dist * step;
-        float nz = p.z + dz / dist * step;
-        Entity::setPosition(id, new Vec3f(nx, Terrain::heightAt(nx, nz), nz));
-        return false;
-    }
+    // ---- harvesters (Track loop: refinery <-> commanded GoldNode) ----
 
-    // ---- harvesters (refinery Track) ----
-
-    private function spawnHarvester(int refineryId): void {
-        RTSHUDController? hud = this.hud();
+    // Register a freshly spawned Track as a harvester. It starts IDLE and does
+    // NOT auto-gather -- the loop only begins once the player right-clicks a gold
+    // node (handleMoveCommand). home = its spawn point (the refinery drop-off);
+    // minePos is just a placeholder until a gather order picks the node.
+    private function registerHarvester(int unitId, int refineryId, Vec3f home): void {
         if (this.harvCount >= this.maxHarvesters) {
-            if (hud != null) { hud.pushAlertMessage("Too many harvesters", 1.5); }
             return;
         }
-        int node = this.nearestGoldNode(Entity::getPosition(refineryId));
-        if (node < 0) {
-            if (hud != null) { hud.pushAlertMessage("No GoldNode found on map", 2.0); }
-            return;
-        }
-        int id = Entity::instantiate(this.unitPrefab("Harvester"));
-        if (id < 0) {
-            Log::warn("[BuildingCommand] failed to spawn harvester");
-            return;
-        }
-        this.unitSerial = this.unitSerial + 1;
-        Entity::setName(id, "Harvester_" + parsePrimitive(this.unitSerial));
-        Vec3f home = this.spawnPointNear(Entity::getPosition(refineryId));
-        Entity::setPosition(id, home);
-        Entity::setActive(id, true);
-
-        Vec3f minePos = Entity::getPosition(node);
-        Vec3f mineGround = new Vec3f(minePos.x, Terrain::heightAt(minePos.x, minePos.z), minePos.z);
-        this.harvesters[this.harvCount] = new Harvester(id, refineryId, mineGround, home);
+        this.harvesters[this.harvCount] = new Harvester(unitId, refineryId, home, home);
         this.harvCount = this.harvCount + 1;
-
-        if (hud != null) {
-            hud.pushAlertMessage("Harvester dispatched", 1.5);
-        }
     }
 
     private function tickHarvesters(float dt): void {
@@ -557,22 +601,31 @@ class BuildingCommandController implements IUIButtonListener {
         while (h < this.harvCount) {
             Harvester harv = this.harvesters[h];
             if (!Entity::isValid(harv.unitId) || !Entity::isValid(harv.refineryId)) {
-                if (Entity::isValid(harv.unitId)) { Entity::destroy(harv.unitId); }
                 this.removeHarvester(h);
                 continue;
             }
+
+            // Idle: a freshly spawned Track, or one whose loop a move order
+            // cancelled. It does nothing until the player right-clicks a gold
+            // node to (re)start gathering (handleMoveCommand).
+            if (harv.state == HState::IDLE) {
+                h = h + 1;
+                continue;
+            }
+
             if (harv.state == HState::TO_MINE) {
-                if (this.stepToward(harv.unitId, harv.minePos, dt)) {
+                if (this.arrived(harv.unitId, harv.minePos)) {
                     harv.state = HState::MINING;
-                    harv.dwell = 1.0;
+                    harv.dwell = 1.5;
                 }
             } else if (harv.state == HState::MINING) {
                 harv.dwell = harv.dwell - dt;
                 if (harv.dwell <= 0.0) {
                     harv.state = HState::TO_HOME;
+                    Navmesh::moveTo(harv.unitId, harv.homePos);
                 }
             } else if (harv.state == HState::TO_HOME) {
-                if (this.stepToward(harv.unitId, harv.homePos, dt)) {
+                if (this.arrived(harv.unitId, harv.homePos)) {
                     harv.state = HState::DEPOSIT;
                 }
             } else {
@@ -581,9 +634,28 @@ class BuildingCommandController implements IUIButtonListener {
                     hud.addGold(this.harvestDeposit);
                 }
                 harv.state = HState::TO_MINE;
+                Navmesh::moveTo(harv.unitId, harv.minePos);
             }
             h = h + 1;
         }
+    }
+
+    // Linear scan: small (maxHarvesters = 16) and only hit on right-click /
+    // harvester ticks, not a per-frame-per-entity cost.
+    private function harvesterFor(int unitId): Harvester? {
+        for (int i = 0; i < this.harvCount; i = i + 1) {
+            if (this.harvesters[i].unitId == unitId) {
+                return this.harvesters[i];
+            }
+        }
+        return null;
+    }
+
+    private function arrived(int id, Vec3f target): bool {
+        Vec3f p = Entity::getPosition(id);
+        float dx = target.x - p.x;
+        float dz = target.z - p.z;
+        return (dx * dx + dz * dz) <= this.arriveEps2;
     }
 
     private function removeHarvester(int index): void {
@@ -592,16 +664,18 @@ class BuildingCommandController implements IUIButtonListener {
         this.harvCount = last;
     }
 
-    private function nearestGoldNode(Vec3f fromVec): int {
+    // Nearest GoldNode within `radius` of a world point, or -1. Turns a
+    // right-click on (or near) a gold mine into a "gather this node" order.
+    private function goldNodeNear(Vec3f point, float radius): int {
         int[] nodes = Entity::findAll("GoldNode");
         int best = -1;
-        float bestSq = 0.0;
+        float bestSq = radius * radius;
         for (int i = 0; i < nodes.length; i = i + 1) {
             Vec3f p = Entity::getPosition(nodes[i]);
-            float dx = p.x - fromVec.x;
-            float dz = p.z - fromVec.z;
+            float dx = p.x - point.x;
+            float dz = p.z - point.z;
             float d = dx * dx + dz * dz;
-            if (best < 0 || d < bestSq) {
+            if (d <= bestSq) {
                 best = nodes[i];
                 bestSq = d;
             }
@@ -749,5 +823,9 @@ class BuildingCommandController implements IUIButtonListener {
 
     private function placement(): BuildingPlacementController? {
         return Entity::getScript<BuildingPlacementController>(Entity::self(), "BuildingPlacementController");
+    }
+
+    private function unitSelection(): UnitSelectionController? {
+        return Entity::getScript<UnitSelectionController>(Entity::self(), "UnitSelectionController");
     }
 }

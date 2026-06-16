@@ -29,6 +29,7 @@ import * from "../../lib/engine/Picker.mt";
 import * from "../../lib/engine/RaycastHit.mt";
 import * from "../../lib/engine/ScreenPoint.mt";
 import * from "../../lib/engine/PluginComponent.mt";
+import * from "../../lib/engine/Physics.mt";
 import * from "../../lib/engine/Decal.mt";
 import * from "../../lib/engine/Log.mt";
 import * from "../../lib/core/collections/HashMap.mt";
@@ -36,6 +37,7 @@ import * from "../../lib/core/primitives/Int.mt";
 import * from "../../lib/math/Vec3f.mt";
 import * from "./SelectionController.mt";
 import * from "./BuildingPlacementController.mt";
+import * from "../data/UnitInfo.mt";
 import * from "../util/Config.mt";
 import * from "../util/Util.mt";
 import * from "../util/DragState.mt";
@@ -58,6 +60,12 @@ class UnitSelectionController {
     // linger in the hierarchy while nothing is selected.
     private HashMap<Int, Int> selectedRings;
 
+    // Selection-panel info per spawned unit (entity id -> UnitInfo), filled by
+    // BuildingCommandController.registerUnit when it spawns a unit. The primary
+    // selected unit's UnitInfo is pushed to SelectionController each frame so the
+    // HUD can show its icon + health (VK-1302).
+    private HashMap<Int, UnitInfo?> unitInfo;
+
     // Scene-authored drag box UIImage ("RTS_DragBox"), -1 if absent.
     private int dragBoxId;
 
@@ -68,6 +76,7 @@ class UnitSelectionController {
     // Config.
     private float dragThreshold;
     private float ringRadius;
+    private float clickPixelRadius;
     private int maxSelected;
 
     constructor() {
@@ -79,6 +88,7 @@ class UnitSelectionController {
 
         this.dragThreshold = 5.0;
         this.ringRadius = 1.6;
+        this.clickPixelRadius = 45.0;
         this.maxSelected = 64;
     }
 
@@ -86,6 +96,7 @@ class UnitSelectionController {
         this.leftEdge = new InputEdge();
         this.escEdge = new InputEdge();
         this.selectedRings = new HashMap<Int, Int>();
+        this.unitInfo = new HashMap<Int, UnitInfo>();
 
         this.dragBoxId = Entity::findByName("RTS_DragBox");
         if (this.dragBoxId < 0) {
@@ -116,6 +127,7 @@ class UnitSelectionController {
 
         this.updateDrag();
         this.updateRings();
+        this.pushSelectionToHud();
     }
 
     public function onDestroy(): void {
@@ -148,6 +160,17 @@ class UnitSelectionController {
         for (int i = 0; i < keys.length; i = i + 1) {
             this.removeUnit(keys[i].getValue());
         }
+    }
+
+    // Register a spawned unit's selection-panel info (icon + health), called by
+    // BuildingCommandController when it spawns the unit. Kept for the unit's
+    // lifetime (dropped in updateRings once the entity is gone), independent of
+    // whether the unit is currently selected.
+    public function registerUnit(int id, UnitInfo info): void {
+        if (id < 0 || info == null) {
+            return;
+        }
+        this.unitInfo.put(new Int(id), info);
     }
 
     // ---- drag state machine ----
@@ -228,31 +251,65 @@ class UnitSelectionController {
     // replaces the selection (and clears it on a miss); shift-click toggles
     // the clicked unit and leaves the rest alone.
     private function handleClick(float mx, float my, bool shift): void {
-        RaycastHit e = Picker::pickEntity(mx, my, "Dynamic");
-        bool unitHit = e.hit && this.isSelectableUnit(e.entityId);
+        int hitId = this.pickUnit(mx, my);
 
-        if (unitHit) {
+        if (hitId >= 0) {
             if (shift) {
-                if (this.isSelected(e.entityId)) {
-                    this.removeUnit(e.entityId);
+                if (this.isSelected(hitId)) {
+                    this.removeUnit(hitId);
                 } else {
-                    this.addUnit(e.entityId);
+                    this.addUnit(hitId);
                 }
             } else {
                 this.clearSelection();
-                this.addUnit(e.entityId);
+                this.addUnit(hitId);
             }
             // A unit click is never also a building selection.
             SelectionController sel = this.selection();
             if (sel != null) {
                 sel.clearSelection();
             }
-            Log::info("[UnitSelection] selected " + this.getSelectedCount() + " unit(s)");
+            Log::info("[UnitSelection] selected " + parsePrimitive(this.getSelectedCount()) + " unit(s)");
         } else {
             if (!shift) {
                 this.clearSelection();
             }
         }
+    }
+
+    // Resolve the friendly unit under the cursor. Tries the physics pick first
+    // (exact), then falls back to the nearest Selectable player unit whose
+    // screen projection is within clickPixelRadius of the cursor -- robust when
+    // the physics body lags behind NavmeshAgent-driven movement, where a raw
+    // pick would otherwise miss the visible mesh. Returns -1 on a miss.
+    private function pickUnit(float mx, float my): int {
+        RaycastHit e = Picker::pickEntity(mx, my, "Dynamic");
+        if (e.hit && this.isSelectableUnit(e.entityId)) {
+            return e.entityId;
+        }
+
+        int best = -1;
+        float bestSq = this.clickPixelRadius * this.clickPixelRadius;
+        int[] ids = PluginComponent::findAll("Selectable");
+        for (int i = 0; i < ids.length; i = i + 1) {
+            int id = ids[i];
+            if (!Entity::isActive(id) || !this.isSelectableUnit(id)) {
+                continue;
+            }
+            Vec3f p = Entity::getPosition(id);
+            ScreenPoint sp = Picker::worldToScreen(p.x, p.y, p.z);
+            if (!sp.visible) {
+                continue;
+            }
+            float dx = sp.x - mx;
+            float dy = sp.y - my;
+            float d = dx * dx + dy * dy;
+            if (d < bestSq) {
+                best = id;
+                bestSq = d;
+            }
+        }
+        return best;
     }
 
     // Box release: project every Selectable player unit to the viewport and
@@ -287,7 +344,7 @@ class UnitSelectionController {
                 sel.clearSelection();
             }
         }
-        Log::info("[UnitSelection] box-selected " + this.getSelectedCount() + " unit(s)");
+        Log::info("[UnitSelection] box-selected " + parsePrimitive(this.getSelectedCount()) + " unit(s)");
     }
 
     // Friendly + selectable filter: needs the RTSGameplay plugin components.
@@ -315,7 +372,7 @@ class UnitSelectionController {
         if (this.selectedRings.size() >= this.maxSelected) {
             return;
         }
-        int ring = this.createRing();
+        int ring = this.createRing(this.ringRadiusFor(id));
         Entity::setPosition(ring, Entity::getPosition(id));
         Entity::setActive(ring, true);
         this.selectedRings.put(key, new Int(ring));
@@ -328,7 +385,7 @@ class UnitSelectionController {
             return;
         }
         Int ring = this.selectedRings.get(key);
-        if (ring != null && ring.getValue() >= 0) {
+        if (ring.getValue() >= 0) {
             Entity::destroy(ring.getValue());
         }
         this.selectedRings.remove(key);
@@ -345,20 +402,40 @@ class UnitSelectionController {
         for (int i = 0; i < keys.length; i = i + 1) {
             int unitId = keys[i].getValue();
             if (!Entity::isValid(unitId)) {
+                // Unit was destroyed: drop its selection ring and its panel info.
+                this.unitInfo.remove(new Int(unitId));
                 this.removeUnit(unitId);
             } else {
                 Int ring = this.selectedRings.get(keys[i]);
-                if (ring != null) {
-                    Entity::setPosition(ring.getValue(), Entity::getPosition(unitId));
-                }
+                Entity::setPosition(ring.getValue(), Entity::getPosition(unitId));
             }
         }
+    }
+
+    // Ring radius sized to the unit's footprint: the larger of its collider
+    // half-extents (X/Z) plus a margin, so a big tank/track gets a big ring and
+    // a small infantry unit a small one. Falls back to the flat ringRadius when
+    // the unit has no collider to measure.
+    private function ringRadiusFor(int id): float {
+        float r = this.ringRadius;
+        if (Physics::hasCollider(id)) {
+            Vec3f s = Physics::getColliderSize(id);
+            float bigger = s.x;
+            if (s.z > bigger) {
+                bigger = s.z;
+            }
+            float scaled = bigger * 1.25 + 0.3;
+            if (scaled > r) {
+                r = scaled;
+            }
+        }
+        return r;
     }
 
     // Color-only decal pitched 90 degrees so it projects straight down onto the
     // terrain under the unit (same recipe as SelectionController's highlight,
     // sorted above it so unit rings win where the two overlap).
-    private function createRing(): int {
+    private function createRing(float radius): int {
         int id = Entity::create("UnitSelectionRing");
         Entity::addComponent(id, "Decal");
         Decal::setShape(id, Decal::SHAPE_CIRCLE);
@@ -366,7 +443,7 @@ class UnitSelectionController {
         Decal::setEdgeFalloff(id, 0.35);
         Decal::setSortPriority(id, 11);
         Decal::setColor(id, 0.25, 1.0, 0.4, 0.7);
-        Decal::setHalfExtents(id, this.ringRadius, this.ringRadius, 4.0);
+        Decal::setHalfExtents(id, radius, radius, 4.0);
         Entity::setActive(id, false);
         return id;
     }
@@ -375,6 +452,30 @@ class UnitSelectionController {
 
     private function selection(): SelectionController {
         return Entity::getScript<SelectionController>(Entity::self(), "SelectionController");
+    }
+
+    // Push the primary-selected unit's panel info (or null) into SelectionController
+    // each frame, so the HUD can read the selected unit's icon + health from the
+    // same source it already reads buildings from (avoids the HUD importing this
+    // controller, which would form a circular import via BuildingPlacementController).
+    private function pushSelectionToHud(): void {
+        SelectionController sel = this.selection();
+        if (sel == null) {
+            return;
+        }
+        UnitInfo? info = this.primarySelectedInfo();
+        sel.setSelectedUnit(info);
+    }
+
+    // Info for the primary selected unit (the first in the selection), or null
+    // when nothing is selected / the selected unit has no registered info.
+    private function primarySelectedInfo(): UnitInfo? {
+        Int[] keys = this.selectedRings.getKeys();
+        if (keys.length == 0) {
+            return null;
+        }
+        int id = keys[0].getValue();
+        return this.unitInfo.get(new Int(id));
     }
 
     private function placementActive(): bool {

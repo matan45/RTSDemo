@@ -1,0 +1,12 @@
+{
+    "name": "track Instance",
+    "parentMaterialRef": "cec5aa2b3b6b2a62",
+    "parentMaterialRefPath": "C:/matan/RTSDemo/assets/units/track/track.vfMat",
+    "textureOverrides": {
+        "Albedo": "e865bda2af86bc75",
+        "AlbedoPath": "C:/matan/RTSDemo/assets/units/track/track_albedo.vfImage"
+    },
+    "type": "MaterialInstance",
+    "uuid": "11672209454184399391",
+    "version": "1.1"
+}

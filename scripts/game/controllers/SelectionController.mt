@@ -25,6 +25,7 @@ import * from "../../lib/core/collections/HashMap.mt";
 import * from "../../lib/core/primitives/Int.mt";
 import * from "../../lib/math/Vec3f.mt";
 import * from "../data/BuildingInfo.mt";
+import * from "../data/UnitInfo.mt";
 import * from "../util/Config.mt";
 import * from "../util/InputEdge.mt";
 
@@ -34,6 +35,12 @@ class SelectionController {
 
     // Registry of selectable buildings, keyed by entity id (boxed as Int).
     private HashMap<Int, BuildingInfo?> registry;
+
+    // Primary-selected unit's panel info, pushed each frame by
+    // UnitSelectionController (null when no unit is selected). The HUD reads this
+    // so unit selection drives the same RTS_HUD_Selection* panel as buildings,
+    // without the HUD having to import UnitSelectionController (VK-1302).
+    private UnitInfo? selectedUnitInfo;
 
     // Pushed by BuildingPlacementController while placing, so the placement click
     // is not also treated as a selection click (keeps imports one-directional).
@@ -65,6 +72,7 @@ class SelectionController {
 
     constructor() {
         this.selectedId = -1;
+        this.selectedUnitInfo = null;
         this.placementActive = false;
         this.unitDragActive = false;
         this.highlightId = -1;
@@ -132,7 +140,7 @@ class SelectionController {
         RaycastHit e = Picker::pickEntity(mx, my, "Dynamic");
         if (e.hit && this.isRegistered(e.entityId)) {
             this.selectedId = e.entityId;
-            Log::info("[Selection] SELECTED building id=" + this.selectedId);
+            Log::info("[Selection] SELECTED building id=" + parsePrimitive(this.selectedId));
         } else {
             this.selectedId = -1;
         }
@@ -159,8 +167,22 @@ class SelectionController {
         this.placementActive = active;
     }
 
+    public function isPlacementActive(): bool {
+        return this.placementActive;
+    }
+
     public function setUnitDragActive(bool active): void {
         this.unitDragActive = active;
+    }
+
+    // Pushed by UnitSelectionController with the primary-selected unit's info
+    // (null when no unit is selected). Read by RTSHUDController.
+    public function setSelectedUnit(UnitInfo? info): void {
+        this.selectedUnitInfo = info;
+    }
+
+    public function getSelectedUnitInfo(): UnitInfo? {
+        return this.selectedUnitInfo;
     }
 
     public function registerBuilding(int id, BuildingInfo info): void {
@@ -168,7 +190,7 @@ class SelectionController {
             return;
         }
         this.registry.put(new Int(id), info);
-        Log::info("[Selection] registered building id=" + id + " type=" + info.buildingType);
+        Log::info("[Selection] registered building id=" + parsePrimitive(id) + " type=" + info.buildingType);
     }
 
     // Drop a building from the selectable registry (BuildingCommandController
@@ -257,7 +279,7 @@ class SelectionController {
             }
             PluginComponent::add(id, "Vision");
             PluginComponent::setFloat(id, "Vision", "sightRadius", this.unitSightRadius);
-            Log::info("[Selection] granted Vision to entity " + id);
+            Log::info("[Selection] granted Vision to entity " + parsePrimitive(id));
         }
     }
 

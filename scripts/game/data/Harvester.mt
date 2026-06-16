@@ -12,23 +12,16 @@ class Harvester {
     public int refineryId;
     public Vec3f minePos;
     public Vec3f homePos;
-    public int state;    // HState::TO_MINE / MINING / TO_HOME / DEPOSIT
+    public int state;    // HState::IDLE / TO_MINE / MINING / TO_HOME / DEPOSIT
     public float dwell;  // seconds remaining while MINING
-
-    // Player override: while true the auto-loop is paused and the unit drives to
-    // manualTarget instead; harvesting resumes once it arrives there.
-    public bool manual;
-    public Vec3f manualTarget;
 
     constructor(int unitId, int refineryId, Vec3f minePos, Vec3f homePos) {
         this.unitId = unitId;
         this.refineryId = refineryId;
         this.minePos = minePos;
         this.homePos = homePos;
-        this.state = 0;   // == HState::TO_MINE
+        this.state = 4;   // == HState::IDLE (gathers only once told to; see VK-1302)
         this.dwell = 0.0;
-        this.manual = false;
-        this.manualTarget = new Vec3f(0.0, 0.0, 0.0);
     }
 
     constructor() {
@@ -36,9 +29,7 @@ class Harvester {
         this.refineryId = -1;
         this.minePos = new Vec3f(0.0, 0.0, 0.0);
         this.homePos = new Vec3f(0.0, 0.0, 0.0);
-        this.state = 0;
+        this.state = 4;   // == HState::IDLE
         this.dwell = 0.0;
-        this.manual = false;
-        this.manualTarget = new Vec3f(0.0, 0.0, 0.0);
     }
 }

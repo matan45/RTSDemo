@@ -9,6 +9,9 @@ public class HState {
     public static final int MINING = 1;  // dwelling at the node
     public static final int TO_HOME = 2; // walking back to the refinery
     public static final int DEPOSIT = 3; // depositing gold, then loop
+    public static final int IDLE = 4;    // not harvesting: spawned idle, or a
+                                         // move order cancelled the loop until
+                                         // the Track is told to gather a node
 
     public constructor() {
     }

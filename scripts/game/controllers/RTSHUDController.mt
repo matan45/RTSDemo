@@ -336,15 +336,11 @@ class RTSHUDController implements IUIButtonListener {
 
     // Render the selected unit's portrait + health into the shared selection
     // panel (same widgets buildings use). Health is full until a damage system
-    // lands (UnitInfo is a stub-then-replace data source). frac is hoisted to a
-    // local rather than passed inline (workaround for MYT-393).
+    // lands (UnitInfo is a stub-then-replace data source).
     private function showUnitPanel(UnitInfo info): void {
         if (this.selectionNameId >= 0) { UI::setLabelText(this.selectionNameId, info.displayName); }
         if (this.selectionStatusId >= 0) { UI::setLabelText(this.selectionStatusId, "Unit"); }
-        if (this.selectionHealthBarId >= 0) {
-            float frac = info.healthFraction();
-            UI::setProgressBarValue(this.selectionHealthBarId, frac);
-        }
+        if (this.selectionHealthBarId >= 0) { UI::setProgressBarValue(this.selectionHealthBarId, info.healthFraction()); }
         if (this.selectionIconId >= 0) {
             Entity::setActive(this.selectionIconId, true);
             if (info.iconPath != "") { UI::setImageTexture(this.selectionIconId, info.iconPath); }

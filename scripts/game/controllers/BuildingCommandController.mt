@@ -72,8 +72,9 @@ class BuildingCommandController implements IUIButtonListener {
     private QueueItem[] queue;
     private int queueCount;
 
-    // Active Track harvesters (auto-loop refinery <-> nearest GoldNode via the
-    // navmesh; state uses HState::*). A manual right-click pauses one's loop.
+    // Active Track harvesters. A Track starts IDLE; right-clicking a gold node
+    // starts its refinery <-> node loop, and a move order cancels it back to
+    // IDLE (state uses HState::*).
     private int maxHarvesters;
     private Harvester[] harvesters;
     private int harvCount;
@@ -489,9 +490,9 @@ class BuildingCommandController implements IUIButtonListener {
             usel.registerUnit(id, ui);
         }
 
-        // The Track is a harvester: it auto-loops the refinery <-> nearest gold
-        // node and deposits gold each trip (the auto-loop owns its movement, so
-        // no rally move). Other unit types just walk to the rally point.
+        // The Track is a harvester, but it spawns IDLE -- it only starts the
+        // refinery <-> gold-node loop once the player right-clicks a gold node
+        // (so no rally move here). Other unit types just walk to the rally point.
         if (type == "Track") {
             this.registerHarvester(id, buildingId, spawn);
             return;
@@ -564,18 +565,16 @@ class BuildingCommandController implements IUIButtonListener {
             }
             Harvester? harv = this.harvesterFor(uid);
             if (harv != null && goldNode >= 0) {
-                // Gather command: retarget this gold node and (re)start the loop.
+                // Gather order: retarget the clicked gold node and (re)start the
+                // refinery <-> node loop from wherever the Track currently is.
                 Vec3f mp = Entity::getPosition(goldNode);
                 harv.minePos = new Vec3f(mp.x, Terrain::heightAt(mp.x, mp.z), mp.z);
-                harv.manual = false;
                 harv.state = HState::TO_MINE;
                 Navmesh::moveTo(uid, harv.minePos);
             } else if (harv != null) {
-                // Plain move pauses the auto-loop; it resumes once the unit
-                // arrives at / settles on the player's destination (tickHarvesters).
-                harv.manual = true;
-                harv.manualTarget = dest;
-                harv.dwell = 0.4;  // grace before the settled-velocity check
+                // Move order CANCELS the gather loop: the Track drives to the
+                // point and stays idle there until told to gather a node again.
+                harv.state = HState::IDLE;
                 Navmesh::moveTo(uid, dest);
             } else {
                 Navmesh::moveTo(uid, dest);
@@ -583,25 +582,18 @@ class BuildingCommandController implements IUIButtonListener {
         }
     }
 
-    // ---- harvesters (Track auto-loop: refinery <-> nearest GoldNode) ----
+    // ---- harvesters (Track loop: refinery <-> commanded GoldNode) ----
 
-    // Register a freshly spawned Track as a harvester and send it to the nearest
-    // gold node. home = its spawn point (the refinery drop-off).
+    // Register a freshly spawned Track as a harvester. It starts IDLE and does
+    // NOT auto-gather -- the loop only begins once the player right-clicks a gold
+    // node (handleMoveCommand). home = its spawn point (the refinery drop-off);
+    // minePos is just a placeholder until a gather order picks the node.
     private function registerHarvester(int unitId, int refineryId, Vec3f home): void {
         if (this.harvCount >= this.maxHarvesters) {
             return;
         }
-        int node = this.nearestGoldNode(Entity::getPosition(unitId));
-        if (node < 0) {
-            RTSHUDController? hud = this.hud();
-            if (hud != null) { hud.pushAlertMessage("No GoldNode found on map", 2.0); }
-            return;
-        }
-        Vec3f minePos = Entity::getPosition(node);
-        Vec3f mineGround = new Vec3f(minePos.x, Terrain::heightAt(minePos.x, minePos.z), minePos.z);
-        this.harvesters[this.harvCount] = new Harvester(unitId, refineryId, mineGround, home);
+        this.harvesters[this.harvCount] = new Harvester(unitId, refineryId, home, home);
         this.harvCount = this.harvCount + 1;
-        Navmesh::moveTo(unitId, mineGround);
     }
 
     private function tickHarvesters(float dt): void {
@@ -613,19 +605,10 @@ class BuildingCommandController implements IUIButtonListener {
                 continue;
             }
 
-            // Player-controlled: idle the loop until the unit reaches the ordered
-            // point, then resume harvesting (head back out to the gold node).
-            // Resume on arrival OR once the agent has settled (velocity ~0 after a
-            // short grace) -- the latter covers a manualTarget the navmesh snapped
-            // elsewhere, so the harvester never gets stuck waiting on it.
-            if (harv.manual) {
-                harv.dwell = harv.dwell - dt;
-                bool settled = harv.dwell <= 0.0 && Navmesh::getVelocity(harv.unitId).length() < 0.15;
-                if (settled || this.arrived(harv.unitId, harv.manualTarget)) {
-                    harv.manual = false;
-                    harv.state = HState::TO_MINE;
-                    Navmesh::moveTo(harv.unitId, harv.minePos);
-                }
+            // Idle: a freshly spawned Track, or one whose loop a move order
+            // cancelled. It does nothing until the player right-clicks a gold
+            // node to (re)start gathering (handleMoveCommand).
+            if (harv.state == HState::IDLE) {
                 h = h + 1;
                 continue;
             }
@@ -693,23 +676,6 @@ class BuildingCommandController implements IUIButtonListener {
             float dz = p.z - point.z;
             float d = dx * dx + dz * dz;
             if (d <= bestSq) {
-                best = nodes[i];
-                bestSq = d;
-            }
-        }
-        return best;
-    }
-
-    private function nearestGoldNode(Vec3f fromVec): int {
-        int[] nodes = Entity::findAll("GoldNode");
-        int best = -1;
-        float bestSq = 0.0;
-        for (int i = 0; i < nodes.length; i = i + 1) {
-            Vec3f p = Entity::getPosition(nodes[i]);
-            float dx = p.x - fromVec.x;
-            float dz = p.z - fromVec.z;
-            float d = dx * dx + dz * dz;
-            if (best < 0 || d < bestSq) {
                 best = nodes[i];
                 bestSq = d;
             }

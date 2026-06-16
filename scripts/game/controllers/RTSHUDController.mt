@@ -15,6 +15,7 @@ import * from "../../lib/engine/RenderTextureUpdateMode.mt";
 import * from "../../lib/engine/IUIButtonListener.mt";
 import * from "../data/GameState.mt";
 import * from "../data/BuildingInfo.mt";
+import * from "../data/UnitInfo.mt";
 import * from "./SelectionController.mt";
 
 @Script
@@ -130,7 +131,18 @@ class RTSHUDController implements IUIButtonListener {
         }
 
         if (info == null) {
-            this.clearSelectionPanel();
+            // No building selected: show the primary-selected unit's panel
+            // (icon + health) if there is one, else the empty panel. Units have
+            // no command card yet, so it stays hidden in either case (VK-1302).
+            UnitInfo? uinfo = null;
+            if (sel != null) {
+                uinfo = sel.getSelectedUnitInfo();
+            }
+            if (uinfo == null) {
+                this.clearSelectionPanel();
+            } else {
+                this.showUnitPanel(uinfo);
+            }
             if (this.lastShownId != -1) {
                 this.hideCommandCard();
                 this.lastShownId = -1;
@@ -320,6 +332,23 @@ class RTSHUDController implements IUIButtonListener {
         if (this.selectionStatusId >= 0) { UI::setLabelText(this.selectionStatusId, ""); }
         if (this.selectionHealthBarId >= 0) { UI::setProgressBarValue(this.selectionHealthBarId, 0.0); }
         if (this.selectionIconId >= 0) { Entity::setActive(this.selectionIconId, false); }
+    }
+
+    // Render the selected unit's portrait + health into the shared selection
+    // panel (same widgets buildings use). Health is full until a damage system
+    // lands (UnitInfo is a stub-then-replace data source). frac is hoisted to a
+    // local rather than passed inline (workaround for MYT-393).
+    private function showUnitPanel(UnitInfo info): void {
+        if (this.selectionNameId >= 0) { UI::setLabelText(this.selectionNameId, info.displayName); }
+        if (this.selectionStatusId >= 0) { UI::setLabelText(this.selectionStatusId, "Unit"); }
+        if (this.selectionHealthBarId >= 0) {
+            float frac = info.healthFraction();
+            UI::setProgressBarValue(this.selectionHealthBarId, frac);
+        }
+        if (this.selectionIconId >= 0) {
+            Entity::setActive(this.selectionIconId, true);
+            if (info.iconPath != "") { UI::setImageTexture(this.selectionIconId, info.iconPath); }
+        }
     }
 
     private function statusFor(BuildingInfo info): string {

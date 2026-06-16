@@ -44,8 +44,10 @@ import * from "../../lib/math/Vec3f.mt";
 import * from "./RTSHUDController.mt";
 import * from "./SelectionController.mt";
 import * from "./BuildingPlacementController.mt";
+import * from "./UnitSelectionController.mt";
 import * from "../data/BuildingInfo.mt";
 import * from "../data/UnitDef.mt";
+import * from "../data/UnitInfo.mt";
 import * from "../data/QueueItem.mt";
 import * from "../data/Harvester.mt";
 import * from "../util/Config.mt";
@@ -150,10 +152,10 @@ class BuildingCommandController implements IUIButtonListener {
     // Track entry (index 3) also serves as the default for unknown types.
     private function defineUnits(): void {
         this.unitDefs = new UnitDef[4];
-        this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/units/soldier.vfImage");
-        this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/units/engineer.vfImage");
-        this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/units/tank.vfImage");
-        this.unitDefs[3] = new UnitDef("Track", 30, 4.0, "assets/units/track/track_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage");
+        this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/units/soldier.vfImage", 60.0);
+        this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/units/engineer.vfImage", 50.0);
+        this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/units/tank.vfImage", 200.0);
+        this.unitDefs[3] = new UnitDef("Track", 30, 4.0, "assets/units/track/track_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage", 120.0);
     }
 
     // Look up a unit definition by type; falls back to the Track entry for
@@ -479,6 +481,16 @@ class BuildingCommandController implements IUIButtonListener {
         // so no collider body is needed. setSpeed applies the controller's speed
         // (and persists onto the agent component before crowd registration).
         Navmesh::setSpeed(id, this.unitSpeed);
+
+        // Register the unit's selection-panel info (icon + health) so the HUD can
+        // show it when the unit is selected. Routed through UnitSelectionController
+        // -> SelectionController (the HUD's single selection source); see UnitInfo.
+        UnitSelectionController? usel = this.unitSelection();
+        if (usel != null) {
+            UnitDef def = this.unitDef(type);
+            UnitInfo ui = new UnitInfo(def.unitType, def.icon, Config::TEAM_PLAYER, def.maxHealth);
+            usel.registerUnit(id, ui);
+        }
 
         // The Track is a harvester: it auto-loops the refinery <-> nearest gold
         // node and deposits gold each trip (the auto-loop owns its movement, so
@@ -848,5 +860,9 @@ class BuildingCommandController implements IUIButtonListener {
 
     private function placement(): BuildingPlacementController? {
         return Entity::getScript<BuildingPlacementController>(Entity::self(), "BuildingPlacementController");
+    }
+
+    private function unitSelection(): UnitSelectionController? {
+        return Entity::getScript<UnitSelectionController>(Entity::self(), "UnitSelectionController");
     }
 }

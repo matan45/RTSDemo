@@ -37,6 +37,7 @@ import * from "../../lib/core/primitives/Int.mt";
 import * from "../../lib/math/Vec3f.mt";
 import * from "./SelectionController.mt";
 import * from "./BuildingPlacementController.mt";
+import * from "../data/UnitInfo.mt";
 import * from "../util/Config.mt";
 import * from "../util/Util.mt";
 import * from "../util/DragState.mt";
@@ -58,6 +59,12 @@ class UnitSelectionController {
     // Rings are created on select and destroyed on deselect, so no entities
     // linger in the hierarchy while nothing is selected.
     private HashMap<Int, Int> selectedRings;
+
+    // Selection-panel info per spawned unit (entity id -> UnitInfo), filled by
+    // BuildingCommandController.registerUnit when it spawns a unit. The primary
+    // selected unit's UnitInfo is pushed to SelectionController each frame so the
+    // HUD can show its icon + health (VK-1302).
+    private HashMap<Int, UnitInfo?> unitInfo;
 
     // Scene-authored drag box UIImage ("RTS_DragBox"), -1 if absent.
     private int dragBoxId;
@@ -89,6 +96,7 @@ class UnitSelectionController {
         this.leftEdge = new InputEdge();
         this.escEdge = new InputEdge();
         this.selectedRings = new HashMap<Int, Int>();
+        this.unitInfo = new HashMap<Int, UnitInfo>();
 
         this.dragBoxId = Entity::findByName("RTS_DragBox");
         if (this.dragBoxId < 0) {
@@ -119,6 +127,7 @@ class UnitSelectionController {
 
         this.updateDrag();
         this.updateRings();
+        this.pushSelectionToHud();
     }
 
     public function onDestroy(): void {
@@ -151,6 +160,17 @@ class UnitSelectionController {
         for (int i = 0; i < keys.length; i = i + 1) {
             this.removeUnit(keys[i].getValue());
         }
+    }
+
+    // Register a spawned unit's selection-panel info (icon + health), called by
+    // BuildingCommandController when it spawns the unit. Kept for the unit's
+    // lifetime (dropped in updateRings once the entity is gone), independent of
+    // whether the unit is currently selected.
+    public function registerUnit(int id, UnitInfo info): void {
+        if (id < 0 || info == null) {
+            return;
+        }
+        this.unitInfo.put(new Int(id), info);
     }
 
     // ---- drag state machine ----
@@ -382,6 +402,8 @@ class UnitSelectionController {
         for (int i = 0; i < keys.length; i = i + 1) {
             int unitId = keys[i].getValue();
             if (!Entity::isValid(unitId)) {
+                // Unit was destroyed: drop its selection ring and its panel info.
+                this.unitInfo.remove(new Int(unitId));
                 this.removeUnit(unitId);
             } else {
                 Int ring = this.selectedRings.get(keys[i]);
@@ -430,6 +452,30 @@ class UnitSelectionController {
 
     private function selection(): SelectionController {
         return Entity::getScript<SelectionController>(Entity::self(), "SelectionController");
+    }
+
+    // Push the primary-selected unit's panel info (or null) into SelectionController
+    // each frame, so the HUD can read the selected unit's icon + health from the
+    // same source it already reads buildings from (avoids the HUD importing this
+    // controller, which would form a circular import via BuildingPlacementController).
+    private function pushSelectionToHud(): void {
+        SelectionController sel = this.selection();
+        if (sel == null) {
+            return;
+        }
+        UnitInfo? info = this.primarySelectedInfo();
+        sel.setSelectedUnit(info);
+    }
+
+    // Info for the primary selected unit (the first in the selection), or null
+    // when nothing is selected / the selected unit has no registered info.
+    private function primarySelectedInfo(): UnitInfo? {
+        Int[] keys = this.selectedRings.getKeys();
+        if (keys.length == 0) {
+            return null;
+        }
+        int id = keys[0].getValue();
+        return this.unitInfo.get(new Int(id));
     }
 
     private function placementActive(): bool {

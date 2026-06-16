@@ -6,8 +6,6 @@
 
 class GameState {
     public int gold;
-    private float goldAccumulator;
-    private float goldPerSecond;
 
     // Net power: power plants produce (+), other buildings consume (-).
     // Driven by BuildingPlacementController as buildings are placed; display
@@ -33,8 +31,6 @@ class GameState {
 
     constructor() {
         this.gold = 100;
-        this.goldAccumulator = 0.0;
-        this.goldPerSecond = 5.0;
 
         this.power = 0;
 
@@ -66,11 +62,8 @@ class GameState {
     public function update(float deltaTime): void {
         this.now = this.now + deltaTime;
 
-        this.goldAccumulator = this.goldAccumulator + this.goldPerSecond * deltaTime;
-        while (this.goldAccumulator >= 1.0) {
-            this.gold = this.gold + 1;
-            this.goldAccumulator = this.goldAccumulator - 1.0;
-        }
+        // Gold now comes only from harvesters depositing at the refinery
+        // (BuildingCommandController), not a passive per-second tick.
 
         this.statusTimer = this.statusTimer + deltaTime;
         if (this.statusTimer >= this.statusPeriod) {

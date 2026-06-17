@@ -31,6 +31,7 @@ import * from "../../lib/math/Vec3f.mt";
 import * from "./RTSCameraController.mt";
 import * from "../util/Config.mt";
 import * from "../util/InputEdge.mt";
+import * from "../util/RTSFog.mt";
 
 @Script
 class MinimapController {
@@ -63,12 +64,33 @@ class MinimapController {
     // the rectangle matched to the readable foreground instead of the horizon.
     private float viewDistanceFactor = 4.0;
 
+    // --- Minimap entity blips (units + buildings) ---------------------------
+    // A script-managed pool of small colored UIImage dots, one per Team-tagged
+    // entity. Player = green, enemy = red; enemy dots are hidden outside current
+    // vision (fog of war). Rebuilt at a low rate (blips drift slowly at minimap
+    // scale). Each dot is positioned individually in viewport pixels against the
+    // canvas (this engine's screen-space UI is flat) via the SAME worldFraction
+    // math as the view-rect and click-jump, so all three share one coordinate
+    // convention. A UIListView is deliberately NOT used: its forced UILayoutGroup
+    // overwrites every item's anchoredPosition each frame, which would clobber the
+    // per-dot placement. Surplus dots are deactivated (pooled), never destroyed.
+    private int blipContainerId;        // transparent grouping node under the canvas
+    private int[] blipPool;             // dot entity ids; -1 = slot not yet spawned
+    private int blipPoolCount;          // dots actually instantiated so far (<= blipMax)
+    private int blipMax = 256;          // hard cap on simultaneous dots
+    private float blipTimer;
+    private float blipInterval = 0.1;   // seconds between rebuilds (~10 Hz)
+    private float blipSize = 8.0;       // dot size in viewport pixels
+
     constructor() {
         this.minimapViewId = -1;
         this.viewRectId = -1;
         this.cameraId = -1;
         this.cameraCtrl = null;
         this.draggingFromMinimap = false;
+        this.blipContainerId = -1;
+        this.blipPoolCount = 0;
+        this.blipTimer = 0.0;
     }
 
     public function onStart(): void {
@@ -91,7 +113,62 @@ class MinimapController {
             Log::warn("[Minimap] camera entity not found; click-jump disabled.");
         }
 
+        this.setupBlips();
+
         Log::info("[Minimap] ready.");
+    }
+
+    // Find-or-create the transparent blip container under RTS_HUD_Canvas, then
+    // adopt any dots left over from a previous play session as the pool (so a
+    // replay reuses them instead of spawning duplicates). Mirrors the idempotent
+    // setupQueueUI pattern in BuildingCommandController.
+    private function setupBlips(): void {
+        this.blipPool = new int[this.blipMax];
+        for (int i = 0; i < this.blipMax; i = i + 1) {
+            this.blipPool[i] = -1;
+        }
+        this.blipPoolCount = 0;
+
+        this.blipContainerId = Entity::findByName("RTS_HUD_MinimapBlips");
+        if (this.blipContainerId < 0) {
+            int canvasId = Entity::findByName("RTS_HUD_Canvas");
+            if (canvasId < 0) {
+                Log::warn("[Minimap] RTS_HUD_Canvas missing; unit blips disabled.");
+                return;
+            }
+            this.blipContainerId = Entity::instantiateChild("assets/ui/prefabs/minimap_blips_prefab.vfPrefab", canvasId);
+        }
+        if (this.blipContainerId < 0) {
+            Log::warn("[Minimap] Failed to spawn minimap blips container.");
+            return;
+        }
+
+        int[] existing = Entity::getChildren(this.blipContainerId);
+        int adopt = existing.length;
+        if (adopt > this.blipMax) {
+            adopt = this.blipMax;
+        }
+        for (int i = 0; i < adopt; i = i + 1) {
+            this.blipPool[i] = existing[i];
+            Entity::setActive(existing[i], false);
+        }
+        this.blipPoolCount = adopt;
+    }
+
+    // Return the dot entity for pool slot `index`, lazily spawning it on first
+    // use (updateBlips always requests slots in order, so there are no gaps).
+    // Returns -1 past the cap.
+    private function ensureBlip(int index): int {
+        if (index < 0 || index >= this.blipMax) {
+            return -1;
+        }
+        if (this.blipPool[index] < 0) {
+            this.blipPool[index] = Entity::instantiateChild("assets/ui/prefabs/minimap_blip_prefab.vfPrefab", this.blipContainerId);
+            if (index + 1 > this.blipPoolCount) {
+                this.blipPoolCount = index + 1;
+            }
+        }
+        return this.blipPool[index];
     }
 
     public function onUpdate(float deltaTime): void {
@@ -107,6 +184,13 @@ class MinimapController {
 
         this.handleInput(rect);
         this.updateViewRect();
+
+        // Rebuild the entity blip layer at a low rate (cheap at minimap scale).
+        this.blipTimer = this.blipTimer + deltaTime;
+        if (this.blipTimer >= this.blipInterval) {
+            this.blipTimer = 0.0;
+            this.updateBlips(rect);
+        }
     }
 
     public function onDestroy(): void {
@@ -300,6 +384,70 @@ class MinimapController {
         Entity::setActive(this.viewRectId, true);
         UI::setRectData(this.viewRectId, anchorX, anchorY, anchorX, anchorY,
             0.0, 0.0, rectSizeX, rectSizeY, rectAnchoredX, rectAnchoredY);
+    }
+
+    // ============================================
+    // Entity blips (units + buildings)
+    // ============================================
+
+    // One colored dot per Team-tagged entity. Enemy dots are hidden outside
+    // current player vision (RTSFog); off-map entities are dropped. Each surviving
+    // dot is placed in the same minimap-image pixel rect as click-jump (rect =
+    // [valid, x, y, w, h]) via the shared worldFraction math. `k` active dots are
+    // positioned from the pool; the rest are deactivated. Entities past the
+    // `blipMax` cap are silently dropped (256 is generous for this demo).
+    private function updateBlips(float[] rect): void {
+        if (this.blipContainerId < 0) {
+            return;
+        }
+
+        int[] ids = PluginComponent::findAll("Team");
+        int n = ids.length;
+        float h = this.blipSize * 0.5;
+        int k = 0;
+
+        for (int i = 0; i < n; i = i + 1) {
+            if (k >= this.blipMax) {
+                continue;   // hit the dot cap; ignore the remaining entities
+            }
+            int id = ids[i];
+            int team = PluginComponent::getInt(id, "Team", "teamId");
+            bool player = (team == Config::TEAM_PLAYER);
+
+            Vec3f pos = Entity::getPosition(id);
+            if (!player && !RTSFog::isVisible(pos.x, pos.z)) {
+                continue;   // enemy outside current vision
+            }
+
+            float fx = this.worldFractionX(pos.x);
+            float fz = this.worldFractionZ(pos.z);
+            if (fx < 0.0 || fx > 1.0 || fz < 0.0 || fz > 1.0) {
+                continue;   // off the minimap footprint
+            }
+
+            int blip = this.ensureBlip(k);
+            if (blip < 0) {
+                continue;
+            }
+            float bx = rect[1] + fx * rect[3];
+            float by = rect[2] + fz * rect[4];
+            Entity::setActive(blip, true);
+            UI::setRectPixels(blip, bx - h, by - h, this.blipSize, this.blipSize);
+            if (player) {
+                UI::setImageColor(blip, 0.25, 1.0, 0.4, 1.0);
+            } else {
+                UI::setImageColor(blip, 1.0, 0.3, 0.25, 1.0);
+            }
+            k = k + 1;
+        }
+
+        // Deactivate dots left over from a previously busier frame.
+        for (int j = k; j < this.blipPoolCount; j = j + 1) {
+            int extra = this.blipPool[j];
+            if (extra >= 0) {
+                Entity::setActive(extra, false);
+            }
+        }
     }
 
     // ============================================

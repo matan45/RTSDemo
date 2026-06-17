@@ -76,11 +76,18 @@ class MinimapController {
     // per-dot placement. Surplus dots are deactivated (pooled), never destroyed.
     private int blipContainerId;        // transparent grouping node under the canvas
     private int[] blipPool;             // dot entity ids; -1 = slot not yet spawned
+    private int[] blipKind;             // per-slot shape: 0 = unset, 1 = unit (circle), 2 = building (square)
     private int blipPoolCount;          // dots actually instantiated so far (<= blipMax)
     private int blipMax = 256;          // hard cap on simultaneous dots
     private float blipTimer;
     private float blipInterval = 0.1;   // seconds between rebuilds (~10 Hz)
     private float blipSize = 8.0;       // dot size in viewport pixels
+
+    // Units (entities with a NavmeshAgent) are drawn as circles via this texture;
+    // buildings stay as solid square quads (empty texture). Import the bundled
+    // assets/ui/hud/minimap_circle.png to this .vfImage path; until it resolves,
+    // the engine falls back to a tinted square (AssetRef.resolve -> "" -> white).
+    private string unitBlipTexture = "assets/ui/hud/minimap_circle.vfImage";
 
     constructor() {
         this.minimapViewId = -1;
@@ -124,8 +131,10 @@ class MinimapController {
     // setupQueueUI pattern in BuildingCommandController.
     private function setupBlips(): void {
         this.blipPool = new int[this.blipMax];
+        this.blipKind = new int[this.blipMax];
         for (int i = 0; i < this.blipMax; i = i + 1) {
             this.blipPool[i] = -1;
+            this.blipKind[i] = 0;
         }
         this.blipPoolCount = 0;
 
@@ -390,12 +399,14 @@ class MinimapController {
     // Entity blips (units + buildings)
     // ============================================
 
-    // One colored dot per Team-tagged entity. Enemy dots are hidden outside
-    // current player vision (RTSFog); off-map entities are dropped. Each surviving
-    // dot is placed in the same minimap-image pixel rect as click-jump (rect =
-    // [valid, x, y, w, h]) via the shared worldFraction math. `k` active dots are
-    // positioned from the pool; the rest are deactivated. Entities past the
-    // `blipMax` cap are silently dropped (256 is generous for this demo).
+    // One blip per Team-tagged entity: units (navmesh agents) draw as colored
+    // circles, buildings as colored squares; player vs enemy is hue-coded within
+    // each. Enemy blips are hidden outside current player vision (RTSFog); off-map
+    // entities are dropped. Each surviving blip is placed in the same minimap-image
+    // pixel rect as click-jump (rect = [valid, x, y, w, h]) via the shared
+    // worldFraction math. `k` active blips are positioned from the pool; the rest
+    // are deactivated. Entities past the `blipMax` cap are silently dropped (256 is
+    // generous for this demo).
     private function updateBlips(float[] rect): void {
         if (this.blipContainerId < 0) {
             return;
@@ -433,10 +444,37 @@ class MinimapController {
             float by = rect[2] + fz * rect[4];
             Entity::setActive(blip, true);
             UI::setRectPixels(blip, bx - h, by - h, this.blipSize, this.blipSize);
-            if (player) {
-                UI::setImageColor(blip, 0.25, 1.0, 0.4, 1.0);
+
+            // Shape: units (navmesh agents) draw as circles, buildings as squares.
+            // Swap the texture only when this pooled slot changes kind (avoids
+            // churning the texture ref every frame).
+            bool isUnit = Entity::hasComponent(id, "NavmeshAgent");
+            int kind = 2;
+            if (isUnit) {
+                kind = 1;
+            }
+            if (this.blipKind[k] != kind) {
+                if (isUnit) {
+                    UI::setImageTexture(blip, this.unitBlipTexture);
+                } else {
+                    UI::setImageTexture(blip, "");
+                }
+                this.blipKind[k] = kind;
+            }
+
+            // Color: units a distinct hue from buildings, each still friend/foe coded.
+            if (isUnit) {
+                if (player) {
+                    UI::setImageColor(blip, 0.2, 0.9, 1.0, 1.0);    // player unit: cyan
+                } else {
+                    UI::setImageColor(blip, 1.0, 0.55, 0.1, 1.0);   // enemy unit: orange
+                }
             } else {
-                UI::setImageColor(blip, 1.0, 0.3, 0.25, 1.0);
+                if (player) {
+                    UI::setImageColor(blip, 0.25, 1.0, 0.4, 1.0);   // player building: green
+                } else {
+                    UI::setImageColor(blip, 1.0, 0.3, 0.25, 1.0);   // enemy building: red
+                }
             }
             k = k + 1;
         }

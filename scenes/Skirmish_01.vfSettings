@@ -191,8 +191,8 @@
       "meshletFrustumCullingEnabled": true,
       "meshletOcclusionCullingEnabled": true,
       "occlusionCullingEnabled": true,
-      "terrainFrustumCullingEnabled": true,
-      "terrainMeshletCullingEnabled": true
+      "terrainFrustumCullingEnabled": false,
+      "terrainMeshletCullingEnabled": false
     },
     "display": {
       "msaa": 1,
@@ -349,8 +349,10 @@
       },
       "upscale": {
         "enabled": false,
+        "forceTraditionalDenoiser": false,
         "mode": 1,
-        "quality": 1
+        "quality": 1,
+        "rayReconstruction": false
       },
       "vignette": {
         "enabled": false,
@@ -402,11 +404,12 @@
       "temporalBlend": 0.8999999761581421
     },
     "shadows": {
-      "clipmapBaseExtent": 200.0,
-      "clipmapDepthRange": 1000.0,
-      "clipmapLevelCount": 4,
-      "enabled": false,
+      "clipmapBaseExtent": 100.0,
+      "clipmapDepthRange": 400.0,
+      "clipmapLevelCount": 5,
+      "enabled": true,
       "normalBias": 0.019999999552965164,
+      "perViewCulling": true,
       "pointResolution": 512,
       "quality": "medium",
       "shadowBias": 0.004999999888241291,

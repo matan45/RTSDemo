@@ -409,7 +409,6 @@
       "clipmapLevelCount": 5,
       "enabled": true,
       "normalBias": 0.019999999552965164,
-      "perViewCulling": false,
       "pointResolution": 512,
       "quality": "medium",
       "shadowBias": 0.004999999888241291,

@@ -733,7 +733,16 @@ class BuildingCommandController implements IUIButtonListener {
         if (this.queueHudId < 0) {
             return;
         }
-        if (this.queueCount <= 0) {
+        // Contextual like the command card / rally markers: the queue strip belongs
+        // to the selected building. Hide it when the queue is empty, nothing is
+        // selected, or the selection owns no queued production. Production itself
+        // keeps ticking in tickQueue() regardless of what's selected.
+        int selectedId = -1;
+        SelectionController? sel = this.selection();
+        if (sel != null) {
+            selectedId = sel.getSelectedId();
+        }
+        if (this.queueCount <= 0 || selectedId < 0 || !this.queueHasBuilding(selectedId)) {
             this.hideQueueUI();
             return;
         }
@@ -797,6 +806,14 @@ class BuildingCommandController implements IUIButtonListener {
     private function hideQueueUI(): void {
         if (this.queueHudId >= 0) { Entity::setActive(this.queueHudId, false); }
         if (this.queueListId >= 0) { UI::setListItemCount(this.queueListId, 0); }
+    }
+
+    // True if any queued item is being produced by the given building.
+    private function queueHasBuilding(int id): bool {
+        for (int i = 0; i < this.queueCount; i = i + 1) {
+            if (this.queue[i].buildingId == id) { return true; }
+        }
+        return false;
     }
 
     // ---- script resolution ----

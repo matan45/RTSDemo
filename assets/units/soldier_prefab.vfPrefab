@@ -5,6 +5,11 @@
         {
           "children": [],
           "components": {
+            "material": {
+              "defaultMaterialRef": "0000000000000000",
+              "parameterOverrides": {},
+              "subMeshMaterials": {}
+            },
             "mesh": {
               "meshRef": "6bf65397bdc3b6d4",
               "meshRefPath": "C:/matan/RTSDemo/assets/units/soldier/ak-47A.vfMesh",
@@ -27,9 +32,9 @@
               0.0
             ],
             "scale": [
-              1.0,
-              1.0,
-              1.0
+              10.0,
+              10.0,
+              10.0
             ]
           }
         }
@@ -38,22 +43,28 @@
         "collider": {
           "collisionLayer": 1,
           "friction": 0.5,
-          "height": 1.8,
+          "height": 1.7999999523162842,
           "isTrigger": false,
           "meshRef": "0000000000000000",
           "offset": [
             0.0,
-            0.9,
+            0.8999999761581421,
             0.0
           ],
           "restitution": 0.0,
           "shape": "capsule",
           "size": [
-            0.4,
-            0.4,
-            0.4
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
           ],
           "submeshIndex": -1
+        },
+        "material": {
+          "defaultMaterialRef": "cf1412f3d6be7139",
+          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/units/soldier/soldier_inst.vfMatInstance",
+          "parameterOverrides": {},
+          "subMeshMaterials": {}
         },
         "mesh": {
           "animatorRef": "967faddae85bde89",
@@ -68,19 +79,10 @@
           "height": 2.0,
           "maxAcceleration": 12.0,
           "maxSpeed": 6.0,
-          "radius": 0.6,
+          "radius": 0.6000000238418579,
           "separationWeight": 2.0,
-          "stoppingDistance": 0.3,
+          "stoppingDistance": 0.30000001192092896,
           "useCustomCosts": false
-        },
-        "script": {
-          "scripts": [
-            {
-              "enabled": true,
-              "scriptRef": "9a3f1c0d5e7b2604",
-              "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/SoldierCombatController.mt"
-            }
-          ]
         }
       },
       "isActive": true,
@@ -88,9 +90,9 @@
       "transform": {
         "isStatic": false,
         "position": [
-          0.0,
-          0.0,
-          0.0
+          0.8015122413635254,
+          1.1920928955078125e-07,
+          11.872824668884277
         ],
         "rotation": [
           0.0,
@@ -98,13 +100,13 @@
           0.0
         ],
         "scale": [
-          1.0,
-          1.0,
-          1.0
+          0.009999999776482582,
+          0.009999999776482582,
+          0.009999999776482582
         ]
       }
     },
-    "name": "soldier"
+    "name": "Soldier"
   },
   "version": "1.0"
 }

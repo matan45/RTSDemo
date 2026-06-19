@@ -81,7 +81,7 @@ class MinimapController {
     private int blipMax = 256;          // hard cap on simultaneous dots
     private float blipTimer;
     private float blipInterval = 0.1;   // seconds between rebuilds (~10 Hz)
-    private float blipSize = 8.0;       // dot size in viewport pixels
+    private float blipSize = 5.0;       // dot size in canvas units (scales with HUD)
 
     // Units (entities with a NavmeshAgent) are drawn as circles via this texture;
     // buildings stay as solid square quads (empty texture). Import the bundled
@@ -198,7 +198,7 @@ class MinimapController {
         this.blipTimer = this.blipTimer + deltaTime;
         if (this.blipTimer >= this.blipInterval) {
             this.blipTimer = 0.0;
-            this.updateBlips(rect);
+            this.updateBlips();
         }
     }
 
@@ -402,19 +402,35 @@ class MinimapController {
     // One blip per Team-tagged entity: units (navmesh agents) draw as colored
     // circles, buildings as colored squares; player vs enemy is hue-coded within
     // each. Enemy blips are hidden outside current player vision (RTSFog); off-map
-    // entities are dropped. Each surviving blip is placed in the same minimap-image
-    // pixel rect as click-jump (rect = [valid, x, y, w, h]) via the shared
-    // worldFraction math. `k` active blips are positioned from the pool; the rest
-    // are deactivated. Entities past the `blipMax` cap are silently dropped (256 is
-    // generous for this demo).
-    private function updateBlips(float[] rect): void {
+    // entities are dropped. Each surviving blip is placed in the minimap image's
+    // OWN canvas-unit basis (UI::getRectData/setRectData) via the shared
+    // worldFraction math -- the SAME extent-invariant approach as the view-rect
+    // (updateViewRect). The old getRectPixels/setRectPixels path drifted in editor
+    // play mode (play-panel extent vs framebuffer extent); see the VK minimap drift
+    // fix. `k` active blips are positioned from the pool; the rest are deactivated.
+    // Entities past the `blipMax` cap are silently dropped (256 is generous here).
+    private function updateBlips(): void {
         if (this.blipContainerId < 0) {
             return;
         }
 
+        // Minimap image authored fields in canvas units (extent-independent):
+        // [valid, anchorMinX,Y, anchorMaxX,Y, pivotX,Y, sizeDeltaX,Y, anchoredX,Y].
+        float[] img = UI::getRectData(this.minimapViewId);
+        if (img[0] < 0.5) {
+            return;
+        }
+        float amx = img[1];
+        float amy = img[2];
+        float pvx = img[5];
+        float pvy = img[6];
+        float sx = img[7];
+        float sy = img[8];
+        float apx = img[9];
+        float apy = img[10];
+
         int[] ids = PluginComponent::findAll("Team");
         int n = ids.length;
-        float h = this.blipSize * 0.5;
         int k = 0;
 
         for (int i = 0; i < n; i = i + 1) {
@@ -440,10 +456,14 @@ class MinimapController {
             if (blip < 0) {
                 continue;
             }
-            float bx = rect[1] + fx * rect[3];
-            float by = rect[2] + fz * rect[4];
+            // Center the dot at image fraction (fx, fz) in the image's own
+            // canvas-unit anchor basis -- same math as the view-rect, but with a
+            // centered pivot instead of top-left. scale cancels => extent-invariant.
+            float bax = apx - pvx * sx + fx * sx;
+            float bay = apy + pvy * sy - fz * sy;
             Entity::setActive(blip, true);
-            UI::setRectPixels(blip, bx - h, by - h, this.blipSize, this.blipSize);
+            UI::setRectData(blip, amx, amy, amx, amy, 0.5, 0.5,
+                this.blipSize, this.blipSize, bax, bay);
 
             // Shape: units (navmesh agents) draw as circles, buildings as squares.
             // Swap the texture only when this pooled slot changes kind (avoids

@@ -69,6 +69,7 @@
         "mesh": {
           "animatorRef": "967faddae85bde89",
           "animatorRefPath": "C:/matan/RTSDemo/assets/units/soldier/soldier.vfAnimator",
+          "applyRootMotion": true,
           "meshRef": "7f652a997aa972f7",
           "meshRefPath": "C:/matan/RTSDemo/assets/units/soldier/Firing Rifle.vfMesh",
           "showBoundingBox": false,

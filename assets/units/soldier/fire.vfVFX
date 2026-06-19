@@ -1,0 +1,280 @@
+{
+    "graph": {
+        "links": [
+            {
+                "id": 1,
+                "sourceNode": 1,
+                "sourcePin": "Output",
+                "targetNode": 2,
+                "targetPin": "Input"
+            }
+        ],
+        "nodes": [
+            {
+                "id": 1,
+                "name": "Emitter",
+                "position": [
+                    100.0,
+                    200.0
+                ],
+                "properties": {
+                    "additiveBlend": {
+                        "type": "Bool",
+                        "value": false
+                    },
+                    "alphaClipThreshold": {
+                        "max": 1.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.10000000149011612
+                    },
+                    "ambientAmount": {
+                        "max": 1.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.30000001192092896
+                    },
+                    "collisionBounce": {
+                        "max": 1.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.5
+                    },
+                    "collisionEnabled": {
+                        "type": "Bool",
+                        "value": false
+                    },
+                    "collisionFriction": {
+                        "max": 1.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.10000000149011612
+                    },
+                    "collisionLifetimeLoss": {
+                        "max": 1.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.0
+                    },
+                    "distortionEnabled": {
+                        "type": "Bool",
+                        "value": false
+                    },
+                    "distortionStrength": {
+                        "max": 2.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.10000000149011612
+                    },
+                    "distortionTexture": {
+                        "type": "String",
+                        "value": ""
+                    },
+                    "eventLifetimeThreshold": {
+                        "max": 1.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.5
+                    },
+                    "eventOnCollisionEnabled": {
+                        "type": "Bool",
+                        "value": false
+                    },
+                    "eventOnCollisionVFX": {
+                        "type": "String",
+                        "value": ""
+                    },
+                    "eventOnDeathEnabled": {
+                        "type": "Bool",
+                        "value": false
+                    },
+                    "eventOnDeathVFX": {
+                        "type": "String",
+                        "value": ""
+                    },
+                    "eventOnLifetimeThresholdEnabled": {
+                        "type": "Bool",
+                        "value": false
+                    },
+                    "eventOnLifetimeThresholdVFX": {
+                        "type": "String",
+                        "value": ""
+                    },
+                    "eventOnSpawnEnabled": {
+                        "type": "Bool",
+                        "value": false
+                    },
+                    "eventOnSpawnVFX": {
+                        "type": "String",
+                        "value": ""
+                    },
+                    "flipbookColumns": {
+                        "max": 16.0,
+                        "min": 1.0,
+                        "type": "Int",
+                        "value": 1
+                    },
+                    "flipbookFrameRate": {
+                        "max": 120.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.0
+                    },
+                    "flipbookRandomStart": {
+                        "type": "Bool",
+                        "value": false
+                    },
+                    "flipbookRows": {
+                        "max": 16.0,
+                        "min": 1.0,
+                        "type": "Int",
+                        "value": 1
+                    },
+                    "inheritVelocityRatio": {
+                        "max": 1.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.0
+                    },
+                    "lifetime": {
+                        "max": 60.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 2.0
+                    },
+                    "lightEmissionEnabled": {
+                        "type": "Bool",
+                        "value": false
+                    },
+                    "lightEmissionIntensity": {
+                        "max": 100.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 5.0
+                    },
+                    "lightEmissionRadius": {
+                        "max": 100.0,
+                        "min": 0.10000000149011612,
+                        "type": "Float",
+                        "value": 10.0
+                    },
+                    "lightingInfluence": {
+                        "max": 1.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.0
+                    },
+                    "looping": {
+                        "type": "Bool",
+                        "value": true
+                    },
+                    "maxTrailPoints": {
+                        "max": 256.0,
+                        "min": 2.0,
+                        "type": "Int",
+                        "value": 64
+                    },
+                    "meshPath": {
+                        "type": "String",
+                        "value": ""
+                    },
+                    "normalMode": {
+                        "max": 2.0,
+                        "min": 0.0,
+                        "type": "Int",
+                        "value": 0
+                    },
+                    "renderMode": {
+                        "max": 4.0,
+                        "min": 0.0,
+                        "type": "Int",
+                        "value": 0
+                    },
+                    "ribbonMinDistance": {
+                        "max": 5.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.10000000149011612
+                    },
+                    "ribbonWidth": {
+                        "max": 10.0,
+                        "min": 0.009999999776482582,
+                        "type": "Float",
+                        "value": 1.0
+                    },
+                    "softParticleDistance": {
+                        "max": 50.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 0.0
+                    },
+                    "spawnRate": {
+                        "max": 1000.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 10.0
+                    },
+                    "startColor": {
+                        "type": "Color",
+                        "value": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    },
+                    "startSize": {
+                        "max": 100.0,
+                        "min": 0.0,
+                        "type": "Float",
+                        "value": 1.0
+                    },
+                    "startVelocity": {
+                        "type": "Vec3",
+                        "value": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    "stretchMultiplier": {
+                        "max": 10.0,
+                        "min": 0.10000000149011612,
+                        "type": "Float",
+                        "value": 1.0
+                    },
+                    "texture": {
+                        "type": "String",
+                        "value": ""
+                    },
+                    "uvScrollSpeedU": {
+                        "max": 10.0,
+                        "min": -10.0,
+                        "type": "Float",
+                        "value": 0.0
+                    },
+                    "uvScrollSpeedV": {
+                        "max": 10.0,
+                        "min": -10.0,
+                        "type": "Float",
+                        "value": 0.0
+                    }
+                },
+                "type": "Emitter"
+            },
+            {
+                "id": 2,
+                "name": "Output",
+                "position": [
+                    400.0,
+                    200.0
+                ],
+                "properties": {},
+                "type": "OutSystem"
+            }
+        ]
+    },
+    "name": "fire",
+    "uuid": "15089374360887256721",
+    "version": "1.0"
+}

@@ -32,6 +32,7 @@ import * from "../../lib/engine/Mouse.mt";
 import * from "../../lib/engine/UI.mt";
 import * from "../../lib/engine/Picker.mt";
 import * from "../../lib/engine/RaycastHit.mt";
+import * from "../../lib/engine/ScreenPoint.mt";
 import * from "../../lib/engine/Terrain.mt";
 import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/Decal.mt";
@@ -45,6 +46,7 @@ import * from "./RTSHUDController.mt";
 import * from "./SelectionController.mt";
 import * from "./BuildingPlacementController.mt";
 import * from "./UnitSelectionController.mt";
+import * from "./SoldierCombatController.mt";
 import * from "../data/BuildingInfo.mt";
 import * from "../data/UnitDef.mt";
 import * from "../data/UnitInfo.mt";
@@ -103,6 +105,8 @@ class BuildingCommandController implements IUIButtonListener {
     private int sellRefundPct;
     private int upgradeCostPct;
     private int harvestDeposit;
+    // Screen-space pixel radius for right-click enemy targeting (pickEnemy).
+    private float attackPickRadius;
 
     constructor() {
         this.hudControllerId = -1;
@@ -123,6 +127,7 @@ class BuildingCommandController implements IUIButtonListener {
         this.sellRefundPct = 70;
         this.upgradeCostPct = 60;
         this.harvestDeposit = 10;
+        this.attackPickRadius = 40.0;
     }
 
     public function onStart(): void {
@@ -542,6 +547,32 @@ class BuildingCommandController implements IUIButtonListener {
         }
         float mx = Input::getViewportMouseX();
         float my = Input::getViewportMouseY();
+
+        // Right-click on an enemy unit/building is an ATTACK order for soldiers:
+        // each selected SoldierCombatController locks onto the target (chase +
+        // stop-and-fire). Non-combat units fall back to moving to the target's
+        // position. pickEnemy mirrors UnitSelectionController.pickUnit (physics
+        // pick first, then screen-space proximity) since units carry no runtime
+        // collider; a miss falls through to the ground-move path below.
+        int target = this.pickEnemy(mx, my);
+        if (target >= 0) {
+            int[] selUnits = PluginComponent::findAll("Selected");
+            for (int i = 0; i < selUnits.length; i = i + 1) {
+                int uid = selUnits[i];
+                if (!Entity::isValid(uid)) {
+                    continue;
+                }
+                SoldierCombatController? sc =
+                    Entity::getScript<SoldierCombatController>(uid, "SoldierCombatController");
+                if (sc != null) {
+                    sc.setTarget(target);
+                } else {
+                    Navmesh::moveTo(uid, Entity::getPosition(target));
+                }
+            }
+            return;
+        }
+
         RaycastHit hit = Picker::pickTerrainPhysics(mx, my);
         if (!hit.hit) {
             return;
@@ -563,6 +594,13 @@ class BuildingCommandController implements IUIButtonListener {
             if (!Entity::isValid(uid)) {
                 continue;
             }
+            // A ground move cancels any standing attack order on a soldier so it
+            // reverts to move/idle (no-op for non-soldier units).
+            SoldierCombatController? scc =
+                Entity::getScript<SoldierCombatController>(uid, "SoldierCombatController");
+            if (scc != null) {
+                scc.setTarget(-1);
+            }
             Harvester? harv = this.harvesterFor(uid);
             if (harv != null && goldNode >= 0) {
                 // Gather order: retarget the clicked gold node and (re)start the
@@ -580,6 +618,56 @@ class BuildingCommandController implements IUIButtonListener {
                 Navmesh::moveTo(uid, dest);
             }
         }
+    }
+
+    // True if the entity belongs to a non-player team (an attackable enemy).
+    // Entities without a Team plugin component (terrain, gold nodes) are not
+    // enemies, so a pick that lands on them falls through to a move.
+    private function isEnemy(int id): bool {
+        if (!Entity::isValid(id)) {
+            return false;
+        }
+        if (!PluginComponent::has(id, "Team")) {
+            return false;
+        }
+        return PluginComponent::getInt(id, "Team", "teamId") != Config::TEAM_PLAYER;
+    }
+
+    // Enemy unit/building under the cursor, or -1. Physics pick first (enemy
+    // buildings may have a static collider), then a screen-space proximity scan
+    // over every non-player Team entity (units carry no runtime collider, so a
+    // raw physics pick would miss them -- same hybrid as pickUnit).
+    private function pickEnemy(float mx, float my): int {
+        RaycastHit e = Picker::pickEntity(mx, my, "Dynamic,Static");
+        if (e.hit && this.isEnemy(e.entityId)) {
+            return e.entityId;
+        }
+
+        int best = -1;
+        float bestSq = this.attackPickRadius * this.attackPickRadius;
+        int[] ids = PluginComponent::findAll("Team");
+        for (int i = 0; i < ids.length; i = i + 1) {
+            int id = ids[i];
+            if (!Entity::isValid(id) || !Entity::isActive(id)) {
+                continue;
+            }
+            if (!this.isEnemy(id)) {
+                continue;
+            }
+            Vec3f p = Entity::getPosition(id);
+            ScreenPoint sp = Picker::worldToScreen(p.x, p.y, p.z);
+            if (!sp.visible) {
+                continue;
+            }
+            float dx = sp.x - mx;
+            float dy = sp.y - my;
+            float d = dx * dx + dy * dy;
+            if (d < bestSq) {
+                best = id;
+                bestSq = d;
+            }
+        }
+        return best;
     }
 
     // ---- harvesters (Track loop: refinery <-> commanded GoldNode) ----

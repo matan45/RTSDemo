@@ -1,0 +1,14 @@
+{
+    "name": "soldier Instance",
+    "parentMaterialRef": "42833b68c40311ea",
+    "parentMaterialRefPath": "C:/matan/RTSDemo/assets/units/soldier/soldier.vfMat",
+    "textureOverrides": {
+        "Albedo": "e1afd9d0b87b4719",
+        "AlbedoPath": "C:/matan/RTSDemo/assets/units/soldier/vanguard_diffuse1.vfImage",
+        "Normal": "45307c23b533430c",
+        "NormalPath": "C:/matan/RTSDemo/assets/units/soldier/vanguard_normal.vfImage"
+    },
+    "type": "MaterialInstance",
+    "uuid": "8023081378443970379",
+    "version": "1.1"
+}

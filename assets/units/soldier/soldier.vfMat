@@ -1,0 +1,22 @@
+{
+    "alphaCutoff": 0.5,
+    "blendMode": "opaque",
+    "graph": {
+        "links": [],
+        "nodes": [
+            {
+                "id": 1,
+                "name": "PBR Output",
+                "position": [
+                    300.0,
+                    200.0
+                ],
+                "type": "PBROutput"
+            }
+        ]
+    },
+    "name": "soldier",
+    "opacity": 1.0,
+    "uuid": "9120858355015206246",
+    "version": "1.1"
+}

@@ -39,7 +39,7 @@
                     {
                         "animationRef": "72c4aed9ccbe2d30",
                         "id": 2,
-                        "loop": true,
+                        "loop": false,
                         "name": "Run",
                         "playbackSpeed": 1.0,
                         "position": [

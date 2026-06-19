@@ -18,7 +18,7 @@
           "shape": "box",
           "size": [
             8.0,
-            5,
+            5.0,
             4.0
           ],
           "submeshIndex": -1
@@ -42,7 +42,7 @@
         "isStatic": false,
         "position": [
           0.0,
-          0.0,
+          4.76837158203125e-07,
           0.0
         ],
         "rotation": [

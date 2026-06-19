@@ -420,9 +420,19 @@ class UnitSelectionController {
         float r = this.ringRadius;
         if (Physics::hasCollider(id)) {
             Vec3f s = Physics::getColliderSize(id);
-            float bigger = s.x;
-            if (s.z > bigger) {
-                bigger = s.z;
+            // getColliderSize returns the RAW authored collider size, but the physics
+            // body scales it by the entity transform (PhysicsBodyBuilder::applyScaleToCollider).
+            // Apply the unit's scale here too, so a unit authored with a large collider +
+            // small scale (e.g. mesh scaled to 0.01 with a size-50 capsule) gets a ring
+            // sized to its real footprint instead of one off the raw collider extents.
+            Vec3f sc = Entity::getScale(id);
+            float sx = s.x * sc.x;
+            if (sx < 0.0) { sx = -sx; }
+            float sz = s.z * sc.z;
+            if (sz < 0.0) { sz = -sz; }
+            float bigger = sx;
+            if (sz > bigger) {
+                bigger = sz;
             }
             float scaled = bigger * 1.25 + 0.3;
             if (scaled > r) {

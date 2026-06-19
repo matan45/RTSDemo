@@ -1,0 +1,124 @@
+{
+  "prefab": {
+    "entity": {
+      "children": [
+        {
+          "children": [],
+          "components": {
+            "material": {
+              "defaultMaterialRef": "0000000000000000",
+              "parameterOverrides": {},
+              "subMeshMaterials": {}
+            },
+            "mesh": {
+              "meshRef": "6bf65397bdc3b6d4",
+              "meshRefPath": "C:/matan/RTSDemo/assets/units/soldier/ak-47A.vfMesh",
+              "showBoundingBox": false,
+              "submeshIndex": -1
+            }
+          },
+          "isActive": true,
+          "name": "AK47",
+          "transform": {
+            "isStatic": false,
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rotation": [
+              -90.0,
+              50.0,
+              -4.0
+            ],
+            "scale": [
+              10.0,
+              10.0,
+              10.0
+            ]
+          }
+        }
+      ],
+      "components": {
+        "collider": {
+          "collisionLayer": 1,
+          "friction": 0.5,
+          "height": 150.0,
+          "isTrigger": false,
+          "meshRef": "0000000000000000",
+          "offset": [
+            0.0,
+            100.0,
+            0.0
+          ],
+          "restitution": 0.0,
+          "shape": "capsule",
+          "size": [
+            50.0,
+            0.4000000059604645,
+            0.4000000059604645
+          ],
+          "submeshIndex": -1
+        },
+        "material": {
+          "defaultMaterialRef": "cf1412f3d6be7139",
+          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/units/soldier/soldier_inst.vfMatInstance",
+          "parameterOverrides": {},
+          "subMeshMaterials": {}
+        },
+        "mesh": {
+          "animatorRef": "967faddae85bde89",
+          "animatorRefPath": "C:/matan/RTSDemo/assets/units/soldier/soldier.vfAnimator",
+          "applyRootMotion": true,
+          "meshRef": "7f652a997aa972f7",
+          "meshRefPath": "C:/matan/RTSDemo/assets/units/soldier/Firing Rifle.vfMesh",
+          "showBoundingBox": false,
+          "submeshIndex": -1
+        },
+        "navmeshAgent": {
+          "avoidanceQuality": 3,
+          "height": 2.0,
+          "maxAcceleration": 12.0,
+          "maxSpeed": 6.0,
+          "radius": 0.6000000238418579,
+          "rootMotionDriven": true,
+          "rootMotionSpeedScale": 1.0,
+          "separationWeight": 2.0,
+          "stoppingDistance": 0.30000001192092896,
+          "useCustomCosts": false
+        },
+        "script": {
+          "scripts": [
+            {
+              "enabled": true,
+              "scriptRef": "9a3f1c0d5e7b2604",
+              "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/SoldierCombatController.mt"
+            }
+          ]
+        }
+      },
+      "isActive": true,
+      "name": "Soldier",
+      "transform": {
+        "isStatic": false,
+        "position": [
+          -3.8481013774871826,
+          -1.1920928955078125e-07,
+          -7.014733791351318
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.009999999776482582,
+          0.009999999776482582,
+          0.009999999776482582
+        ]
+      }
+    },
+    "name": "Soldier"
+  },
+  "version": "1.0"
+}

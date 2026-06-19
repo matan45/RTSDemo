@@ -31,6 +31,7 @@ import * from "../../lib/math/Vec3f.mt";
 import * from "./RTSCameraController.mt";
 import * from "../util/Config.mt";
 import * from "../util/InputEdge.mt";
+import * from "../util/RTSFog.mt";
 
 @Script
 class MinimapController {
@@ -63,12 +64,40 @@ class MinimapController {
     // the rectangle matched to the readable foreground instead of the horizon.
     private float viewDistanceFactor = 4.0;
 
+    // --- Minimap entity blips (units + buildings) ---------------------------
+    // A script-managed pool of small colored UIImage dots, one per Team-tagged
+    // entity. Player = green, enemy = red; enemy dots are hidden outside current
+    // vision (fog of war). Rebuilt at a low rate (blips drift slowly at minimap
+    // scale). Each dot is positioned individually in viewport pixels against the
+    // canvas (this engine's screen-space UI is flat) via the SAME worldFraction
+    // math as the view-rect and click-jump, so all three share one coordinate
+    // convention. A UIListView is deliberately NOT used: its forced UILayoutGroup
+    // overwrites every item's anchoredPosition each frame, which would clobber the
+    // per-dot placement. Surplus dots are deactivated (pooled), never destroyed.
+    private int blipContainerId;        // transparent grouping node under the canvas
+    private int[] blipPool;             // dot entity ids; -1 = slot not yet spawned
+    private int[] blipKind;             // per-slot shape: 0 = unset, 1 = unit (circle), 2 = building (square)
+    private int blipPoolCount;          // dots actually instantiated so far (<= blipMax)
+    private int blipMax = 256;          // hard cap on simultaneous dots
+    private float blipTimer;
+    private float blipInterval = 0.1;   // seconds between rebuilds (~10 Hz)
+    private float blipSize = 5.0;       // dot size in canvas units (scales with HUD)
+
+    // Units (entities with a NavmeshAgent) are drawn as circles via this texture;
+    // buildings stay as solid square quads (empty texture). Import the bundled
+    // assets/ui/hud/minimap_circle.png to this .vfImage path; until it resolves,
+    // the engine falls back to a tinted square (AssetRef.resolve -> "" -> white).
+    private string unitBlipTexture = "assets/ui/hud/minimap_circle.vfImage";
+
     constructor() {
         this.minimapViewId = -1;
         this.viewRectId = -1;
         this.cameraId = -1;
         this.cameraCtrl = null;
         this.draggingFromMinimap = false;
+        this.blipContainerId = -1;
+        this.blipPoolCount = 0;
+        this.blipTimer = 0.0;
     }
 
     public function onStart(): void {
@@ -91,7 +120,64 @@ class MinimapController {
             Log::warn("[Minimap] camera entity not found; click-jump disabled.");
         }
 
+        this.setupBlips();
+
         Log::info("[Minimap] ready.");
+    }
+
+    // Find-or-create the transparent blip container under RTS_HUD_Canvas, then
+    // adopt any dots left over from a previous play session as the pool (so a
+    // replay reuses them instead of spawning duplicates). Mirrors the idempotent
+    // setupQueueUI pattern in BuildingCommandController.
+    private function setupBlips(): void {
+        this.blipPool = new int[this.blipMax];
+        this.blipKind = new int[this.blipMax];
+        for (int i = 0; i < this.blipMax; i = i + 1) {
+            this.blipPool[i] = -1;
+            this.blipKind[i] = 0;
+        }
+        this.blipPoolCount = 0;
+
+        this.blipContainerId = Entity::findByName("RTS_HUD_MinimapBlips");
+        if (this.blipContainerId < 0) {
+            int canvasId = Entity::findByName("RTS_HUD_Canvas");
+            if (canvasId < 0) {
+                Log::warn("[Minimap] RTS_HUD_Canvas missing; unit blips disabled.");
+                return;
+            }
+            this.blipContainerId = Entity::instantiateChild("assets/ui/prefabs/minimap_blips_prefab.vfPrefab", canvasId);
+        }
+        if (this.blipContainerId < 0) {
+            Log::warn("[Minimap] Failed to spawn minimap blips container.");
+            return;
+        }
+
+        int[] existing = Entity::getChildren(this.blipContainerId);
+        int adopt = existing.length;
+        if (adopt > this.blipMax) {
+            adopt = this.blipMax;
+        }
+        for (int i = 0; i < adopt; i = i + 1) {
+            this.blipPool[i] = existing[i];
+            Entity::setActive(existing[i], false);
+        }
+        this.blipPoolCount = adopt;
+    }
+
+    // Return the dot entity for pool slot `index`, lazily spawning it on first
+    // use (updateBlips always requests slots in order, so there are no gaps).
+    // Returns -1 past the cap.
+    private function ensureBlip(int index): int {
+        if (index < 0 || index >= this.blipMax) {
+            return -1;
+        }
+        if (this.blipPool[index] < 0) {
+            this.blipPool[index] = Entity::instantiateChild("assets/ui/prefabs/minimap_blip_prefab.vfPrefab", this.blipContainerId);
+            if (index + 1 > this.blipPoolCount) {
+                this.blipPoolCount = index + 1;
+            }
+        }
+        return this.blipPool[index];
     }
 
     public function onUpdate(float deltaTime): void {
@@ -107,6 +193,13 @@ class MinimapController {
 
         this.handleInput(rect);
         this.updateViewRect();
+
+        // Rebuild the entity blip layer at a low rate (cheap at minimap scale).
+        this.blipTimer = this.blipTimer + deltaTime;
+        if (this.blipTimer >= this.blipInterval) {
+            this.blipTimer = 0.0;
+            this.updateBlips();
+        }
     }
 
     public function onDestroy(): void {
@@ -300,6 +393,119 @@ class MinimapController {
         Entity::setActive(this.viewRectId, true);
         UI::setRectData(this.viewRectId, anchorX, anchorY, anchorX, anchorY,
             0.0, 0.0, rectSizeX, rectSizeY, rectAnchoredX, rectAnchoredY);
+    }
+
+    // ============================================
+    // Entity blips (units + buildings)
+    // ============================================
+
+    // One blip per Team-tagged entity: units (navmesh agents) draw as colored
+    // circles, buildings as colored squares; player vs enemy is hue-coded within
+    // each. Enemy blips are hidden outside current player vision (RTSFog); off-map
+    // entities are dropped. Each surviving blip is placed in the minimap image's
+    // OWN canvas-unit basis (UI::getRectData/setRectData) via the shared
+    // worldFraction math -- the SAME extent-invariant approach as the view-rect
+    // (updateViewRect). The old getRectPixels/setRectPixels path drifted in editor
+    // play mode (play-panel extent vs framebuffer extent); see the VK minimap drift
+    // fix. `k` active blips are positioned from the pool; the rest are deactivated.
+    // Entities past the `blipMax` cap are silently dropped (256 is generous here).
+    private function updateBlips(): void {
+        if (this.blipContainerId < 0) {
+            return;
+        }
+
+        // Minimap image authored fields in canvas units (extent-independent):
+        // [valid, anchorMinX,Y, anchorMaxX,Y, pivotX,Y, sizeDeltaX,Y, anchoredX,Y].
+        float[] img = UI::getRectData(this.minimapViewId);
+        if (img[0] < 0.5) {
+            return;
+        }
+        float amx = img[1];
+        float amy = img[2];
+        float pvx = img[5];
+        float pvy = img[6];
+        float sx = img[7];
+        float sy = img[8];
+        float apx = img[9];
+        float apy = img[10];
+
+        int[] ids = PluginComponent::findAll("Team");
+        int n = ids.length;
+        int k = 0;
+
+        for (int i = 0; i < n; i = i + 1) {
+            if (k >= this.blipMax) {
+                continue;   // hit the dot cap; ignore the remaining entities
+            }
+            int id = ids[i];
+            int team = PluginComponent::getInt(id, "Team", "teamId");
+            bool player = (team == Config::TEAM_PLAYER);
+
+            Vec3f pos = Entity::getPosition(id);
+            if (!player && !RTSFog::isVisible(pos.x, pos.z)) {
+                continue;   // enemy outside current vision
+            }
+
+            float fx = this.worldFractionX(pos.x);
+            float fz = this.worldFractionZ(pos.z);
+            if (fx < 0.0 || fx > 1.0 || fz < 0.0 || fz > 1.0) {
+                continue;   // off the minimap footprint
+            }
+
+            int blip = this.ensureBlip(k);
+            if (blip < 0) {
+                continue;
+            }
+            // Center the dot at image fraction (fx, fz) in the image's own
+            // canvas-unit anchor basis -- same math as the view-rect, but with a
+            // centered pivot instead of top-left. scale cancels => extent-invariant.
+            float bax = apx - pvx * sx + fx * sx;
+            float bay = apy + pvy * sy - fz * sy;
+            Entity::setActive(blip, true);
+            UI::setRectData(blip, amx, amy, amx, amy, 0.5, 0.5,
+                this.blipSize, this.blipSize, bax, bay);
+
+            // Shape: units (navmesh agents) draw as circles, buildings as squares.
+            // Swap the texture only when this pooled slot changes kind (avoids
+            // churning the texture ref every frame).
+            bool isUnit = Entity::hasComponent(id, "NavmeshAgent");
+            int kind = 2;
+            if (isUnit) {
+                kind = 1;
+            }
+            if (this.blipKind[k] != kind) {
+                if (isUnit) {
+                    UI::setImageTexture(blip, this.unitBlipTexture);
+                } else {
+                    UI::setImageTexture(blip, "");
+                }
+                this.blipKind[k] = kind;
+            }
+
+            // Color: units a distinct hue from buildings, each still friend/foe coded.
+            if (isUnit) {
+                if (player) {
+                    UI::setImageColor(blip, 0.2, 0.9, 1.0, 1.0);    // player unit: cyan
+                } else {
+                    UI::setImageColor(blip, 1.0, 0.55, 0.1, 1.0);   // enemy unit: orange
+                }
+            } else {
+                if (player) {
+                    UI::setImageColor(blip, 0.25, 1.0, 0.4, 1.0);   // player building: green
+                } else {
+                    UI::setImageColor(blip, 1.0, 0.3, 0.25, 1.0);   // enemy building: red
+                }
+            }
+            k = k + 1;
+        }
+
+        // Deactivate dots left over from a previously busier frame.
+        for (int j = k; j < this.blipPoolCount; j = j + 1) {
+            int extra = this.blipPool[j];
+            if (extra >= 0) {
+                Entity::setActive(extra, false);
+            }
+        }
     }
 
     // ============================================

@@ -1,0 +1,194 @@
+{
+    "layers": [
+        {
+            "blendMode": "Override",
+            "graph": {
+                "anyStatePosition": [
+                    50.0,
+                    250.0
+                ],
+                "defaultState": 1,
+                "entryPosition": [
+                    50.0,
+                    100.0
+                ],
+                "parameters": [
+                    {
+                        "default": false,
+                        "name": "IsMoving",
+                        "type": "Bool"
+                    },
+                    {
+                        "default": false,
+                        "name": "IsFiring",
+                        "type": "Bool"
+                    }
+                ],
+                "states": [
+                    {
+                        "animationRef": "5840c81ac0e31ca7",
+                        "id": 1,
+                        "loop": true,
+                        "name": "Idle",
+                        "playbackSpeed": 1.0,
+                        "position": [
+                            250.0,
+                            100.0
+                        ]
+                    },
+                    {
+                        "animationRef": "72c4aed9ccbe2d30",
+                        "id": 2,
+                        "loop": false,
+                        "name": "Run",
+                        "playbackSpeed": 1.0,
+                        "position": [
+                            250.0,
+                            260.0
+                        ]
+                    },
+                    {
+                        "animationRef": "00440f8e6476ab7c",
+                        "events": [
+                            {
+                                "name": "Shoot",
+                                "normalizedTime": 0.11999999731779099
+                            }
+                        ],
+                        "id": 3,
+                        "loop": true,
+                        "name": "Fire",
+                        "playbackSpeed": 1.0,
+                        "position": [
+                            540.0,
+                            180.0
+                        ]
+                    }
+                ],
+                "transitions": [
+                    {
+                        "blendDuration": 0.20000000298023224,
+                        "conditions": [
+                            {
+                                "operator": "==",
+                                "parameter": "IsMoving",
+                                "value": true
+                            },
+                            {
+                                "operator": "==",
+                                "parameter": "IsFiring",
+                                "value": false
+                            }
+                        ],
+                        "exitTime": 1.0,
+                        "hasExitTime": false,
+                        "id": 1,
+                        "priority": 1,
+                        "sourceState": 1,
+                        "targetState": 2
+                    },
+                    {
+                        "blendDuration": 0.20000000298023224,
+                        "conditions": [
+                            {
+                                "operator": "==",
+                                "parameter": "IsMoving",
+                                "value": false
+                            },
+                            {
+                                "operator": "==",
+                                "parameter": "IsFiring",
+                                "value": false
+                            }
+                        ],
+                        "exitTime": 1.0,
+                        "hasExitTime": false,
+                        "id": 2,
+                        "priority": 1,
+                        "sourceState": 2,
+                        "targetState": 1
+                    },
+                    {
+                        "blendDuration": 0.15000000596046448,
+                        "conditions": [
+                            {
+                                "operator": "==",
+                                "parameter": "IsFiring",
+                                "value": true
+                            }
+                        ],
+                        "exitTime": 1.0,
+                        "hasExitTime": false,
+                        "id": 3,
+                        "priority": 0,
+                        "sourceState": 1,
+                        "targetState": 3
+                    },
+                    {
+                        "blendDuration": 0.15000000596046448,
+                        "conditions": [
+                            {
+                                "operator": "==",
+                                "parameter": "IsFiring",
+                                "value": true
+                            }
+                        ],
+                        "exitTime": 1.0,
+                        "hasExitTime": false,
+                        "id": 4,
+                        "priority": 0,
+                        "sourceState": 2,
+                        "targetState": 3
+                    },
+                    {
+                        "blendDuration": 0.20000000298023224,
+                        "conditions": [
+                            {
+                                "operator": "==",
+                                "parameter": "IsFiring",
+                                "value": false
+                            },
+                            {
+                                "operator": "==",
+                                "parameter": "IsMoving",
+                                "value": false
+                            }
+                        ],
+                        "exitTime": 1.0,
+                        "hasExitTime": false,
+                        "id": 5,
+                        "priority": 1,
+                        "sourceState": 3,
+                        "targetState": 1
+                    },
+                    {
+                        "blendDuration": 0.20000000298023224,
+                        "conditions": [
+                            {
+                                "operator": "==",
+                                "parameter": "IsFiring",
+                                "value": false
+                            },
+                            {
+                                "operator": "==",
+                                "parameter": "IsMoving",
+                                "value": true
+                            }
+                        ],
+                        "exitTime": 1.0,
+                        "hasExitTime": false,
+                        "id": 6,
+                        "priority": 1,
+                        "sourceState": 3,
+                        "targetState": 2
+                    }
+                ]
+            },
+            "name": "Base Layer",
+            "sourceMode": "StateMachine",
+            "weight": 1.0
+        }
+    ],
+    "name": "soldier",
+    "version": "1.0"
+}

@@ -41,8 +41,10 @@
           "maxAcceleration": 10.0,
           "maxSpeed": 8.0,
           "radius": 2.0,
+          "rootMotionDriven": false,
+          "rootMotionSpeedScale": 1.0,
           "separationWeight": 2.0,
-          "stoppingDistance": 0.1,
+          "stoppingDistance": 0.10000000149011612,
           "useCustomCosts": false
         }
       },
@@ -51,9 +53,9 @@
       "transform": {
         "isStatic": false,
         "position": [
+          -5.298699378967285,
           0.0,
-          0.0,
-          0.0
+          -7.32680082321167
         ],
         "rotation": [
           0.0,

@@ -83,6 +83,15 @@
           "separationWeight": 2.0,
           "stoppingDistance": 0.30000001192092896,
           "useCustomCosts": false
+        },
+        "script": {
+          "scripts": [
+            {
+              "enabled": true,
+              "scriptRef": "9a3f1c0d5e7b2604",
+              "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/SoldierCombatController.mt"
+            }
+          ]
         }
       },
       "isActive": true,
@@ -90,9 +99,9 @@
       "transform": {
         "isStatic": false,
         "position": [
-          0.8015122413635254,
-          1.1920928955078125e-07,
-          11.872824668884277
+          -11.54962158203125,
+          0.0,
+          11.890341758728027
         ],
         "rotation": [
           0.0,

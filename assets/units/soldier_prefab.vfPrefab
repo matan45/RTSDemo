@@ -81,6 +81,7 @@
           "maxAcceleration": 12.0,
           "maxSpeed": 6.0,
           "radius": 0.6000000238418579,
+          "rootMotionDriven": true,
           "separationWeight": 2.0,
           "stoppingDistance": 0.30000001192092896,
           "useCustomCosts": false
@@ -101,7 +102,7 @@
         "isStatic": false,
         "position": [
           0.0,
-          0.0,
+          1.1920928955078125e-07,
           0.0
         ],
         "rotation": [

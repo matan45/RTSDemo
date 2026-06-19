@@ -35,7 +35,6 @@ import * from "../../lib/engine/RaycastHit.mt";
 import * from "../../lib/engine/ScreenPoint.mt";
 import * from "../../lib/engine/Terrain.mt";
 import * from "../../lib/engine/Navmesh.mt";
-import * from "../../lib/engine/Blackboard.mt";
 import * from "../../lib/engine/Decal.mt";
 import * from "../../lib/engine/Log.mt";
 import * from "../../lib/engine/PluginComponent.mt";
@@ -82,12 +81,6 @@ class BuildingCommandController implements IUIButtonListener {
     private Harvester[] harvesters;
     private int harvCount;
 
-    // BT harvesters only: unit entity id -> its drop-off (refinery-side spawn).
-    // The legacy state machine keeps this on the Harvester data class; the BT path
-    // stores no per-unit struct, so we remember home here to re-seed the tree's
-    // homePos each time a gather order (re)starts the loop.
-    private HashMap<Int, Vec3f?> harvHomes;
-
     // Unit definitions (cost / time / prefab / icon), scanned by type.
     private UnitDef[] unitDefs;
 
@@ -107,15 +100,6 @@ class BuildingCommandController implements IUIButtonListener {
     private float unitSpeed;
     // Squared arrival radius for harvester waypoint detection.
     private float arriveEps2;
-
-    // When true, Track harvesters run the TrackHarvest behavior tree
-    // (assets/behaviortrees/TrackHarvest.vfBehaviorTree) instead of the legacy
-    // tickHarvesters() state machine: the loop (go to node / gather / return /
-    // deposit) lives in the tree, and this controller only seeds the blackboard
-    // (resourcePos/homePos/depositAmount) and enables/disables it on player orders.
-    // Flip to false to fall back to the in-script state machine for comparison.
-    private bool useBT;
-    private string harvestTree;
 
     // Gameplay tuning.
     private int sellRefundPct;
@@ -144,8 +128,6 @@ class BuildingCommandController implements IUIButtonListener {
         this.upgradeCostPct = 60;
         this.harvestDeposit = 10;
         this.attackPickRadius = 40.0;
-        this.useBT = true;
-        this.harvestTree = "assets/behaviortrees/TrackHarvest.vfBehaviorTree";
     }
 
     public function onStart(): void {
@@ -163,7 +145,6 @@ class BuildingCommandController implements IUIButtonListener {
 
         this.rallyPoints = new HashMap<Int, Vec3f>();
         this.rallyMarkers = new HashMap<Int, Int>();
-        this.harvHomes = new HashMap<Int, Vec3f>();
 
         this.queue = new QueueItem[this.maxQueue];
         this.harvesters = new Harvester[this.maxHarvesters];
@@ -620,23 +601,6 @@ class BuildingCommandController implements IUIButtonListener {
             if (scc != null) {
                 scc.setTarget(-1);
             }
-
-            // BT-driven Track: the gather target is NOT fixed -- it comes straight
-            // from this right-click. Write the clicked gold node into the tree's
-            // `resourcePos` blackboard key and enable the tree (its MoveTo node then
-            // drives there). A plain ground move disables the tree and walks the unit
-            // to the point, mirroring the legacy gather/IDLE behavior.
-            if (this.useBT && Blackboard::hasBehaviorTree(uid)) {
-                if (goldNode >= 0) {
-                    Vec3f mp = Entity::getPosition(goldNode);
-                    this.startHarvest(uid, new Vec3f(mp.x, Terrain::heightAt(mp.x, mp.z), mp.z));
-                } else {
-                    Blackboard::setEnabled(uid, false);
-                    Navmesh::moveTo(uid, dest);
-                }
-                continue;
-            }
-
             Harvester? harv = this.harvesterFor(uid);
             if (harv != null && goldNode >= 0) {
                 // Gather order: retarget the clicked gold node and (re)start the
@@ -713,48 +677,11 @@ class BuildingCommandController implements IUIButtonListener {
     // node (handleMoveCommand). home = its spawn point (the refinery drop-off);
     // minePos is just a placeholder until a gather order picks the node.
     private function registerHarvester(int unitId, int refineryId, Vec3f home): void {
-        if (this.useBT) {
-            // BT-driven Track: attach the harvester tree but keep it DISABLED so the
-            // unit stays idle (like the legacy IDLE state) until the player commands a
-            // gather. Remember the drop-off (home = spawn point beside the refinery)
-            // so startHarvest() can re-seed homePos; resourcePos and the loop only
-            // start once the player right-clicks a gold node.
-            this.harvHomes.put(new Int(unitId), home);
-            Blackboard::attachTree(unitId, this.harvestTree);
-            Blackboard::setEnabled(unitId, false);
-            return;
-        }
         if (this.harvCount >= this.maxHarvesters) {
             return;
         }
         this.harvesters[this.harvCount] = new Harvester(unitId, refineryId, home, home);
         this.harvCount = this.harvCount + 1;
-    }
-
-    // BT path: (re)start a Track's harvest loop on the node the player just clicked.
-    // The gather target is dynamic -- it comes from this right-click, not the .bt's
-    // default resourcePos. Detach+reattach resets the tree's node state (and clears
-    // its blackboard) so the loop always restarts cleanly at "go to resource" even if
-    // the unit was mid-cycle or paused by a prior move order; then re-seed the keys
-    // and enable it. The tree asset is cached engine-side, so reattach is cheap.
-    private function startHarvest(int uid, Vec3f minePos): void {
-        Vec3f home = this.harvHomeFor(uid);
-        Blackboard::detachTree(uid);
-        Blackboard::attachTree(uid, this.harvestTree);
-        Blackboard::setVec3(uid, "homePos", home.x, home.y, home.z);
-        Blackboard::setInt(uid, "depositAmount", this.harvestDeposit);
-        Blackboard::setVec3(uid, "resourcePos", minePos.x, minePos.y, minePos.z);
-        Blackboard::setEnabled(uid, true);
-    }
-
-    // The harvester's remembered drop-off, or its current position as a fallback
-    // (e.g. after a script reload dropped the map entry).
-    private function harvHomeFor(int uid): Vec3f {
-        Vec3f? home = this.harvHomes.get(new Int(uid));
-        if (home != null) {
-            return home;
-        }
-        return Entity::getPosition(uid);
     }
 
     private function tickHarvesters(float dt): void {

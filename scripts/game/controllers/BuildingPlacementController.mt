@@ -719,6 +719,14 @@ class BuildingPlacementController implements IUIButtonListener {
         PluginComponent::add(id, "Vision");
         PluginComponent::setFloat(id, "Vision", "sightRadius", 45.0);
 
+        // Runtime-add the RTSGameplay Health component so the building is a valid
+        // Combat::applyDamage target and its HUD bar reads real HP (maxHP from the
+        // slot's BuildingDef). Buildings get NO Attack (they do not fight).
+        float maxHP = this.buildings[slot].maxHealth;
+        PluginComponent::add(id, "Health");
+        PluginComponent::setFloat(id, "Health", "maxHP", maxHP);
+        PluginComponent::setFloat(id, "Health", "currentHP", maxHP);
+
         this.ghostEntity = -1;
         this.ghostSlot = -1;
 
@@ -731,6 +739,10 @@ class BuildingPlacementController implements IUIButtonListener {
         SelectionController sel = this.selection();
         if (sel != null) {
             BuildingInfo info = this.infoForSlot(this.resolvedSlot());
+            // Bind the panel info to this entity so its health bar reads the live
+            // plugin Health component (currentHP/maxHP) added above -- one source
+            // of truth, so damage shows on the HUD bar.
+            info.entityId = id;
             // Rotation-adjusted footprint sizes the selection-highlight decal.
             info.halfX = this.halfXFor(this.rotationSteps);
             info.halfZ = this.halfZFor(this.rotationSteps);

@@ -69,8 +69,13 @@ class BuildingCommandController implements IUIButtonListener {
     private HashMap<Int, Int?> rallyMarkers;
     private int pendingRallyBuilding;
 
-    // Production queue (FIFO; head = index 0).
+    // Per-building production queues. Stored interleaved in one FIFO array -- each
+    // QueueItem carries its buildingId and array order preserves each building's
+    // own order. Buildings produce IN PARALLEL: tickQueue advances the head (first
+    // queued item) of every building each frame. maxQueue caps items PER building;
+    // queueCap is the backing array capacity across all buildings.
     private int maxQueue;
+    private int queueCap;
     private QueueItem[] queue;
     private int queueCount;
 
@@ -101,6 +106,12 @@ class BuildingCommandController implements IUIButtonListener {
     // Squared arrival radius for harvester waypoint detection.
     private float arriveEps2;
 
+    // Attack component tuning for combat units (Soldier/Tank). range matches
+    // SoldierCombatController.fireRange so the data-driven attack agrees with the
+    // soldier's stop-and-fire distance; cooldown is the min seconds between shots.
+    private float unitAttackRange;
+    private float unitAttackCooldown;
+
     // Gameplay tuning.
     private int sellRefundPct;
     private int upgradeCostPct;
@@ -118,6 +129,7 @@ class BuildingCommandController implements IUIButtonListener {
         this.pendingRallyBuilding = -1;
         this.queueCount = 0;
         this.maxQueue = 8;
+        this.queueCap = 64;
         this.harvCount = 0;
         this.maxHarvesters = 16;
         this.queueHudId = -1;
@@ -128,6 +140,8 @@ class BuildingCommandController implements IUIButtonListener {
         this.unitSerial = 0;
         this.unitSpeed = 8.0;
         this.arriveEps2 = 9.0;
+        this.unitAttackRange = 14.0;
+        this.unitAttackCooldown = 1.0;
         this.sellRefundPct = 70;
         this.upgradeCostPct = 60;
         this.harvestDeposit = 10;
@@ -151,7 +165,7 @@ class BuildingCommandController implements IUIButtonListener {
         this.rallyPoints = new HashMap<Int, Vec3f>();
         this.rallyMarkers = new HashMap<Int, Int>();
 
-        this.queue = new QueueItem[this.maxQueue];
+        this.queue = new QueueItem[this.queueCap];
         this.harvesters = new Harvester[this.maxHarvesters];
 
         this.defineUnits();
@@ -162,11 +176,15 @@ class BuildingCommandController implements IUIButtonListener {
     // Unit table (single source of cost / build time / prefab / icon). The
     // Track entry (index 3) also serves as the default for unknown types.
     private function defineUnits(): void {
+        // UnitDef(type, cost, buildTime, prefab, icon, maxHealth, damage). damage
+        // > 0 = combat unit -> gets an Attack component at spawn; 0.0 = non-combat
+        // (Engineer, Track) gets Health only. Soldier 10 matches the
+        // SoldierCombatController default; Tank hits harder.
         this.unitDefs = new UnitDef[4];
-        this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/units/soldier.vfImage", 60.0);
-        this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/units/engineer.vfImage", 50.0);
-        this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/units/tank.vfImage", 200.0);
-        this.unitDefs[3] = new UnitDef("Track", 30, 4.0, "assets/units/track/track_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage", 120.0);
+        this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/units/soldier.vfImage", 60.0, 10.0);
+        this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/units/engineer.vfImage", 50.0, 0.0);
+        this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/units/tank.vfImage", 200.0, 25.0);
+        this.unitDefs[3] = new UnitDef("Track", 30, 4.0, "assets/units/track/track_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage", 120.0, 0.0);
     }
 
     // Look up a unit definition by type; falls back to the Track entry for
@@ -283,6 +301,14 @@ class BuildingCommandController implements IUIButtonListener {
         }
         info.maxHealth = info.maxHealth * 1.5;
         info.currentHealth = info.maxHealth;
+        // Mirror the boost onto the live plugin Health component (the HUD bar's
+        // source of truth) so the upgrade restores it to a full, larger pool. Falls
+        // back to the info fields above when the building has no Health component.
+        if (info.entityId >= 0 && PluginComponent::has(info.entityId, "Health")) {
+            float newMax = PluginComponent::getFloat(info.entityId, "Health", "maxHP") * 1.5;
+            PluginComponent::setFloat(info.entityId, "Health", "maxHP", newMax);
+            PluginComponent::setFloat(info.entityId, "Health", "currentHP", newMax);
+        }
         info.level = 1;
         if (info.buildingType == "Power") {
             hud.addPower(25);
@@ -411,7 +437,7 @@ class BuildingCommandController implements IUIButtonListener {
         if (hud == null) {
             return;
         }
-        if (this.queueCount >= this.maxQueue) {
+        if (this.buildingQueueCount(buildingId) >= this.maxQueue || this.queueCount >= this.queueCap) {
             hud.pushAlertMessage("Production queue full", 1.5);
             return;
         }
@@ -430,26 +456,80 @@ class BuildingCommandController implements IUIButtonListener {
         if (this.queueCount <= 0) {
             return;
         }
-        QueueItem head = this.queue[0];
-        // Building sold while its unit was training: drop the item (no refund).
-        if (!Entity::isValid(head.buildingId)) {
-            this.popQueue();
-            return;
+        // Drop items whose building was sold mid-production (no refund).
+        int i = 0;
+        while (i < this.queueCount) {
+            if (!Entity::isValid(this.queue[i].buildingId)) {
+                this.removeAt(i);
+            } else {
+                i = i + 1;
+            }
         }
-        head.remaining = head.remaining - dt;
-        if (head.remaining <= 0.0) {
-            int building = head.buildingId;
-            string type = head.unitType;
-            this.popQueue();
-            this.spawnUnit(building, type);
+        // Parallel production: tick only the head (first queued item) of each
+        // building this frame. Two passes -- tick all heads first, then process
+        // finished ones -- so popping a completed head never double-ticks the
+        // next item of that building in the same frame.
+        for (int h = 0; h < this.queueCount; h = h + 1) {
+            if (this.isHeadIndex(h)) {
+                this.queue[h].remaining = this.queue[h].remaining - dt;
+            }
+        }
+        // Removal shifts the array, so rescan from the start after each spawn.
+        bool again = true;
+        while (again) {
+            again = false;
+            for (int j = 0; j < this.queueCount; j = j + 1) {
+                if (this.isHeadIndex(j) && this.queue[j].remaining <= 0.0) {
+                    int building = this.queue[j].buildingId;
+                    string type = this.queue[j].unitType;
+                    this.removeAt(j);
+                    this.spawnUnit(building, type);
+                    again = true;
+                    break;
+                }
+            }
         }
     }
 
-    private function popQueue(): void {
-        for (int i = 1; i < this.queueCount; i = i + 1) {
+    // The head item for a building is its first queued item -- no earlier item in
+    // the array shares its buildingId. That head is the one currently building.
+    private function isHeadIndex(int idx): bool {
+        int b = this.queue[idx].buildingId;
+        for (int i = 0; i < idx; i = i + 1) {
+            if (this.queue[i].buildingId == b) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Remove the item at idx and shift the tail down (generalised popQueue).
+    private function removeAt(int idx): void {
+        for (int i = idx + 1; i < this.queueCount; i = i + 1) {
             this.queue[i - 1] = this.queue[i];
         }
         this.queueCount = this.queueCount - 1;
+    }
+
+    // Number of queued items owned by a building (its per-building queue length).
+    private function buildingQueueCount(int id): int {
+        int n = 0;
+        for (int i = 0; i < this.queueCount; i = i + 1) {
+            if (this.queue[i].buildingId == id) {
+                n = n + 1;
+            }
+        }
+        return n;
+    }
+
+    // Array index of a building's head item, or -1 if it has none queued.
+    private function buildingHeadIndex(int id): int {
+        for (int i = 0; i < this.queueCount; i = i + 1) {
+            if (this.queue[i].buildingId == id) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     // ---- unit spawning + movement ----
@@ -476,11 +556,32 @@ class BuildingCommandController implements IUIButtonListener {
         Entity::setPosition(id, spawn);
         Entity::setActive(id, true);
 
+        UnitDef def = this.unitDef(type);
+
         // Make it a selectable player unit (UnitSelectionController + fog Vision).
         PluginComponent::add(id, "Selectable");
         PluginComponent::setBool(id, "Selectable", "canBeSelected", true);
         PluginComponent::add(id, "Team");
         PluginComponent::setInt(id, "Team", "teamId", 0);
+
+        // Runtime-add the RTSGameplay Health component to every unit (HUD health
+        // bar + Combat::applyDamage target). maxHP from the unit's def; currentHP
+        // starts full.
+        PluginComponent::add(id, "Health");
+        PluginComponent::setFloat(id, "Health", "maxHP", def.maxHealth);
+        PluginComponent::setFloat(id, "Health", "currentHP", def.maxHealth);
+
+        // Combat-capable units (damage > 0: Soldier, Tank) also get an Attack
+        // component so SoldierCombatController can drive its damage from data
+        // and future logic can read range/cooldown. Non-combat units (Engineer,
+        // Track) carry Health only.
+        if (def.damage > 0.0) {
+            PluginComponent::add(id, "Attack");
+            PluginComponent::setFloat(id, "Attack", "damage", def.damage);
+            PluginComponent::setFloat(id, "Attack", "range", this.unitAttackRange);
+            PluginComponent::setFloat(id, "Attack", "cooldown", this.unitAttackCooldown);
+            PluginComponent::setFloat(id, "Attack", "lastAttackTime", 0.0);
+        }
         // The unit's NavmeshAgent comes from its prefab (track_prefab carries one
         // sized to the vehicle) -- it pathfinds + avoids on the baked navmesh and
         // the agent owns movement + facing. No runtime physics body is created: it
@@ -495,8 +596,11 @@ class BuildingCommandController implements IUIButtonListener {
         // -> SelectionController (the HUD's single selection source); see UnitInfo.
         UnitSelectionController? usel = this.unitSelection();
         if (usel != null) {
-            UnitDef def = this.unitDef(type);
             UnitInfo ui = new UnitInfo(def.unitType, def.icon, Config::TEAM_PLAYER, def.maxHealth);
+            // Bind the panel info to this entity so its health bar reads the live
+            // plugin Health component (currentHP/maxHP) -- one source of truth, so
+            // Combat::applyDamage shows up on the bar.
+            ui.entityId = id;
             usel.registerUnit(id, ui);
         }
 
@@ -862,19 +966,23 @@ class BuildingCommandController implements IUIButtonListener {
         if (this.queueHudId < 0) {
             return;
         }
-        // Contextual like the command card / rally markers: the queue strip belongs
-        // to the selected building. Hide it when the queue is empty, nothing is
-        // selected, or the selection owns no queued production. Production itself
-        // keeps ticking in tickQueue() regardless of what's selected.
+        // Contextual like the command card / rally markers: the strip shows the
+        // SELECTED building's own queue. Every other building keeps producing in
+        // tickQueue() regardless of what's selected; this only drives display.
         int selectedId = -1;
         SelectionController? sel = this.selection();
         if (sel != null) {
             selectedId = sel.getSelectedId();
         }
-        if (this.queueCount <= 0 || selectedId < 0 || !this.queueHasBuilding(selectedId)) {
+        int headIdx = -1;
+        if (selectedId >= 0) {
+            headIdx = this.buildingHeadIndex(selectedId);
+        }
+        if (headIdx < 0) {
             this.hideQueueUI();
             return;
         }
+        int nSel = this.buildingQueueCount(selectedId);
 
         float[] bar = UI::getRectPixels(this.hudCommandBarId);
         if (bar.length < 5 || bar[0] < 0.5) {
@@ -900,16 +1008,21 @@ class BuildingCommandController implements IUIButtonListener {
 
         if (this.queueLabelId >= 0) {
             UI::setRectPixels(this.queueLabelId, px + 4.0, py - 22.0, panelW, 20.0);
-            UI::setLabelText(this.queueLabelId, "Producing: " + this.queue[0].unitType);
+            UI::setLabelText(this.queueLabelId, "Producing: " + this.queue[headIdx].unitType);
         }
 
         if (this.queueListId >= 0) {
             // Position the slot strip; the layout group lays slots out left-to-right.
             UI::setRectPixels(this.queueListId, px + pad, py + 6.0, panelW - pad * 2.0, slotW);
             // Reconciles synchronously: getListItem(i) is valid this same frame.
-            UI::setListItemCount(this.queueListId, this.queueCount);
+            UI::setListItemCount(this.queueListId, nSel);
+            int slot = 0;
             for (int i = 0; i < this.queueCount; i = i + 1) {
-                int item = UI::getListItem(this.queueListId, i);
+                if (this.queue[i].buildingId != selectedId) {
+                    continue;
+                }
+                int item = UI::getListItem(this.queueListId, slot);
+                slot = slot + 1;
                 if (item < 0) {
                     continue;
                 }
@@ -921,7 +1034,7 @@ class BuildingCommandController implements IUIButtonListener {
         // Single progress bar over the head slot (only the head is building).
         if (this.queueProgressId >= 0) {
             float frac = 0.0;
-            QueueItem head = this.queue[0];
+            QueueItem head = this.queue[headIdx];
             if (head.total > 0.0) {
                 frac = 1.0 - head.remaining / head.total;
             }
@@ -935,14 +1048,6 @@ class BuildingCommandController implements IUIButtonListener {
     private function hideQueueUI(): void {
         if (this.queueHudId >= 0) { Entity::setActive(this.queueHudId, false); }
         if (this.queueListId >= 0) { UI::setListItemCount(this.queueListId, 0); }
-    }
-
-    // True if any queued item is being produced by the given building.
-    private function queueHasBuilding(int id): bool {
-        for (int i = 0; i < this.queueCount; i = i + 1) {
-            if (this.queue[i].buildingId == id) { return true; }
-        }
-        return false;
     }
 
     // ---- script resolution ----

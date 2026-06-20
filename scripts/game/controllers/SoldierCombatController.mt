@@ -29,6 +29,7 @@ import * from "../../lib/engine/Socket.mt";
 import * from "../../lib/engine/VFX.mt";
 import * from "../../lib/math/Vec3f.mt";
 import * from "../util/Config.mt";
+import * from "../util/Combat.mt";
 
 @Script
 class SoldierCombatController {
@@ -65,6 +66,9 @@ class SoldierCombatController {
     private float velEpsSq;
     // While chasing, re-issue the path once the target drifts this far (squared).
     private float reissueDistSq;
+    // Damage dealt to the target per "Shoot" animation event (VK-1404). Single-file
+    // knob; could later read the unit's authored Attack component (damage field).
+    private float damage;
 
     // Whether the soldier yaws to face its target while firing. The yaw is driven
     // into the Y euler slot using the engine forward=(-sin,-cos) convention
@@ -94,6 +98,7 @@ class SoldierCombatController {
         this.giveUpRangeSq = 80.0 * 80.0;
         this.velEpsSq = 0.04;            // ~0.2 units/s
         this.reissueDistSq = 4.0;        // re-path if target moved > 2 units
+        this.damage = 10.0;              // HP per Shoot event
         this.faceTarget = true;
         this.faceYawOffsetDeg = 0.0;
         this.muzzleVfx = "assets/units/soldier/fire.vfVFX";
@@ -257,10 +262,28 @@ class SoldierCombatController {
     private function drainShootEvents(): void {
         string ev = Animator::pollEvent(this.selfId);
         while (ev != "") {
-            if (ev == "Shoot" && this.hasMuzzle) {
-                this.spawnMuzzle();
+            if (ev == "Shoot") {
+                if (this.hasMuzzle) {
+                    this.spawnMuzzle();
+                }
+                this.applyShotDamage();
             }
             ev = Animator::pollEvent(this.selfId);
+        }
+    }
+
+    // Deal one shot's damage to the current target via the RTSGameplay plugin.
+    // No-op when there is no valid target or the target has no Health component
+    // (Combat::applyDamage returns NO_HEALTH). On a kill we drop the target so the
+    // soldier returns to idle; a scene handler reacting to "rts.unit_killed" owns
+    // the actual despawn/cleanup (the native never destroys the entity).
+    private function applyShotDamage(): void {
+        if (this.targetId < 0 || !Entity::isValid(this.targetId)) {
+            return;
+        }
+        int result = Combat::applyDamage(this.targetId, this.damage);
+        if (result == Combat::KILLED) {
+            this.targetId = -1;
         }
     }
 

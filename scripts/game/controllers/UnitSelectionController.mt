@@ -312,8 +312,10 @@ class UnitSelectionController {
         return best;
     }
 
-    // Box release: project every Selectable player unit to the viewport and
-    // select the ones inside the drag rectangle.
+    // Box release: ask the engine which entities fall inside the drag rectangle's
+    // camera frustum (Picker::pickRegion -> RuntimePicker), then keep the friendly
+    // selectable units. Replaces the old per-unit worldToScreen scan; the frustum
+    // test now runs in C++ and we only post-filter by gameplay component here.
     private function applyBoxSelection(float mx, float my, bool shift): void {
         if (!shift) {
             this.clearSelection();
@@ -325,16 +327,12 @@ class UnitSelectionController {
         float maxY = Util::maxF(this.dragStartY, my);
 
         int added = 0;
-        int[] ids = PluginComponent::findAll("Selectable");
+        int[] ids = Picker::pickRegion(minX, minY, maxX, maxY);
         for (int i = 0; i < ids.length; i = i + 1) {
             int id = ids[i];
             if (Entity::isActive(id) && this.isSelectableUnit(id)) {
-                Vec3f p = Entity::getPosition(id);
-                ScreenPoint sp = Picker::worldToScreen(p.x, p.y, p.z);
-                if (sp.visible && sp.x >= minX && sp.x <= maxX && sp.y >= minY && sp.y <= maxY) {
-                    this.addUnit(id);
-                    added = added + 1;
-                }
+                this.addUnit(id);
+                added = added + 1;
             }
         }
 

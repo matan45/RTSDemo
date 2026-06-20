@@ -106,6 +106,12 @@ class BuildingCommandController implements IUIButtonListener {
     // Squared arrival radius for harvester waypoint detection.
     private float arriveEps2;
 
+    // Attack component tuning for combat units (Soldier/Tank). range matches
+    // SoldierCombatController.fireRange so the data-driven attack agrees with the
+    // soldier's stop-and-fire distance; cooldown is the min seconds between shots.
+    private float unitAttackRange;
+    private float unitAttackCooldown;
+
     // Gameplay tuning.
     private int sellRefundPct;
     private int upgradeCostPct;
@@ -134,6 +140,8 @@ class BuildingCommandController implements IUIButtonListener {
         this.unitSerial = 0;
         this.unitSpeed = 8.0;
         this.arriveEps2 = 9.0;
+        this.unitAttackRange = 14.0;
+        this.unitAttackCooldown = 1.0;
         this.sellRefundPct = 70;
         this.upgradeCostPct = 60;
         this.harvestDeposit = 10;
@@ -168,11 +176,15 @@ class BuildingCommandController implements IUIButtonListener {
     // Unit table (single source of cost / build time / prefab / icon). The
     // Track entry (index 3) also serves as the default for unknown types.
     private function defineUnits(): void {
+        // UnitDef(type, cost, buildTime, prefab, icon, maxHealth, damage). damage
+        // > 0 = combat unit -> gets an Attack component at spawn; 0.0 = non-combat
+        // (Engineer, Track) gets Health only. Soldier 10 matches the
+        // SoldierCombatController default; Tank hits harder.
         this.unitDefs = new UnitDef[4];
-        this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/units/soldier.vfImage", 60.0);
-        this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/units/engineer.vfImage", 50.0);
-        this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/units/tank.vfImage", 200.0);
-        this.unitDefs[3] = new UnitDef("Track", 30, 4.0, "assets/units/track/track_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage", 120.0);
+        this.unitDefs[0] = new UnitDef("Soldier", 25, 3.0, "assets/units/soldier_prefab.vfPrefab", "assets/ui/icons/units/soldier.vfImage", 60.0, 10.0);
+        this.unitDefs[1] = new UnitDef("Engineer", 40, 5.0, "assets/units/engineer_prefab.vfPrefab", "assets/ui/icons/units/engineer.vfImage", 50.0, 0.0);
+        this.unitDefs[2] = new UnitDef("Tank", 75, 8.0, "assets/units/tank_prefab.vfPrefab", "assets/ui/icons/units/tank.vfImage", 200.0, 25.0);
+        this.unitDefs[3] = new UnitDef("Track", 30, 4.0, "assets/units/track/track_prefab.vfPrefab", "assets/ui/icons/units/track.vfImage", 120.0, 0.0);
     }
 
     // Look up a unit definition by type; falls back to the Track entry for
@@ -289,6 +301,14 @@ class BuildingCommandController implements IUIButtonListener {
         }
         info.maxHealth = info.maxHealth * 1.5;
         info.currentHealth = info.maxHealth;
+        // Mirror the boost onto the live plugin Health component (the HUD bar's
+        // source of truth) so the upgrade restores it to a full, larger pool. Falls
+        // back to the info fields above when the building has no Health component.
+        if (info.entityId >= 0 && PluginComponent::has(info.entityId, "Health")) {
+            float newMax = PluginComponent::getFloat(info.entityId, "Health", "maxHP") * 1.5;
+            PluginComponent::setFloat(info.entityId, "Health", "maxHP", newMax);
+            PluginComponent::setFloat(info.entityId, "Health", "currentHP", newMax);
+        }
         info.level = 1;
         if (info.buildingType == "Power") {
             hud.addPower(25);
@@ -536,11 +556,32 @@ class BuildingCommandController implements IUIButtonListener {
         Entity::setPosition(id, spawn);
         Entity::setActive(id, true);
 
+        UnitDef def = this.unitDef(type);
+
         // Make it a selectable player unit (UnitSelectionController + fog Vision).
         PluginComponent::add(id, "Selectable");
         PluginComponent::setBool(id, "Selectable", "canBeSelected", true);
         PluginComponent::add(id, "Team");
         PluginComponent::setInt(id, "Team", "teamId", 0);
+
+        // Runtime-add the RTSGameplay Health component to every unit (HUD health
+        // bar + Combat::applyDamage target). maxHP from the unit's def; currentHP
+        // starts full.
+        PluginComponent::add(id, "Health");
+        PluginComponent::setFloat(id, "Health", "maxHP", def.maxHealth);
+        PluginComponent::setFloat(id, "Health", "currentHP", def.maxHealth);
+
+        // Combat-capable units (damage > 0: Soldier, Tank) also get an Attack
+        // component so SoldierCombatController can drive its damage from data
+        // and future logic can read range/cooldown. Non-combat units (Engineer,
+        // Track) carry Health only.
+        if (def.damage > 0.0) {
+            PluginComponent::add(id, "Attack");
+            PluginComponent::setFloat(id, "Attack", "damage", def.damage);
+            PluginComponent::setFloat(id, "Attack", "range", this.unitAttackRange);
+            PluginComponent::setFloat(id, "Attack", "cooldown", this.unitAttackCooldown);
+            PluginComponent::setFloat(id, "Attack", "lastAttackTime", 0.0);
+        }
         // The unit's NavmeshAgent comes from its prefab (track_prefab carries one
         // sized to the vehicle) -- it pathfinds + avoids on the baked navmesh and
         // the agent owns movement + facing. No runtime physics body is created: it
@@ -555,8 +596,11 @@ class BuildingCommandController implements IUIButtonListener {
         // -> SelectionController (the HUD's single selection source); see UnitInfo.
         UnitSelectionController? usel = this.unitSelection();
         if (usel != null) {
-            UnitDef def = this.unitDef(type);
             UnitInfo ui = new UnitInfo(def.unitType, def.icon, Config::TEAM_PLAYER, def.maxHealth);
+            // Bind the panel info to this entity so its health bar reads the live
+            // plugin Health component (currentHP/maxHP) -- one source of truth, so
+            // Combat::applyDamage shows up on the bar.
+            ui.entityId = id;
             usel.registerUnit(id, ui);
         }
 

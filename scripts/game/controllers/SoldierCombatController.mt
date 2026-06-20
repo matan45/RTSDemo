@@ -27,6 +27,7 @@ import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/Animator.mt";
 import * from "../../lib/engine/Socket.mt";
 import * from "../../lib/engine/VFX.mt";
+import * from "../../lib/engine/PluginComponent.mt";
 import * from "../../lib/math/Vec3f.mt";
 import * from "../util/Config.mt";
 import * from "../util/Combat.mt";
@@ -66,8 +67,9 @@ class SoldierCombatController {
     private float velEpsSq;
     // While chasing, re-issue the path once the target drifts this far (squared).
     private float reissueDistSq;
-    // Damage dealt to the target per "Shoot" animation event (VK-1404). Single-file
-    // knob; could later read the unit's authored Attack component (damage field).
+    // Damage dealt to the target per "Shoot" animation event (VK-1404). Seeded
+    // from the unit's runtime Attack component (damage field) in onStart when
+    // present; the value below is the fallback default.
     private float damage;
 
     // Whether the soldier yaws to face its target while firing. The yaw is driven
@@ -108,6 +110,14 @@ class SoldierCombatController {
         this.selfId = Entity::self();
         this.hasAnim = Animator::hasAnimator(this.selfId);
         this.hasMuzzle = Socket::hasSocket(this.selfId, "Muzzle");
+
+        // Drive per-shot damage from the unit's runtime Attack component when it
+        // has one (added at spawn by BuildingCommandController from the UnitDef),
+        // so combat tuning lives with the unit data. Falls back to the authored
+        // default above when no Attack component is present.
+        if (PluginComponent::has(this.selfId, "Attack")) {
+            this.damage = PluginComponent::getFloat(this.selfId, "Attack", "damage");
+        }
 
         // Force the initial animator parameters to a known idle state.
         this.curMoving = false;

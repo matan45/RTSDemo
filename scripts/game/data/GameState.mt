@@ -30,7 +30,7 @@ class GameState {
     private string[] statusNames;
 
     constructor() {
-        this.gold = 100;
+        this.gold = 1000;
 
         this.power = 0;
 

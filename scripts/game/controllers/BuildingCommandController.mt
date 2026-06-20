@@ -107,6 +107,10 @@ class BuildingCommandController implements IUIButtonListener {
     private int harvestDeposit;
     // Screen-space pixel radius for right-click enemy targeting (pickEnemy).
     private float attackPickRadius;
+    // World spacing between formation slots when a multi-select move spreads units
+    // over a grid (a bit more than the agent diameter, radius 0.6 in the prefab, so
+    // the crowd never has to pack many agents onto one point).
+    private float moveFormationSpacing;
 
     constructor() {
         this.hudControllerId = -1;
@@ -128,6 +132,7 @@ class BuildingCommandController implements IUIButtonListener {
         this.upgradeCostPct = 60;
         this.harvestDeposit = 10;
         this.attackPickRadius = 40.0;
+        this.moveFormationSpacing = 2.0;
     }
 
     public function onStart(): void {
@@ -510,6 +515,31 @@ class BuildingCommandController implements IUIButtonListener {
         }
     }
 
+    // Slot `index` of a centered, roughly-square grid of `count` units around
+    // `center`, spaced `spacing` apart, snapped onto the navmesh. Used to fan a
+    // multi-select move out so the crowd is not asked to seat many agents on one
+    // point. A single unit (count 1) gets cols/rows 1 -> offset 0 -> `center`.
+    private function formationPoint(Vec3f center, int index, int count, float spacing): Vec3f {
+        int cols = 1;
+        while (cols * cols < count) {
+            cols = cols + 1;            // ceil(sqrt(count)), no float math needed
+        }
+        int rows = (count + cols - 1) / cols;
+        int row = index / cols;
+        int col = index % cols;
+        // Center the grid on `center`. Explicit (float) casts: mType has no implicit
+        // int->float promotion in arithmetic.
+        float fx = ((float)col - ((float)cols - 1.0) * 0.5) * spacing;
+        float fz = ((float)row - ((float)rows - 1.0) * 0.5) * spacing;
+        float x = center.x + fx;
+        float z = center.z + fz;
+        Vec3f p = new Vec3f(x, Terrain::heightAt(x, z), z);
+        if (!Navmesh::isPointOnNavmesh(p)) {
+            p = Navmesh::getClosestPoint(p);
+        }
+        return p;
+    }
+
     private function spawnPointNear(Vec3f bp): Vec3f {
         float ox = 6.0;
         float oz = 6.0;
@@ -589,6 +619,13 @@ class BuildingCommandController implements IUIButtonListener {
         int goldNode = this.goldNodeNear(dest, 6.0);
 
         int[] selected = PluginComponent::findAll("Selected");
+        // Spread the move order over a formation grid so the crowd never has to pack
+        // many agents onto one point. Packing left back-row units jittering in place
+        // (stuck in the Run animation) and shoved one agent off the navmesh surface
+        // (floating). Each plain-move unit gets its own reachable slot; gather orders
+        // keep their node target and do not consume a slot.
+        int total = selected.length;
+        int moveSlot = 0;
         for (int i = 0; i < selected.length; i = i + 1) {
             int uid = selected[i];
             if (!Entity::isValid(uid)) {
@@ -613,9 +650,13 @@ class BuildingCommandController implements IUIButtonListener {
                 // Move order CANCELS the gather loop: the Track drives to the
                 // point and stays idle there until told to gather a node again.
                 harv.state = HState::IDLE;
-                Navmesh::moveTo(uid, dest);
+                Vec3f fpHarv = this.formationPoint(dest, moveSlot, total, this.moveFormationSpacing);
+                moveSlot = moveSlot + 1;
+                Navmesh::moveTo(uid, fpHarv);
             } else {
-                Navmesh::moveTo(uid, dest);
+                Vec3f fpUnit = this.formationPoint(dest, moveSlot, total, this.moveFormationSpacing);
+                moveSlot = moveSlot + 1;
+                Navmesh::moveTo(uid, fpUnit);
             }
         }
     }

@@ -34,6 +34,21 @@
           "meshRefPath": "C:/matan/RTSDemo/assets/buildings/factory.vfMesh",
           "showBoundingBox": false,
           "submeshIndex": -1
+        },
+        "navmeshObstacle": {
+          "mode": "carve",
+          "movementThreshold": 0.5,
+          "offset": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "shape": "box",
+          "size": [
+            10.0,
+            4.0,
+            10.0
+          ]
         }
       },
       "isActive": true,

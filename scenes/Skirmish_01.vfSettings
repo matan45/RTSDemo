@@ -407,7 +407,7 @@
       "clipmapBaseExtent": 100.0,
       "clipmapDepthRange": 400.0,
       "clipmapLevelCount": 5,
-      "enabled": true,
+      "enabled": false,
       "normalBias": 0.019999999552965164,
       "pointResolution": 512,
       "quality": "medium",

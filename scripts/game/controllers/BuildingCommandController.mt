@@ -69,8 +69,13 @@ class BuildingCommandController implements IUIButtonListener {
     private HashMap<Int, Int?> rallyMarkers;
     private int pendingRallyBuilding;
 
-    // Production queue (FIFO; head = index 0).
+    // Per-building production queues. Stored interleaved in one FIFO array -- each
+    // QueueItem carries its buildingId and array order preserves each building's
+    // own order. Buildings produce IN PARALLEL: tickQueue advances the head (first
+    // queued item) of every building each frame. maxQueue caps items PER building;
+    // queueCap is the backing array capacity across all buildings.
     private int maxQueue;
+    private int queueCap;
     private QueueItem[] queue;
     private int queueCount;
 
@@ -118,6 +123,7 @@ class BuildingCommandController implements IUIButtonListener {
         this.pendingRallyBuilding = -1;
         this.queueCount = 0;
         this.maxQueue = 8;
+        this.queueCap = 64;
         this.harvCount = 0;
         this.maxHarvesters = 16;
         this.queueHudId = -1;
@@ -151,7 +157,7 @@ class BuildingCommandController implements IUIButtonListener {
         this.rallyPoints = new HashMap<Int, Vec3f>();
         this.rallyMarkers = new HashMap<Int, Int>();
 
-        this.queue = new QueueItem[this.maxQueue];
+        this.queue = new QueueItem[this.queueCap];
         this.harvesters = new Harvester[this.maxHarvesters];
 
         this.defineUnits();
@@ -411,7 +417,7 @@ class BuildingCommandController implements IUIButtonListener {
         if (hud == null) {
             return;
         }
-        if (this.queueCount >= this.maxQueue) {
+        if (this.buildingQueueCount(buildingId) >= this.maxQueue || this.queueCount >= this.queueCap) {
             hud.pushAlertMessage("Production queue full", 1.5);
             return;
         }
@@ -430,26 +436,80 @@ class BuildingCommandController implements IUIButtonListener {
         if (this.queueCount <= 0) {
             return;
         }
-        QueueItem head = this.queue[0];
-        // Building sold while its unit was training: drop the item (no refund).
-        if (!Entity::isValid(head.buildingId)) {
-            this.popQueue();
-            return;
+        // Drop items whose building was sold mid-production (no refund).
+        int i = 0;
+        while (i < this.queueCount) {
+            if (!Entity::isValid(this.queue[i].buildingId)) {
+                this.removeAt(i);
+            } else {
+                i = i + 1;
+            }
         }
-        head.remaining = head.remaining - dt;
-        if (head.remaining <= 0.0) {
-            int building = head.buildingId;
-            string type = head.unitType;
-            this.popQueue();
-            this.spawnUnit(building, type);
+        // Parallel production: tick only the head (first queued item) of each
+        // building this frame. Two passes -- tick all heads first, then process
+        // finished ones -- so popping a completed head never double-ticks the
+        // next item of that building in the same frame.
+        for (int h = 0; h < this.queueCount; h = h + 1) {
+            if (this.isHeadIndex(h)) {
+                this.queue[h].remaining = this.queue[h].remaining - dt;
+            }
+        }
+        // Removal shifts the array, so rescan from the start after each spawn.
+        bool again = true;
+        while (again) {
+            again = false;
+            for (int j = 0; j < this.queueCount; j = j + 1) {
+                if (this.isHeadIndex(j) && this.queue[j].remaining <= 0.0) {
+                    int building = this.queue[j].buildingId;
+                    string type = this.queue[j].unitType;
+                    this.removeAt(j);
+                    this.spawnUnit(building, type);
+                    again = true;
+                    break;
+                }
+            }
         }
     }
 
-    private function popQueue(): void {
-        for (int i = 1; i < this.queueCount; i = i + 1) {
+    // The head item for a building is its first queued item -- no earlier item in
+    // the array shares its buildingId. That head is the one currently building.
+    private function isHeadIndex(int idx): bool {
+        int b = this.queue[idx].buildingId;
+        for (int i = 0; i < idx; i = i + 1) {
+            if (this.queue[i].buildingId == b) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Remove the item at idx and shift the tail down (generalised popQueue).
+    private function removeAt(int idx): void {
+        for (int i = idx + 1; i < this.queueCount; i = i + 1) {
             this.queue[i - 1] = this.queue[i];
         }
         this.queueCount = this.queueCount - 1;
+    }
+
+    // Number of queued items owned by a building (its per-building queue length).
+    private function buildingQueueCount(int id): int {
+        int n = 0;
+        for (int i = 0; i < this.queueCount; i = i + 1) {
+            if (this.queue[i].buildingId == id) {
+                n = n + 1;
+            }
+        }
+        return n;
+    }
+
+    // Array index of a building's head item, or -1 if it has none queued.
+    private function buildingHeadIndex(int id): int {
+        for (int i = 0; i < this.queueCount; i = i + 1) {
+            if (this.queue[i].buildingId == id) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     // ---- unit spawning + movement ----
@@ -862,19 +922,23 @@ class BuildingCommandController implements IUIButtonListener {
         if (this.queueHudId < 0) {
             return;
         }
-        // Contextual like the command card / rally markers: the queue strip belongs
-        // to the selected building. Hide it when the queue is empty, nothing is
-        // selected, or the selection owns no queued production. Production itself
-        // keeps ticking in tickQueue() regardless of what's selected.
+        // Contextual like the command card / rally markers: the strip shows the
+        // SELECTED building's own queue. Every other building keeps producing in
+        // tickQueue() regardless of what's selected; this only drives display.
         int selectedId = -1;
         SelectionController? sel = this.selection();
         if (sel != null) {
             selectedId = sel.getSelectedId();
         }
-        if (this.queueCount <= 0 || selectedId < 0 || !this.queueHasBuilding(selectedId)) {
+        int headIdx = -1;
+        if (selectedId >= 0) {
+            headIdx = this.buildingHeadIndex(selectedId);
+        }
+        if (headIdx < 0) {
             this.hideQueueUI();
             return;
         }
+        int nSel = this.buildingQueueCount(selectedId);
 
         float[] bar = UI::getRectPixels(this.hudCommandBarId);
         if (bar.length < 5 || bar[0] < 0.5) {
@@ -900,16 +964,21 @@ class BuildingCommandController implements IUIButtonListener {
 
         if (this.queueLabelId >= 0) {
             UI::setRectPixels(this.queueLabelId, px + 4.0, py - 22.0, panelW, 20.0);
-            UI::setLabelText(this.queueLabelId, "Producing: " + this.queue[0].unitType);
+            UI::setLabelText(this.queueLabelId, "Producing: " + this.queue[headIdx].unitType);
         }
 
         if (this.queueListId >= 0) {
             // Position the slot strip; the layout group lays slots out left-to-right.
             UI::setRectPixels(this.queueListId, px + pad, py + 6.0, panelW - pad * 2.0, slotW);
             // Reconciles synchronously: getListItem(i) is valid this same frame.
-            UI::setListItemCount(this.queueListId, this.queueCount);
+            UI::setListItemCount(this.queueListId, nSel);
+            int slot = 0;
             for (int i = 0; i < this.queueCount; i = i + 1) {
-                int item = UI::getListItem(this.queueListId, i);
+                if (this.queue[i].buildingId != selectedId) {
+                    continue;
+                }
+                int item = UI::getListItem(this.queueListId, slot);
+                slot = slot + 1;
                 if (item < 0) {
                     continue;
                 }
@@ -921,7 +990,7 @@ class BuildingCommandController implements IUIButtonListener {
         // Single progress bar over the head slot (only the head is building).
         if (this.queueProgressId >= 0) {
             float frac = 0.0;
-            QueueItem head = this.queue[0];
+            QueueItem head = this.queue[headIdx];
             if (head.total > 0.0) {
                 frac = 1.0 - head.remaining / head.total;
             }
@@ -935,14 +1004,6 @@ class BuildingCommandController implements IUIButtonListener {
     private function hideQueueUI(): void {
         if (this.queueHudId >= 0) { Entity::setActive(this.queueHudId, false); }
         if (this.queueListId >= 0) { UI::setListItemCount(this.queueListId, 0); }
-    }
-
-    // True if any queued item is being produced by the given building.
-    private function queueHasBuilding(int id): bool {
-        for (int i = 0; i < this.queueCount; i = i + 1) {
-            if (this.queue[i].buildingId == id) { return true; }
-        }
-        return false;
     }
 
     // ---- script resolution ----

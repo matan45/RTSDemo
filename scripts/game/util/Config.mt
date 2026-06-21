@@ -21,6 +21,22 @@ public class Config {
     // Team id treated as the local player (selection, vision, ownership).
     public static final int TEAM_PLAYER = 0;
 
+    // ============================================
+    // Render layers / culling masks (VK-1415)
+    // ============================================
+    // Per-mesh render-layer index (0-31), set via Entity::setRenderLayer. A camera
+    // renders a mesh only if its cullingMask (Camera::setCullingMask) has that bit.
+    public static final int LAYER_DEFAULT = 0;     // units, buildings, terrain, normal meshes
+    public static final int LAYER_NO_MINIMAP = 10; // decorative props you want hidden from the minimap
+
+    // Culling mask for the top-down minimap camera ("camera minimap"): all layers
+    // EXCEPT LAYER_NO_MINIMAP. Value is 0xFFFFFFFF with bit 10 cleared (0xFFFFFBFF).
+    // Tag any mesh you want kept off the minimap with
+    //   Entity::setRenderLayer(id, Config::LAYER_NO_MINIMAP);
+    // (at spawn, or author renderLayer=10 on its prefab). Until something is tagged,
+    // the minimap looks unchanged.
+    public static final int MINIMAP_CULL_MASK = 4294966271;
+
     public constructor() {
     }
 }

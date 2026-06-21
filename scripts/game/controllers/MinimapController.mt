@@ -120,6 +120,17 @@ class MinimapController {
             Log::warn("[Minimap] camera entity not found; click-jump disabled.");
         }
 
+        // VK-1415: filter the top-down minimap so meshes tagged LAYER_NO_MINIMAP
+        // (decorative props) are not drawn into the minimap render texture. The
+        // minimap camera ("camera minimap") is RTT-is-camera, so its cullingMask
+        // flows straight into the RTT cull pass. Other views keep all layers.
+        int minimapCamId = Entity::findByName("camera minimap");
+        if (minimapCamId >= 0) {
+            Camera::setCullingMask(minimapCamId, Config::MINIMAP_CULL_MASK);
+        } else {
+            Log::warn("[Minimap] 'camera minimap' not found; minimap layer filter not applied.");
+        }
+
         this.setupBlips();
 
         Log::info("[Minimap] ready.");

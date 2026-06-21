@@ -41,7 +41,6 @@ class SoldierCombatController {
 
     // Cached capability flags (resolved once in onStart).
     private bool hasAnim;
-    private bool hasMuzzle;
 
     // Last-pushed animator parameter values, so we only call the native on change.
     private bool curMoving;
@@ -87,7 +86,6 @@ class SoldierCombatController {
         this.selfId = -1;
         this.targetId = -1;
         this.hasAnim = false;
-        this.hasMuzzle = false;
         this.curMoving = false;
         this.curFiring = false;
         this.lastCmd = new Vec3f(0.0, 0.0, 0.0);
@@ -109,7 +107,6 @@ class SoldierCombatController {
     public function onStart(): void {
         this.selfId = Entity::self();
         this.hasAnim = Animator::hasAnimator(this.selfId);
-        this.hasMuzzle = Socket::hasSocket(this.selfId, "Muzzle");
 
         // Drive per-shot damage from the unit's runtime Attack component when it
         // has one (added at spawn by BuildingCommandController from the UnitDef),
@@ -273,9 +270,6 @@ class SoldierCombatController {
         string ev = Animator::pollEvent(this.selfId);
         while (ev != "") {
             if (ev == "Shoot") {
-                if (this.hasMuzzle) {
-                    this.spawnMuzzle();
-                }
                 this.applyShotDamage();
             }
             ev = Animator::pollEvent(this.selfId);
@@ -294,17 +288,6 @@ class SoldierCombatController {
         int result = Combat::applyDamage(this.targetId, this.damage);
         if (result == Combat::KILLED) {
             this.targetId = -1;
-        }
-    }
-
-    private function spawnMuzzle(): void {
-        Vec3f p = Socket::getPosition(this.selfId, "Muzzle");
-        // One-shot burst; auto-destroys when finished. Spawn at the muzzle world
-        // position, then attach to the Muzzle socket so the brief flash inherits
-        // the barrel's orientation as the firing animation moves it (VK-1403).
-        int inst = VFX::spawnAt(this.muzzleVfx, p.x, p.y, p.z);
-        if (inst > 0) {
-            VFX::attachToSocket(inst, this.selfId, "Muzzle");
         }
     }
 

@@ -140,7 +140,7 @@
                         "max": 60.0,
                         "min": 0.0,
                         "type": "Float",
-                        "value": 2.0
+                        "value": 0.15000000596046448
                     },
                     "lightEmissionEnabled": {
                         "type": "Bool",
@@ -166,7 +166,7 @@
                     },
                     "looping": {
                         "type": "Bool",
-                        "value": true
+                        "value": false
                     },
                     "maxTrailPoints": {
                         "max": 256.0,

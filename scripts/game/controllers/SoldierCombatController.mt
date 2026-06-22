@@ -31,6 +31,7 @@ import * from "../../lib/engine/PluginComponent.mt";
 import * from "../../lib/math/Vec3f.mt";
 import * from "../util/Config.mt";
 import * from "../util/Combat.mt";
+import * from "./ProjectileController.mt";
 
 @Script
 class SoldierCombatController {
@@ -82,6 +83,22 @@ class SoldierCombatController {
     // Project-relative path; the .vfVFX must exist in the RTSDemo asset tree.
     private string muzzleVfx;
 
+    // Cached id of this soldier's AK-47 child entity (the static weapon mesh that
+    // carries the "Muzzle" socket), resolved once in onStart. -1 until found / if
+    // the prefab has no "AK47" child.
+    private int ak47Id;
+
+    // ---- cosmetic tracer pool (VK-1427 Phase 6) ----
+    // A small per-soldier free-list of pooled bullet entities flown from the muzzle
+    // to the target on each Shoot event. Cosmetic only -- damage stays instant
+    // hit-scan in applyShotDamage. A soldier only has a couple of tracers in flight
+    // at once (short flight time, one shot per Shoot event), so a tiny ring is
+    // plenty and never creates/destroys in the hot path.
+    private string bulletPrefab;
+    private int bulletPoolSize;
+    private int[] bulletPool;   // entity ids, -1 = not yet spawned
+    private int bulletNext;     // round-robin cursor into bulletPool
+
     constructor() {
         this.selfId = -1;
         this.targetId = -1;
@@ -102,6 +119,12 @@ class SoldierCombatController {
         this.faceTarget = true;
         this.faceYawOffsetDeg = 0.0;
         this.muzzleVfx = "assets/units/soldier/fire.vfVFX";
+
+        this.ak47Id = -1;
+        this.bulletPrefab = "assets/units/soldier/bullet_prefab.vfPrefab";
+        this.bulletPoolSize = 6;
+        this.bulletPool = new int[6];
+        this.bulletNext = 0;
     }
 
     public function onStart(): void {
@@ -132,7 +155,21 @@ class SoldierCombatController {
         int[] kids = Entity::getChildren(this.selfId);
         for (int i = 0; i < kids.length; i = i + 1) {
             if (Entity::getName(kids[i]) == "AK47") {
+                this.ak47Id = kids[i];
                 Socket::attach(kids[i], this.selfId, "Weapon_R");
+            }
+        }
+
+        // Pre-spawn the cosmetic tracer pool, parked inactive. Reused on every
+        // Shoot event so we never create/destroy bullets in the combat hot path.
+        for (int i = 0; i < this.bulletPoolSize; i = i + 1) {
+            this.bulletPool[i] = -1;
+        }
+        for (int i = 0; i < this.bulletPoolSize; i = i + 1) {
+            int b = Entity::instantiate(this.bulletPrefab);
+            if (b >= 0) {
+                Entity::setActive(b, false);
+                this.bulletPool[i] = b;
             }
         }
 
@@ -270,9 +307,64 @@ class SoldierCombatController {
         string ev = Animator::pollEvent(this.selfId);
         while (ev != "") {
             if (ev == "Shoot") {
-                this.applyShotDamage();
+                this.applyShotDamage();      // instant hit-scan (gameplay)
+                this.spawnMuzzleFlash();     // cosmetic flash at the barrel
+                this.spawnProjectile();      // cosmetic tracer toward the target
             }
             ev = Animator::pollEvent(this.selfId);
+        }
+    }
+
+    // Spawn a one-shot muzzle-flash VFX at the AK-47's "Muzzle" socket and pin it
+    // to that socket so it stays at the barrel even as the weapon animates. No-op
+    // until the AK-47 child and its "Muzzle" socket are authored (graceful until
+    // the user adds the socket in the editor).
+    private function spawnMuzzleFlash(): void {
+        if (this.ak47Id < 0 || !Entity::isValid(this.ak47Id)) {
+            return;
+        }
+        if (!Socket::hasSocket(this.ak47Id, "Muzzle")) {
+            return;
+        }
+        Vec3f m = Socket::getPosition(this.ak47Id, "Muzzle");
+        int fx = VFX::spawnAt(this.muzzleVfx, m.x, m.y, m.z);
+        if (fx != 0) {
+            VFX::attachToSocket(fx, this.ak47Id, "Muzzle");
+        }
+    }
+
+    // Fly a pooled cosmetic tracer from the muzzle toward the current target.
+    // Damage is NOT carried by the bullet (it stays instant hit-scan in
+    // applyShotDamage); this is purely a visual tracer. No-op until the AK-47 and
+    // its "Muzzle" socket are authored, or when there is no valid target.
+    private function spawnProjectile(): void {
+        if (this.ak47Id < 0 || !Entity::isValid(this.ak47Id)) {
+            return;
+        }
+        if (!Socket::hasSocket(this.ak47Id, "Muzzle")) {
+            return;
+        }
+        if (this.targetId < 0 || !Entity::isValid(this.targetId)) {
+            return;
+        }
+
+        int b = this.bulletPool[this.bulletNext];
+        this.bulletNext = (this.bulletNext + 1) % this.bulletPoolSize;
+        if (b < 0 || !Entity::isValid(b)) {
+            return;   // pool slot never spawned (instantiate failed in onStart)
+        }
+
+        Vec3f from = Socket::getPosition(this.ak47Id, "Muzzle");
+        Entity::setActive(b, true);
+        ProjectileController? pc =
+            Entity::getScript<ProjectileController>(b, "ProjectileController");
+        if (pc != null) {
+            pc.activate(from, this.targetId);
+        } else {
+            // No controller resolved (shouldn't happen): position it and park so it
+            // doesn't sit visible at the origin.
+            Entity::setPosition(b, from);
+            Entity::setActive(b, false);
         }
     }
 
@@ -296,6 +388,17 @@ class SoldierCombatController {
         if (this.hasMoveOrder) {
             Navmesh::stopAgent(this.selfId);
             this.hasMoveOrder = false;
+        }
+
+        // Tear down this soldier's tracer pool so its bullets don't linger after
+        // death. Pooled bullets are root-level entities (not children of the
+        // soldier), so they aren't reaped automatically with the unit.
+        for (int i = 0; i < this.bulletPoolSize; i = i + 1) {
+            int b = this.bulletPool[i];
+            if (b >= 0 && Entity::isValid(b)) {
+                Entity::destroy(b);
+            }
+            this.bulletPool[i] = -1;
         }
     }
 }

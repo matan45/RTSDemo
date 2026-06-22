@@ -1,0 +1,52 @@
+{
+  "prefab": {
+    "entity": {
+      "children": [],
+      "components": {
+        "material": {
+          "defaultMaterialRef": "19a4e740a13ce3ef",
+          "defaultMaterialRefPath": "C:/matan/RTSDemo/assets/resource/gold.vfMat",
+          "parameterOverrides": {},
+          "subMeshMaterials": {}
+        },
+        "mesh": {
+          "meshRef": "64fc1b3bfb6c3c9c",
+          "meshRefPath": "C:/matan/RTSDemo/assets/resource/gold_mine.vfMesh",
+          "showBoundingBox": false,
+          "submeshIndex": -1
+        },
+        "script": {
+          "scripts": [
+            {
+              "enabled": true,
+              "scriptRef": "b7e2c4a91f6d8350",
+              "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/ProjectileController.mt"
+            }
+          ]
+        }
+      },
+      "isActive": false,
+      "name": "Bullet",
+      "transform": {
+        "isStatic": false,
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.15000000596046448,
+          0.15000000596046448,
+          0.15000000596046448
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "name": "Bullet"
+  },
+  "version": "1.0"
+}

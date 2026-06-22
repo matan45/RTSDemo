@@ -34,6 +34,7 @@ import * from "../../lib/engine/Picker.mt";
 import * from "../../lib/engine/RaycastHit.mt";
 import * from "../../lib/engine/Terrain.mt";
 import * from "../../lib/engine/Physics.mt";
+import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/Log.mt";
 import * from "../../lib/engine/PluginComponent.mt";
 import * from "../../lib/engine/IUIButtonListener.mt";
@@ -558,6 +559,11 @@ class BuildingPlacementController implements IUIButtonListener {
             return;
         }
         Entity::setName(id, "BuildGhost");
+        // The prefab carries a carve NavmeshObstacle. Left active, the ghost would
+        // re-bake navmesh tiles every frame as it follows the cursor (log spam +
+        // frozen units). Keep it inert while previewing; commitPlacement re-enables
+        // it so the placed building carves its footprint exactly once.
+        Navmesh::setObstacleActive(id, false);
         // Capture the authored base rotation so cursor yaw composes on top of
         // the Blender-import tilt instead of clobbering it.
         this.ghostBaseRot = Entity::getRotation(id);
@@ -674,6 +680,11 @@ class BuildingPlacementController implements IUIButtonListener {
                 return;
             }
             this.ghostBaseRot = Entity::getRotation(id);
+            // Match the normal ghost path: start the obstacle inert so the
+            // re-enable below is what carves the footprint (a freshly instantiated
+            // prefab starts enabled, and re-enabling an already-enabled obstacle
+            // is a no-op that would skip the carve).
+            Navmesh::setObstacleActive(id, false);
             // Adopt it as the ghost so it is cleaned up if the gold check fails.
             this.ghostEntity = id;
             this.ghostSlot = slot;
@@ -703,6 +714,11 @@ class BuildingPlacementController implements IUIButtonListener {
         Entity::setActive(id, true);
         Entity::setPosition(id, this.ghostCenter);
         Entity::setRotation(id, this.composedRotation());
+
+        // Re-enable the carve NavmeshObstacle now that the building is at its
+        // final pose: this carves its footprint into the navmesh exactly once so
+        // units path around it. It no longer moves, so it will not re-dirty tiles.
+        Navmesh::setObstacleActive(id, true);
 
         // The placed building (unlike the ghost) gets a real physics body so it
         // can be picked / block movement. VK-1351: the Jolt body is built from

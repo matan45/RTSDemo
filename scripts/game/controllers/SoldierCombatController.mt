@@ -31,6 +31,7 @@ import * from "../../lib/engine/PluginComponent.mt";
 import * from "../../lib/math/Vec3f.mt";
 import * from "../util/Config.mt";
 import * from "../util/Combat.mt";
+import * from "./ProjectilePool.mt";
 
 @Script
 class SoldierCombatController {
@@ -82,6 +83,18 @@ class SoldierCombatController {
     // Project-relative path; the .vfVFX must exist in the RTSDemo asset tree.
     private string muzzleVfx;
 
+    // Cached id of this soldier's AK-47 child entity (the static weapon mesh that
+    // carries the "Muzzle" socket), resolved once in onStart. -1 until found / if
+    // the prefab has no "AK47" child.
+    private int ak47Id;
+
+    // ---- cosmetic tracer (VK-1427 Phase 6) ----
+    // Tracers are drawn from ONE shared ProjectilePool on the GameSystems entity, not
+    // a per-soldier pool, so the scene holds at most `cap` bullets total regardless of
+    // army size. Resolved once in onStart. Cosmetic only -- damage stays instant
+    // hit-scan in applyShotDamage.
+    private ProjectilePool? projectilePool;
+
     constructor() {
         this.selfId = -1;
         this.targetId = -1;
@@ -102,6 +115,9 @@ class SoldierCombatController {
         this.faceTarget = true;
         this.faceYawOffsetDeg = 0.0;
         this.muzzleVfx = "assets/units/soldier/fire.vfVFX";
+
+        this.ak47Id = -1;
+        this.projectilePool = null;
     }
 
     public function onStart(): void {
@@ -132,8 +148,16 @@ class SoldierCombatController {
         int[] kids = Entity::getChildren(this.selfId);
         for (int i = 0; i < kids.length; i = i + 1) {
             if (Entity::getName(kids[i]) == "AK47") {
+                this.ak47Id = kids[i];
                 Socket::attach(kids[i], this.selfId, "Weapon_R");
             }
+        }
+
+        // Resolve the shared tracer pool (one for the whole match) off GameSystems.
+        // No bullets are owned per-soldier; spawnProjectile just calls pool.fire().
+        int gsId = Entity::findByName("GameSystems");
+        if (gsId >= 0) {
+            this.projectilePool = Entity::getScript<ProjectilePool>(gsId, "ProjectilePool");
         }
 
         // The engine's animation-event queue is keyed by entity id for the whole
@@ -270,9 +294,54 @@ class SoldierCombatController {
         string ev = Animator::pollEvent(this.selfId);
         while (ev != "") {
             if (ev == "Shoot") {
-                this.applyShotDamage();
+                this.applyShotDamage();      // instant hit-scan (gameplay)
+                this.spawnMuzzleFlash();     // cosmetic flash at the barrel
+                this.spawnProjectile();      // cosmetic tracer toward the target
             }
             ev = Animator::pollEvent(this.selfId);
+        }
+    }
+
+    // Spawn a one-shot muzzle-flash VFX at the AK-47's "Muzzle" socket and pin it
+    // to that socket so it stays at the barrel even as the weapon animates. No-op
+    // until the AK-47 child and its "Muzzle" socket are authored (graceful until
+    // the user adds the socket in the editor).
+    private function spawnMuzzleFlash(): void {
+        if (this.ak47Id < 0 || !Entity::isValid(this.ak47Id)) {
+            return;
+        }
+        if (!Socket::hasSocket(this.ak47Id, "Muzzle")) {
+            return;
+        }
+        Vec3f m = Socket::getPosition(this.ak47Id, "Muzzle");
+        int fx = VFX::spawnAt(this.muzzleVfx, m.x, m.y, m.z);
+        if (fx != 0) {
+            VFX::attachToSocket(fx, this.ak47Id, "Muzzle");
+        }
+    }
+
+    // Fly a pooled cosmetic tracer from the muzzle toward the current target.
+    // Damage is NOT carried by the bullet (it stays instant hit-scan in
+    // applyShotDamage); this is purely a visual tracer. No-op until the AK-47 and
+    // its "Muzzle" socket are authored, or when there is no valid target.
+    private function spawnProjectile(): void {
+        if (this.ak47Id < 0 || !Entity::isValid(this.ak47Id)) {
+            return;
+        }
+        if (!Socket::hasSocket(this.ak47Id, "Muzzle")) {
+            return;
+        }
+        if (this.targetId < 0 || !Entity::isValid(this.targetId)) {
+            return;
+        }
+
+        // Hand off to the shared pool: it lazily allocates and reuses bullets across
+        // all soldiers, so firing never creates/destroys in the hot path. Narrow a
+        // local (mType field-narrowing across a call is unreliable).
+        ProjectilePool? pool = this.projectilePool;
+        if (pool != null) {
+            Vec3f muzzleVec = Socket::getPosition(this.ak47Id, "Muzzle");
+            pool.fire(muzzleVec, this.targetId);
         }
     }
 
@@ -297,5 +366,9 @@ class SoldierCombatController {
             Navmesh::stopAgent(this.selfId);
             this.hasMoveOrder = false;
         }
+
+        // Tracers belong to the shared ProjectilePool (on GameSystems), not to this
+        // soldier, so there is nothing to tear down here — the pool reuses them for
+        // other soldiers and frees them on match end.
     }
 }

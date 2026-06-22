@@ -2793,6 +2793,11 @@
 								"enabled": true,
 								"scriptRef": "c1a2b3c4d5e6f701",
 								"scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/BuildingCommandController.mt"
+							},
+							{
+								"enabled": true,
+								"scriptRef": "d2f1a6b3c8e40579",
+								"scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/ProjectilePool.mt"
 							}
 						]
 					}

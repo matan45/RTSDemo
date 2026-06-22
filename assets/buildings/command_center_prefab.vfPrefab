@@ -36,7 +36,7 @@
           "submeshIndex": -1
         },
         "navmeshObstacle": {
-          "mode": "carve",
+          "mode": "avoidanceOnly",
           "movementThreshold": 0.5,
           "offset": [
             0.0,

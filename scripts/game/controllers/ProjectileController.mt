@@ -62,11 +62,11 @@ class ProjectileController {
     // Begin (or restart) a flight. Called by the pool owner right after it sets the
     // bullet active. `from` is the muzzle world position; `target` is the entity to
     // fly toward (its live position is tracked each frame).
-    public function activate(Vec3f from, int target): void {
+    public function activate(Vec3f fromEntitiy, int target): void {
         if (this.selfId < 0) {
             this.selfId = Entity::self();
         }
-        Entity::setPosition(this.selfId, from);
+        Entity::setPosition(this.selfId, fromEntitiy);
         this.targetId = target;
         this.age = 0.0;
         this.active = true;
@@ -78,7 +78,7 @@ class ProjectileController {
         } else {
             // No valid target: aim straight ahead of the muzzle a short way so the
             // tracer still flies out and parks on the lifetime cap.
-            this.aimPoint = from;
+            this.aimPoint = fromEntitiy;
         }
     }
 

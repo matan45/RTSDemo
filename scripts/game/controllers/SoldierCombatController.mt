@@ -354,16 +354,16 @@ class SoldierCombatController {
             return;   // pool slot never spawned (instantiate failed in onStart)
         }
 
-        Vec3f from = Socket::getPosition(this.ak47Id, "Muzzle");
+        Vec3f muzzleVec = Socket::getPosition(this.ak47Id, "Muzzle");
         Entity::setActive(b, true);
         ProjectileController? pc =
             Entity::getScript<ProjectileController>(b, "ProjectileController");
         if (pc != null) {
-            pc.activate(from, this.targetId);
+            pc.activate(muzzleVec, this.targetId);
         } else {
             // No controller resolved (shouldn't happen): position it and park so it
             // doesn't sit visible at the origin.
-            Entity::setPosition(b, from);
+            Entity::setPosition(b, muzzleVec);
             Entity::setActive(b, false);
         }
     }

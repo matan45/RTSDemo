@@ -27,9 +27,9 @@
               0.0
             ],
             "rotation": [
-              -90.0,
-              50.0,
-              -4.0
+              0.0,
+              0.0,
+              0.0
             ],
             "scale": [
               10.0,
@@ -59,6 +59,33 @@
             0.4000000059604645
           ],
           "submeshIndex": -1
+        },
+        "ikTarget": {
+          "chains": [
+            {
+              "chainBoneNames": [
+                "mixamorig:LeftArm",
+                "mixamorig:LeftForeArm"
+              ],
+              "chainName": "LeftHandGrip",
+              "constraints": [
+                {
+                  "type": "None"
+                },
+                {
+                  "hingeAxis": [
+                    0.0,
+                    1.0,
+                    0.0
+                  ],
+                  "type": "Hinge"
+                }
+              ],
+              "enabled": true,
+              "tipBoneName": "mixamorig:LeftHand",
+              "weight": 1.0
+            }
+          ]
         },
         "material": {
           "defaultMaterialRef": "cf1412f3d6be7139",
@@ -102,9 +129,9 @@
       "transform": {
         "isStatic": false,
         "position": [
-          -3.8481013774871826,
-          -1.1920928955078125e-07,
-          -7.014733791351318
+          0.0,
+          0.0,
+          0.0
         ],
         "rotation": [
           0.0,

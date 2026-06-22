@@ -139,7 +139,7 @@ class SoldierCombatController {
         this.projectilePool = null;
 
         this.enableHandIK = true;
-        this.ikChain = "LeftArm";
+        this.ikChain = "LeftHandGrip";
         this.gripSocket = "LeftHandGrip";
         this.handIkWeight = 1.0;
         this.hasLeftHandIK = false;

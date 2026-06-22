@@ -31,7 +31,7 @@ import * from "../../lib/engine/PluginComponent.mt";
 import * from "../../lib/math/Vec3f.mt";
 import * from "../util/Config.mt";
 import * from "../util/Combat.mt";
-import * from "./ProjectileController.mt";
+import * from "./ProjectilePool.mt";
 
 @Script
 class SoldierCombatController {
@@ -88,16 +88,12 @@ class SoldierCombatController {
     // the prefab has no "AK47" child.
     private int ak47Id;
 
-    // ---- cosmetic tracer pool (VK-1427 Phase 6) ----
-    // A small per-soldier free-list of pooled bullet entities flown from the muzzle
-    // to the target on each Shoot event. Cosmetic only -- damage stays instant
-    // hit-scan in applyShotDamage. A soldier only has a couple of tracers in flight
-    // at once (short flight time, one shot per Shoot event), so a tiny ring is
-    // plenty and never creates/destroys in the hot path.
-    private string bulletPrefab;
-    private int bulletPoolSize;
-    private int[] bulletPool;   // entity ids, -1 = not yet spawned
-    private int bulletNext;     // round-robin cursor into bulletPool
+    // ---- cosmetic tracer (VK-1427 Phase 6) ----
+    // Tracers are drawn from ONE shared ProjectilePool on the GameSystems entity, not
+    // a per-soldier pool, so the scene holds at most `cap` bullets total regardless of
+    // army size. Resolved once in onStart. Cosmetic only -- damage stays instant
+    // hit-scan in applyShotDamage.
+    private ProjectilePool? projectilePool;
 
     constructor() {
         this.selfId = -1;
@@ -121,10 +117,7 @@ class SoldierCombatController {
         this.muzzleVfx = "assets/units/soldier/fire.vfVFX";
 
         this.ak47Id = -1;
-        this.bulletPrefab = "assets/units/soldier/bullet_prefab.vfPrefab";
-        this.bulletPoolSize = 6;
-        this.bulletPool = new int[6];
-        this.bulletNext = 0;
+        this.projectilePool = null;
     }
 
     public function onStart(): void {
@@ -160,12 +153,11 @@ class SoldierCombatController {
             }
         }
 
-        // Mark the cosmetic tracer pool empty. Bullets are allocated LAZILY on the
-        // first Shoot event that uses each slot (see spawnProjectile), so spawning a
-        // soldier creates zero bullet entities up front -- they only appear once the
-        // soldier actually fires, then are reused for the rest of its life.
-        for (int i = 0; i < this.bulletPoolSize; i = i + 1) {
-            this.bulletPool[i] = -1;
+        // Resolve the shared tracer pool (one for the whole match) off GameSystems.
+        // No bullets are owned per-soldier; spawnProjectile just calls pool.fire().
+        int gsId = Entity::findByName("GameSystems");
+        if (gsId >= 0) {
+            this.projectilePool = Entity::getScript<ProjectilePool>(gsId, "ProjectilePool");
         }
 
         // The engine's animation-event queue is keyed by entity id for the whole
@@ -343,32 +335,13 @@ class SoldierCombatController {
             return;
         }
 
-        int slot = this.bulletNext;
-        this.bulletNext = (this.bulletNext + 1) % this.bulletPoolSize;
-
-        // Lazily allocate this slot on first use (and re-allocate if its bullet was
-        // destroyed). No bullets exist until the soldier actually fires; the pool
-        // grows to at most bulletPoolSize and is reused from then on.
-        int b = this.bulletPool[slot];
-        if (b < 0 || !Entity::isValid(b)) {
-            b = Entity::instantiate(this.bulletPrefab);
-            if (b < 0) {
-                return;   // instantiate failed
-            }
-            this.bulletPool[slot] = b;
-        }
-
-        Vec3f muzzleVec = Socket::getPosition(this.ak47Id, "Muzzle");
-        Entity::setActive(b, true);
-        ProjectileController? pc =
-            Entity::getScript<ProjectileController>(b, "ProjectileController");
-        if (pc != null) {
-            pc.activate(muzzleVec, this.targetId);
-        } else {
-            // No controller resolved (shouldn't happen): position it and park so it
-            // doesn't sit visible at the origin.
-            Entity::setPosition(b, muzzleVec);
-            Entity::setActive(b, false);
+        // Hand off to the shared pool: it lazily allocates and reuses bullets across
+        // all soldiers, so firing never creates/destroys in the hot path. Narrow a
+        // local (mType field-narrowing across a call is unreliable).
+        ProjectilePool? pool = this.projectilePool;
+        if (pool != null) {
+            Vec3f muzzleVec = Socket::getPosition(this.ak47Id, "Muzzle");
+            pool.fire(muzzleVec, this.targetId);
         }
     }
 
@@ -394,15 +367,8 @@ class SoldierCombatController {
             this.hasMoveOrder = false;
         }
 
-        // Tear down this soldier's tracer pool so its bullets don't linger after
-        // death. Pooled bullets are root-level entities (not children of the
-        // soldier), so they aren't reaped automatically with the unit.
-        for (int i = 0; i < this.bulletPoolSize; i = i + 1) {
-            int b = this.bulletPool[i];
-            if (b >= 0 && Entity::isValid(b)) {
-                Entity::destroy(b);
-            }
-            this.bulletPool[i] = -1;
-        }
+        // Tracers belong to the shared ProjectilePool (on GameSystems), not to this
+        // soldier, so there is nothing to tear down here — the pool reuses them for
+        // other soldiers and frees them on match end.
     }
 }

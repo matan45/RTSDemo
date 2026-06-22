@@ -388,6 +388,9 @@
       }
     },
     "rtShadows": {
+      "adaptiveBudgetEnabled": true,
+      "asMemoryBudgetMB": 256.0,
+      "budgetMs": 2.0,
       "depthThreshold": 0.009999999776482582,
       "enabled": false,
       "maxRayDistance": 500.0,
@@ -396,6 +399,7 @@
       "pointBudget": 8,
       "pointEnabled": false,
       "rayTMin": 0.009999999776482582,
+      "shadowResolutionScale": 0,
       "spatialPasses": 3,
       "spatialPhiDepth": 0.004999999888241291,
       "spatialPhiNormal": 32.0,

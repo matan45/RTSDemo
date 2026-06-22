@@ -160,17 +160,12 @@ class SoldierCombatController {
             }
         }
 
-        // Pre-spawn the cosmetic tracer pool, parked inactive. Reused on every
-        // Shoot event so we never create/destroy bullets in the combat hot path.
+        // Mark the cosmetic tracer pool empty. Bullets are allocated LAZILY on the
+        // first Shoot event that uses each slot (see spawnProjectile), so spawning a
+        // soldier creates zero bullet entities up front -- they only appear once the
+        // soldier actually fires, then are reused for the rest of its life.
         for (int i = 0; i < this.bulletPoolSize; i = i + 1) {
             this.bulletPool[i] = -1;
-        }
-        for (int i = 0; i < this.bulletPoolSize; i = i + 1) {
-            int b = Entity::instantiate(this.bulletPrefab);
-            if (b >= 0) {
-                Entity::setActive(b, false);
-                this.bulletPool[i] = b;
-            }
         }
 
         // The engine's animation-event queue is keyed by entity id for the whole
@@ -348,10 +343,19 @@ class SoldierCombatController {
             return;
         }
 
-        int b = this.bulletPool[this.bulletNext];
+        int slot = this.bulletNext;
         this.bulletNext = (this.bulletNext + 1) % this.bulletPoolSize;
+
+        // Lazily allocate this slot on first use (and re-allocate if its bullet was
+        // destroyed). No bullets exist until the soldier actually fires; the pool
+        // grows to at most bulletPoolSize and is reused from then on.
+        int b = this.bulletPool[slot];
         if (b < 0 || !Entity::isValid(b)) {
-            return;   // pool slot never spawned (instantiate failed in onStart)
+            b = Entity::instantiate(this.bulletPrefab);
+            if (b < 0) {
+                return;   // instantiate failed
+            }
+            this.bulletPool[slot] = b;
         }
 
         Vec3f muzzleVec = Socket::getPosition(this.ak47Id, "Muzzle");

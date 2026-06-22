@@ -26,6 +26,7 @@ import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/Animator.mt";
 import * from "../../lib/engine/Socket.mt";
+import * from "../../lib/engine/IK.mt";
 import * from "../../lib/engine/VFX.mt";
 import * from "../../lib/engine/PluginComponent.mt";
 import * from "../../lib/math/Vec3f.mt";
@@ -88,6 +89,24 @@ class SoldierCombatController {
     // the prefab has no "AK47" child.
     private int ak47Id;
 
+    // ---- support-hand IK (keep the left hand on the rifle in every state) ----
+    // The rifle is rigidly parented to the right hand ("Weapon_R"), so the LEFT
+    // (support) hand drifts off the foregrip whenever a locomotion clip swings the
+    // arms. The fix (the same one UE5/Unity use): each frame, pull the left hand to
+    // a grip point authored ON the rifle via the FABRIK IK solver. Because the grip
+    // socket's world transform already follows the right hand, the support hand
+    // tracks the gun in idle / run / fire with no per-state data.
+    //
+    // Requires (authored in the editor, graceful no-op until then):
+    //   - a "LeftHandGrip" socket on the AK-47 mesh, at the handguard, and
+    //   - an IKTargetComponent on the soldier with a "LeftArm" chain (left
+    //     upper-arm -> lower-arm, tip = left hand; Hinge elbow constraint).
+    private bool enableHandIK;     // master toggle
+    private string ikChain;        // IK chain name authored on the soldier
+    private string gripSocket;     // socket name authored on the rifle
+    private float handIkWeight;    // blend (1.0 = full IK; drop to A/B vs drift)
+    private bool hasLeftHandIK;    // cached IK::hasComponent(self), resolved in onStart
+
     // ---- cosmetic tracer (VK-1427 Phase 6) ----
     // Tracers are drawn from ONE shared ProjectilePool on the GameSystems entity, not
     // a per-soldier pool, so the scene holds at most `cap` bullets total regardless of
@@ -118,11 +137,18 @@ class SoldierCombatController {
 
         this.ak47Id = -1;
         this.projectilePool = null;
+
+        this.enableHandIK = true;
+        this.ikChain = "LeftArm";
+        this.gripSocket = "LeftHandGrip";
+        this.handIkWeight = 1.0;
+        this.hasLeftHandIK = false;
     }
 
     public function onStart(): void {
         this.selfId = Entity::self();
         this.hasAnim = Animator::hasAnimator(this.selfId);
+        this.hasLeftHandIK = IK::hasComponent(this.selfId);
 
         // Drive per-shot damage from the unit's runtime Attack component when it
         // has one (added at spawn by BuildingCommandController from the UnitDef),
@@ -200,6 +226,9 @@ class SoldierCombatController {
         if (this.hasAnim) {
             this.drainShootEvents();
         }
+
+        // Keep the support hand glued to the rifle's grip across every anim state.
+        this.updateHandIK();
     }
 
     // ---- states ----
@@ -288,6 +317,33 @@ class SoldierCombatController {
         float yawDeg = yawRad / Config::DEG_TO_RAD + this.faceYawOffsetDeg;
         Vec3f r = Entity::getRotation(this.selfId);
         Entity::setRotation(this.selfId, new Vec3f(r.x, yawDeg, r.z));
+    }
+
+    // Pull the soldier's left (support) hand onto the rifle's grip socket via the
+    // FABRIK IK solver, every frame, on top of whatever locomotion pose is playing.
+    // The grip socket lives on the AK-47 mesh and its world transform already tracks
+    // the right hand (rifle is parented to "Weapon_R"), so feeding that world point
+    // to the "LeftArm" chain keeps the hand planted in idle / run / fire alike.
+    //
+    // Position-only by default: pinning the tip rotation too can over-twist the
+    // wrist. If the hand sits on the grip but rolls oddly, switch to
+    // IK::setTargetWithRotation(self, chain, grip, Socket::getRotation(ak, grip)).
+    //
+    // Fully guarded so it is a no-op until both the IK chain (on the soldier) and
+    // the grip socket (on the rifle) are authored in the editor.
+    private function updateHandIK(): void {
+        if (!this.enableHandIK || !this.hasLeftHandIK) {
+            return;
+        }
+        if (this.ak47Id < 0 || !Entity::isValid(this.ak47Id)) {
+            return;
+        }
+        if (!Socket::hasSocket(this.ak47Id, this.gripSocket)) {
+            return;
+        }
+        Vec3f grip = Socket::getPosition(this.ak47Id, this.gripSocket);
+        IK::setTarget(this.selfId, this.ikChain, grip);
+        IK::setChainWeight(this.selfId, this.ikChain, this.handIkWeight);
     }
 
     private function drainShootEvents(): void {

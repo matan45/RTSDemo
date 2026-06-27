@@ -117,6 +117,7 @@
           "rootMotionSpeedScale": 1.0,
           "separationWeight": 2.0,
           "stoppingDistance": 0.30000001192092896,
+          "turnSpeed": 540.0,
           "useCustomCosts": false
         },
         "script": {

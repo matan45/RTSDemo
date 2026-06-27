@@ -130,6 +130,20 @@ class UnitSelectionController {
         this.pushSelectionToHud();
     }
 
+    // Glue each selection ring to its unit AFTER the engine's Navmesh task has moved the
+    // unit this frame. onUpdate runs BEFORE Navmesh, so setting the ring position there
+    // placed it at last frame's spot -- visibly trailing a fast, nav-paced unit.
+    public function onLateUpdate(float deltaTime): void {
+        Int[] keys = this.selectedRings.getKeys();
+        for (int i = 0; i < keys.length; i = i + 1) {
+            int unitId = keys[i].getValue();
+            if (Entity::isValid(unitId)) {
+                Int ring = this.selectedRings.get(keys[i]);
+                Entity::setPosition(ring.getValue(), Entity::getPosition(unitId));
+            }
+        }
+    }
+
     public function onDestroy(): void {
     }
 
@@ -394,7 +408,9 @@ class UnitSelectionController {
 
     // ---- ring decals ----
 
-    // Keep each ring glued to its unit; drop selections whose entity is gone.
+    // Drop selections whose entity is gone. Ring POSITIONS are synced separately in
+    // onLateUpdate (after the Navmesh task) so a fast, nav-paced unit's ring doesn't
+    // trail a frame behind the rendered mesh.
     private function updateRings(): void {
         Int[] keys = this.selectedRings.getKeys();
         for (int i = 0; i < keys.length; i = i + 1) {
@@ -403,9 +419,6 @@ class UnitSelectionController {
                 // Unit was destroyed: drop its selection ring and its panel info.
                 this.unitInfo.remove(new Int(unitId));
                 this.removeUnit(unitId);
-            } else {
-                Int ring = this.selectedRings.get(keys[i]);
-                Entity::setPosition(ring.getValue(), Entity::getPosition(unitId));
             }
         }
     }

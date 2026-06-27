@@ -35,6 +35,7 @@ import * from "../../lib/engine/RaycastHit.mt";
 import * from "../../lib/engine/ScreenPoint.mt";
 import * from "../../lib/engine/Terrain.mt";
 import * from "../../lib/engine/Navmesh.mt";
+import * from "../../lib/engine/Blackboard.mt";
 import * from "../../lib/engine/Decal.mt";
 import * from "../../lib/engine/Log.mt";
 import * from "../../lib/engine/PluginComponent.mt";
@@ -47,13 +48,13 @@ import * from "./SelectionController.mt";
 import * from "./BuildingPlacementController.mt";
 import * from "./UnitSelectionController.mt";
 import * from "./SoldierCombatController.mt";
+import * from "../ai/PatrolDemo.mt";
+import * from "../ai/EnemyGuards.mt";
 import * from "../data/BuildingInfo.mt";
 import * from "../data/UnitDef.mt";
 import * from "../data/UnitInfo.mt";
 import * from "../data/QueueItem.mt";
-import * from "../data/Harvester.mt";
 import * from "../util/Config.mt";
-import * from "../util/HState.mt";
 import * from "../util/InputEdge.mt";
 
 @Script
@@ -79,12 +80,11 @@ class BuildingCommandController implements IUIButtonListener {
     private QueueItem[] queue;
     private int queueCount;
 
-    // Active Track harvesters. A Track starts IDLE; right-clicking a gold node
-    // starts its refinery <-> node loop, and a move order cancels it back to
-    // IDLE (state uses HState::*).
-    private int maxHarvesters;
-    private Harvester[] harvesters;
-    private int harvCount;
+    // Active Track harvesters. A Track spawns with no behavior tree; right-clicking
+    // a gold node attaches the per-Track HarvesterLoop tree (VK-1447) and a ground
+    // move cancels it. trackHomes holds each Track's refinery drop-off so a gather
+    // order can seed the tree's homePos.
+    private HashMap<Int, Vec3f?> trackHomes;
 
     // Unit definitions (cost / time / prefab / icon), scanned by type.
     private UnitDef[] unitDefs;
@@ -103,8 +103,6 @@ class BuildingCommandController implements IUIButtonListener {
 
     // Max agent speed applied to each spawned unit's NavmeshAgent.
     private float unitSpeed;
-    // Squared arrival radius for harvester waypoint detection.
-    private float arriveEps2;
 
     // Attack component tuning for combat units (Soldier/Tank). range matches
     // SoldierCombatController.fireRange so the data-driven attack agrees with the
@@ -115,13 +113,18 @@ class BuildingCommandController implements IUIButtonListener {
     // Gameplay tuning.
     private int sellRefundPct;
     private int upgradeCostPct;
-    private int harvestDeposit;
+    private float harvestDeposit;
     // Screen-space pixel radius for right-click enemy targeting (pickEnemy).
     private float attackPickRadius;
     // World spacing between formation slots when a multi-select move spreads units
     // over a grid (a bit more than the agent diameter, radius 0.6 in the prefab, so
     // the crowd never has to pack many agents onto one point).
     private float moveFormationSpacing;
+
+    // VK-1446/1447 AI showcase, bootstrapped from onStart so it needs no extra scene
+    // wiring. Remove these fields + their setup/update calls to drop the demo.
+    private PatrolDemo patrolDemo;
+    private EnemyGuards enemyGuards;
 
     constructor() {
         this.hudControllerId = -1;
@@ -130,8 +133,6 @@ class BuildingCommandController implements IUIButtonListener {
         this.queueCount = 0;
         this.maxQueue = 8;
         this.queueCap = 64;
-        this.harvCount = 0;
-        this.maxHarvesters = 16;
         this.queueHudId = -1;
         this.queueLabelId = -1;
         this.queueListId = -1;
@@ -139,12 +140,11 @@ class BuildingCommandController implements IUIButtonListener {
         this.hudCommandBarId = -1;
         this.unitSerial = 0;
         this.unitSpeed = 8.0;
-        this.arriveEps2 = 9.0;
         this.unitAttackRange = 14.0;
         this.unitAttackCooldown = 1.0;
         this.sellRefundPct = 70;
         this.upgradeCostPct = 60;
-        this.harvestDeposit = 10;
+        this.harvestDeposit = 10.0;
         this.attackPickRadius = 40.0;
         this.moveFormationSpacing = 2.0;
     }
@@ -166,10 +166,17 @@ class BuildingCommandController implements IUIButtonListener {
         this.rallyMarkers = new HashMap<Int, Int>();
 
         this.queue = new QueueItem[this.queueCap];
-        this.harvesters = new Harvester[this.maxHarvesters];
+        this.trackHomes = new HashMap<Int, Vec3f>();
 
         this.defineUnits();
         this.setupQueueUI();
+
+        // VK-1446/1447 AI showcase (patrol route + scene enemy guards).
+        this.patrolDemo = new PatrolDemo();
+        this.patrolDemo.setup();
+        this.enemyGuards = new EnemyGuards();
+        this.enemyGuards.setup();
+
         Log::info("[BuildingCommand] ready.");
     }
 
@@ -203,8 +210,8 @@ class BuildingCommandController implements IUIButtonListener {
         this.updateRallyMarkers();
         this.tickQueue(deltaTime);
         this.handleMoveCommand();
-        this.tickHarvesters(deltaTime);
         this.updateQueueUI();
+        this.patrolDemo.update(deltaTime);
     }
 
     public function onDestroy(): void {
@@ -608,7 +615,7 @@ class BuildingCommandController implements IUIButtonListener {
         // refinery <-> gold-node loop once the player right-clicks a gold node
         // (so no rally move here). Other unit types just walk to the rally point.
         if (type == "Track") {
-            this.registerHarvester(id, buildingId, spawn);
+            this.trackHomes.put(new Int(id), spawn);
             return;
         }
 
@@ -742,21 +749,22 @@ class BuildingCommandController implements IUIButtonListener {
             if (scc != null) {
                 scc.setTarget(-1);
             }
-            Harvester? harv = this.harvesterFor(uid);
-            if (harv != null && goldNode >= 0) {
-                // Gather order: retarget the clicked gold node and (re)start the
-                // refinery <-> node loop from wherever the Track currently is.
-                Vec3f mp = Entity::getPosition(goldNode);
-                harv.minePos = new Vec3f(mp.x, Terrain::heightAt(mp.x, mp.z), mp.z);
-                harv.state = HState::TO_MINE;
-                Navmesh::moveTo(uid, harv.minePos);
-            } else if (harv != null) {
-                // Move order CANCELS the gather loop: the Track drives to the
-                // point and stays idle there until told to gather a node again.
-                harv.state = HState::IDLE;
-                Vec3f fpHarv = this.formationPoint(dest, moveSlot, total, this.moveFormationSpacing);
-                moveSlot = moveSlot + 1;
-                Navmesh::moveTo(uid, fpHarv);
+            Vec3f? home = this.trackHomes.get(new Int(uid));
+            if (home != null) {
+                if (goldNode >= 0) {
+                    // Gather order: (re)attach a fresh HarvesterLoop tree and point
+                    // it at the clicked node. The tree now owns gather movement.
+                    Vec3f mp = Entity::getPosition(goldNode);
+                    Vec3f mine = new Vec3f(mp.x, Terrain::heightAt(mp.x, mp.z), mp.z);
+                    this.startHarvest(uid, mine, home);
+                } else {
+                    // Move order CANCELS gathering: stop+detach the tree FIRST so it
+                    // never races the manual move for the Track's NavmeshAgent.
+                    this.stopHarvest(uid);
+                    Vec3f fpHarv = this.formationPoint(dest, moveSlot, total, this.moveFormationSpacing);
+                    moveSlot = moveSlot + 1;
+                    Navmesh::moveTo(uid, fpHarv);
+                }
             } else {
                 Vec3f fpUnit = this.formationPoint(dest, moveSlot, total, this.moveFormationSpacing);
                 moveSlot = moveSlot + 1;
@@ -816,85 +824,34 @@ class BuildingCommandController implements IUIButtonListener {
     }
 
     // ---- harvesters (Track loop: refinery <-> commanded GoldNode) ----
+    //
+    // The Track gather loop is now a per-Track behavior tree
+    // (assets/ai/HarvesterLoop.vfBehaviorTree, VK-1447): mine -> gather -> home ->
+    // deposit, owned entirely by the tree's own blackboard. A Track spawns with no
+    // tree (idle); a right-click on a gold node attaches a fresh tree seeded with
+    // that node + the Track's home; a ground move detaches it. Two Tracks share the
+    // one asset but carry independent per-entity blackboards.
 
-    // Register a freshly spawned Track as a harvester. It starts IDLE and does
-    // NOT auto-gather -- the loop only begins once the player right-clicks a gold
-    // node (handleMoveCommand). home = its spawn point (the refinery drop-off);
-    // minePos is just a placeholder until a gather order picks the node.
-    private function registerHarvester(int unitId, int refineryId, Vec3f home): void {
-        if (this.harvCount >= this.maxHarvesters) {
+    // (Re)start gathering: attach a fresh HarvesterLoop tree, seed the per-unit
+    // blackboard, and enable it. Detach first so a re-gather restarts cleanly at the
+    // mine leg rather than resuming a mid-loop sequence.
+    private function startHarvest(int uid, Vec3f mine, Vec3f home): void {
+        Blackboard::detachTree(uid);
+        bool ok = Blackboard::attachTree(uid, "assets/ai/HarvesterLoop.vfBehaviorTree");
+        if (!ok) {
+            Navmesh::moveTo(uid, mine);   // fallback: at least walk to the node
             return;
         }
-        this.harvesters[this.harvCount] = new Harvester(unitId, refineryId, home, home);
-        this.harvCount = this.harvCount + 1;
+        Blackboard::setVec3(uid, "minePos", mine.x, mine.y, mine.z);
+        Blackboard::setVec3(uid, "homePos", home.x, home.y, home.z);
+        Blackboard::setFloat(uid, "depositAmount", this.harvestDeposit);
+        Blackboard::setEnabled(uid, true);
     }
 
-    private function tickHarvesters(float dt): void {
-        int h = 0;
-        while (h < this.harvCount) {
-            Harvester harv = this.harvesters[h];
-            if (!Entity::isValid(harv.unitId) || !Entity::isValid(harv.refineryId)) {
-                this.removeHarvester(h);
-                continue;
-            }
-
-            // Idle: a freshly spawned Track, or one whose loop a move order
-            // cancelled. It does nothing until the player right-clicks a gold
-            // node to (re)start gathering (handleMoveCommand).
-            if (harv.state == HState::IDLE) {
-                h = h + 1;
-                continue;
-            }
-
-            if (harv.state == HState::TO_MINE) {
-                if (this.arrived(harv.unitId, harv.minePos)) {
-                    harv.state = HState::MINING;
-                    harv.dwell = 1.5;
-                }
-            } else if (harv.state == HState::MINING) {
-                harv.dwell = harv.dwell - dt;
-                if (harv.dwell <= 0.0) {
-                    harv.state = HState::TO_HOME;
-                    Navmesh::moveTo(harv.unitId, harv.homePos);
-                }
-            } else if (harv.state == HState::TO_HOME) {
-                if (this.arrived(harv.unitId, harv.homePos)) {
-                    harv.state = HState::DEPOSIT;
-                }
-            } else {
-                RTSHUDController? hud = this.hud();
-                if (hud != null) {
-                    hud.addGold(this.harvestDeposit);
-                }
-                harv.state = HState::TO_MINE;
-                Navmesh::moveTo(harv.unitId, harv.minePos);
-            }
-            h = h + 1;
-        }
-    }
-
-    // Linear scan: small (maxHarvesters = 16) and only hit on right-click /
-    // harvester ticks, not a per-frame-per-entity cost.
-    private function harvesterFor(int unitId): Harvester? {
-        for (int i = 0; i < this.harvCount; i = i + 1) {
-            if (this.harvesters[i].unitId == unitId) {
-                return this.harvesters[i];
-            }
-        }
-        return null;
-    }
-
-    private function arrived(int id, Vec3f target): bool {
-        Vec3f p = Entity::getPosition(id);
-        float dx = target.x - p.x;
-        float dz = target.z - p.z;
-        return (dx * dx + dz * dz) <= this.arriveEps2;
-    }
-
-    private function removeHarvester(int index): void {
-        int last = this.harvCount - 1;
-        this.harvesters[index] = this.harvesters[last];
-        this.harvCount = last;
+    // Stop gathering and remove the tree so it can't keep commanding the agent.
+    private function stopHarvest(int uid): void {
+        Blackboard::setEnabled(uid, false);
+        Blackboard::detachTree(uid);
     }
 
     // Nearest GoldNode within `radius` of a world point, or -1. Turns a

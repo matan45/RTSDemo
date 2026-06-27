@@ -171,6 +171,11 @@ public class FollowRoute {
         this.needIssue = true;   // re-issue the current leg if this branch resumes
     }
 
+    // Required by the @Script validator; the behavior tree drives this task via
+    // tick(), so onUpdate is an intentional no-op.
+    public function onUpdate(float deltaTime): void {
+    }
+
     public function onDestroy(): void {
     }
 

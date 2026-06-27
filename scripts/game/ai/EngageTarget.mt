@@ -53,6 +53,11 @@ public class EngageTarget {
         this.clearCombat();
     }
 
+    // Required by the @Script validator; the behavior tree drives this task via
+    // tick(), so onUpdate is an intentional no-op.
+    public function onUpdate(float deltaTime): void {
+    }
+
     public function onDestroy(): void {
         this.clearCombat();
     }

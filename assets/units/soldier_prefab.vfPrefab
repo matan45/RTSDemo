@@ -113,7 +113,7 @@
           "maxAcceleration": 12.0,
           "maxSpeed": 6.0,
           "radius": 0.6000000238418579,
-          "rootMotionDriven": true,
+          "rootMotionDriven": false,
           "rootMotionSpeedScale": 1.0,
           "separationWeight": 2.0,
           "stoppingDistance": 0.30000001192092896,

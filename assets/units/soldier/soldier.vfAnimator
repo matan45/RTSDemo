@@ -14,9 +14,9 @@
                 ],
                 "parameters": [
                     {
-                        "default": false,
-                        "name": "IsMoving",
-                        "type": "Bool"
+                        "default": 0.0,
+                        "name": "Speed",
+                        "type": "Float"
                     },
                     {
                         "default": false,
@@ -27,24 +27,27 @@
                 "states": [
                     {
                         "animationRef": "5840c81ac0e31ca7",
+                        "blendTree": {
+                            "entries": [
+                                {
+                                    "animationRef": "5840c81ac0e31ca7",
+                                    "threshold": 0.0
+                                },
+                                {
+                                    "animationRef": "72c4aed9ccbe2d30",
+                                    "threshold": 6.0
+                                }
+                            ],
+                            "parameterName": "Speed",
+                            "type": "1D"
+                        },
                         "id": 1,
                         "loop": true,
-                        "name": "Idle",
+                        "name": "Locomotion",
                         "playbackSpeed": 1.0,
                         "position": [
                             211.0,
                             177.0
-                        ]
-                    },
-                    {
-                        "animationRef": "72c4aed9ccbe2d30",
-                        "id": 2,
-                        "loop": false,
-                        "name": "Run",
-                        "playbackSpeed": 1.0,
-                        "position": [
-                            195.0,
-                            353.0
                         ]
                     },
                     {
@@ -66,38 +69,6 @@
                     }
                 ],
                 "transitions": [
-                    {
-                        "blendDuration": 0.20000000298023224,
-                        "conditions": [
-                            {
-                                "operator": "==",
-                                "parameter": "IsMoving",
-                                "value": true
-                            }
-                        ],
-                        "exitTime": 1.0,
-                        "hasExitTime": false,
-                        "id": 1,
-                        "priority": 1,
-                        "sourceState": 1,
-                        "targetState": 2
-                    },
-                    {
-                        "blendDuration": 0.20000000298023224,
-                        "conditions": [
-                            {
-                                "operator": "==",
-                                "parameter": "IsMoving",
-                                "value": false
-                            }
-                        ],
-                        "exitTime": 1.0,
-                        "hasExitTime": false,
-                        "id": 2,
-                        "priority": 1,
-                        "sourceState": 2,
-                        "targetState": 1
-                    },
                     {
                         "blendDuration": 0.15000000596046448,
                         "conditions": [

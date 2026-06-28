@@ -2,14 +2,14 @@
 // soldier (VK-1402/1403/1404 demo wiring).
 //
 // One instance of this @Script lives on each soldier prefab root. It drives the
-// soldier.vfAnimator parameters (IsMoving / IsFiring) and spawns a muzzle-flash
+// soldier.vfAnimator parameters (Speed / IsFiring) and spawns a muzzle-flash
 // VFX at the rifle barrel on every "Shoot" animation event, based on the order
 // it is given:
 //
-//   idle   - no order, agent at rest        -> IsMoving=false, IsFiring=false
-//   move   - moving under a move order       -> IsMoving=true,  IsFiring=false
-//   chase  - has an attack target out of range-> IsMoving=true,  IsFiring=false
-//   fire   - has an attack target in range    -> IsMoving=false, IsFiring=true
+//   idle   - no order, agent at rest        -> Speed=0,     IsFiring=false
+//   move   - moving under a move order       -> Speed=|vel|, IsFiring=false
+//   chase  - has an attack target out of range-> Speed=|vel|, IsFiring=false
+//   fire   - has an attack target in range    -> Speed=0,     IsFiring=true
 //            (stop-and-shoot, auto-repeats while the target stays in range)
 //
 // The order is set externally by BuildingCommandController.handleMoveCommand on
@@ -17,9 +17,11 @@
 // setTarget(-1). The right-click router reaches this script via
 // Entity::getScript<SoldierCombatController>(unitId, "SoldierCombatController").
 //
-// Movement state is read back from the NavmeshAgent velocity, so plain move
-// orders (issued by the router via Navmesh::moveTo) still animate as Run with no
-// extra bookkeeping. Attach this @Script to the soldier prefab root alongside
+// Locomotion is nav-paced: the NavmeshAgent (not root motion) moves the unit at its
+// configured maxSpeed, and the animator's "Speed" float drives a 1D Idle<->Run blend
+// tree from the agent's velocity (set fresh each frame in onLateUpdate). Plain move
+// orders (issued by the router via Navmesh::moveTo) animate as Run with no extra
+// bookkeeping. Attach this @Script to the soldier prefab root alongside
 // MeshComponent(animatorRef=soldier.vfAnimator) + NavmeshAgent.
 
 import * from "../../lib/engine/Entity.mt";
@@ -45,7 +47,7 @@ class SoldierCombatController {
     private bool hasAnim;
 
     // Last-pushed animator parameter values, so we only call the native on change.
-    private bool curMoving;
+    private float curSpeed;   // smoothed locomotion speed pushed to the "Speed" blend param
     private bool curFiring;
 
     // Chase bookkeeping: the last destination we commanded, so we re-path only
@@ -64,8 +66,10 @@ class SoldierCombatController {
     // Beyond this horizontal distance from the soldier the target is abandoned.
     private float giveUpRange;
     private float giveUpRangeSq;
-    // Agent speed (squared) above which the soldier is considered "moving".
-    private float velEpsSq;
+    // Per-frame damping for the locomotion "Speed" blend param (0..1); lower = smoother
+    // ease into/out of the Idle<->Run blend. Fed a FRESH same-frame navmesh velocity in
+    // onLateUpdate (updateLocomotionSpeed), so the blend tracks the body's real speed.
+    private float speedDamp;
     // While chasing, re-issue the path once the target drifts this far (squared).
     private float reissueDistSq;
     // Damage dealt to the target per "Shoot" animation event (VK-1404). Seeded
@@ -118,7 +122,7 @@ class SoldierCombatController {
         this.selfId = -1;
         this.targetId = -1;
         this.hasAnim = false;
-        this.curMoving = false;
+        this.curSpeed = 0.0;
         this.curFiring = false;
         this.lastCmd = new Vec3f(0.0, 0.0, 0.0);
         this.hasMoveOrder = false;
@@ -128,7 +132,7 @@ class SoldierCombatController {
         this.fireExitRangeSq = 16.0 * 16.0;
         this.giveUpRange = 80.0;
         this.giveUpRangeSq = 80.0 * 80.0;
-        this.velEpsSq = 0.04;            // ~0.2 units/s
+        this.speedDamp = 0.25;           // ease the Idle<->Run blend (0..1)
         this.reissueDistSq = 4.0;        // re-path if target moved > 2 units
         this.damage = 10.0;              // HP per Shoot event
         this.faceTarget = true;
@@ -159,10 +163,10 @@ class SoldierCombatController {
         }
 
         // Force the initial animator parameters to a known idle state.
-        this.curMoving = false;
+        this.curSpeed = 0.0;
         this.curFiring = false;
         if (this.hasAnim) {
-            Animator::setBool(this.selfId, "IsMoving", false);
+            Animator::setFloat(this.selfId, "Speed", 0.0);
             Animator::setBool(this.selfId, "IsFiring", false);
         }
 
@@ -231,6 +235,27 @@ class SoldierCombatController {
         this.updateHandIK();
     }
 
+    // onLateUpdate runs AFTER the engine's Navmesh task (Scripts -> Navmesh -> Transforms
+    // -> LateScripts), so Navmesh::getVelocity here is fresh for THIS frame. We drive the
+    // 1D Idle<->Run blend ("Speed") from the planar nav speed: a CONTINUOUS blend means the
+    // legs wind down with the body, so there is no extra Run step on stop and no idle-slide.
+    // The navmesh (not root motion) owns movement now, so this is purely cosmetic -- no
+    // feedback loop with the agent's pacing.
+    public function onLateUpdate(float deltaTime): void {
+        if (this.selfId < 0 || !this.hasAnim) {
+            return;
+        }
+        this.updateLocomotionSpeed();
+    }
+
+    private function updateLocomotionSpeed(): void {
+        Vec3f v = Navmesh::getVelocity(this.selfId);
+        float speed = sqrt(v.x * v.x + v.z * v.z);
+        // Light damping so per-frame velocity noise doesn't jitter the blend weight.
+        this.curSpeed = this.curSpeed + (speed - this.curSpeed) * this.speedDamp;
+        Animator::setFloat(this.selfId, "Speed", this.curSpeed);
+    }
+
     // ---- states ----
 
     private function tickCombat(): void {
@@ -253,9 +278,9 @@ class SoldierCombatController {
         float enterOrStaySq = (this.curFiring) ? this.fireExitRangeSq : this.fireRangeSq;
 
         if (d2 > enterOrStaySq) {
-            // Chase: move toward the target, animate as Run.
+            // Chase: move toward the target. Locomotion (Run) is driven by the resulting
+            // nav velocity via the Speed blend param in onLateUpdate.
             this.setFiring(false);
-            this.setMoving(true);
             if (!this.hasMoveOrder || this.lastCmd.distanceSquared(tp) > this.reissueDistSq) {
                 Vec3f dest = tp;
                 if (!Navmesh::isPointOnNavmesh(dest)) {
@@ -271,7 +296,6 @@ class SoldierCombatController {
                 Navmesh::stopAgent(this.selfId);
                 this.hasMoveOrder = false;
             }
-            this.setMoving(false);
             this.setFiring(true);
             if (this.faceTarget) {
                 this.faceToward(dx, dz);
@@ -280,23 +304,13 @@ class SoldierCombatController {
     }
 
     private function tickIdleOrMove(): void {
+        // Locomotion (Idle<->Run) is driven by the navmesh speed via the Speed blend
+        // param in onLateUpdate; nothing to set here beyond clearing combat state.
         this.setFiring(false);
-        Vec3f v = Navmesh::getVelocity(this.selfId);
-        float speed2 = v.x * v.x + v.z * v.z;
-        this.setMoving(speed2 > this.velEpsSq);
         this.hasMoveOrder = false;
     }
 
     // ---- helpers ----
-
-    private function setMoving(bool m): void {
-        if (m != this.curMoving) {
-            this.curMoving = m;
-            if (this.hasAnim) {
-                Animator::setBool(this.selfId, "IsMoving", m);
-            }
-        }
-    }
 
     private function setFiring(bool f): void {
         if (f != this.curFiring) {

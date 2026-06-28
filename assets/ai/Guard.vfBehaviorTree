@@ -1,0 +1,74 @@
+{
+    "version": "1.1",
+    "name": "Guard",
+    "rootNodeId": 1,
+    "nodes": [
+        { "id": 1, "type": "Root", "name": "Root", "position": [500.0, 50.0] },
+        {
+            "id": 2,
+            "type": "Parallel",
+            "name": "Brain",
+            "position": [500.0, 170.0],
+            "properties": { "policy": "RequireAll" }
+        },
+        { "id": 3, "type": "RepeatUntilFail", "name": "Perception Loop", "position": [280.0, 300.0] },
+        { "id": 4, "type": "Succeeder", "name": "Never Fail", "position": [280.0, 410.0] },
+        { "id": 5, "type": "Sequence", "name": "Sense", "position": [280.0, 520.0] },
+        {
+            "id": 6,
+            "type": "ScriptTask",
+            "name": "Acquire Target",
+            "position": [200.0, 640.0],
+            "scriptPath": "game/ai/AcquireTarget.mt",
+            "scriptClassName": "AcquireTarget"
+        },
+        {
+            "id": 7,
+            "type": "Wait",
+            "name": "Sense Interval",
+            "position": [380.0, 640.0],
+            "properties": { "duration": 0.3 }
+        },
+        { "id": 8, "type": "Selector", "name": "Decide", "position": [760.0, 300.0] },
+        {
+            "id": 9,
+            "type": "BlackboardCondition",
+            "name": "Enemy Visible?",
+            "position": [640.0, 430.0],
+            "properties": { "key": "enemyVisible", "compareOp": "==", "compareValue": true, "abortMode": "Both" }
+        },
+        {
+            "id": 10,
+            "type": "ScriptTask",
+            "name": "Engage Target",
+            "position": [640.0, 560.0],
+            "scriptPath": "game/ai/EngageTarget.mt",
+            "scriptClassName": "EngageTarget"
+        },
+        {
+            "id": 11,
+            "type": "MoveTo",
+            "name": "Return To Guard",
+            "position": [880.0, 430.0],
+            "properties": { "targetKey": "guardPos", "arrivalDistance": 2.0 }
+        }
+    ],
+    "links": [
+        { "id": 1, "source": 1, "target": 2, "sortOrder": 0 },
+        { "id": 2, "source": 2, "target": 3, "sortOrder": 0 },
+        { "id": 3, "source": 2, "target": 8, "sortOrder": 1 },
+        { "id": 4, "source": 3, "target": 4, "sortOrder": 0 },
+        { "id": 5, "source": 4, "target": 5, "sortOrder": 0 },
+        { "id": 6, "source": 5, "target": 6, "sortOrder": 0 },
+        { "id": 7, "source": 5, "target": 7, "sortOrder": 1 },
+        { "id": 8, "source": 8, "target": 9, "sortOrder": 0 },
+        { "id": 9, "source": 8, "target": 11, "sortOrder": 1 },
+        { "id": 10, "source": 9, "target": 10, "sortOrder": 0 }
+    ],
+    "blackboardKeys": [
+        { "name": "guardPos", "type": "Vec3", "default": [0.0, 0.0, 0.0] },
+        { "name": "aggroRange", "type": "Float", "default": 22.0 },
+        { "name": "enemyVisible", "type": "Bool", "default": false },
+        { "name": "targetId", "type": "Int", "default": -1 }
+    ]
+}

@@ -18,10 +18,9 @@
 // Units are placeholder prefabs (assets/units/*_prefab.vfPrefab) reusing an
 // imported mesh until real unit art lands; they get Selectable + Team(0) +
 // a physics body (UnitSelectionController selection) + a NavmeshAgent so they
-// pathfind on the baked navmesh. A world right-click on the ground issues a
-// Navmesh::moveTo order to every selected unit (the agent handles pathfinding,
-// crowd avoidance and facing rotation); the minimap right-click move uses the
-// same path.
+// pathfind on the baked navmesh. A world right-click on the ground issues one
+// generic Navmesh group-destination order for the movable selected units; the
+// minimap right-click move uses the same route without harvest-node gathering.
 //
 // Attach this @Script to GameSystems alongside SelectionController /
 // BuildingPlacementController / UnitSelectionController.
@@ -626,31 +625,6 @@ class BuildingCommandController implements IUIButtonListener {
         }
     }
 
-    // Slot `index` of a centered, roughly-square grid of `count` units around
-    // `center`, spaced `spacing` apart, snapped onto the navmesh. Used to fan a
-    // multi-select move out so the crowd is not asked to seat many agents on one
-    // point. A single unit (count 1) gets cols/rows 1 -> offset 0 -> `center`.
-    private function formationPoint(Vec3f center, int index, int count, float spacing): Vec3f {
-        int cols = 1;
-        while (cols * cols < count) {
-            cols = cols + 1;            // ceil(sqrt(count)), no float math needed
-        }
-        int rows = (count + cols - 1) / cols;
-        int row = index / cols;
-        int col = index % cols;
-        // Center the grid on `center`. Explicit (float) casts: mType has no implicit
-        // int->float promotion in arithmetic.
-        float fx = ((float)col - ((float)cols - 1.0) * 0.5) * spacing;
-        float fz = ((float)row - ((float)rows - 1.0) * 0.5) * spacing;
-        float x = center.x + fx;
-        float z = center.z + fz;
-        Vec3f p = new Vec3f(x, Terrain::heightAt(x, z), z);
-        if (!Navmesh::isPointOnNavmesh(p)) {
-            p = Navmesh::getClosestPoint(p);
-        }
-        return p;
-    }
-
     private function spawnPointNear(Vec3f bp): Vec3f {
         float ox = 6.0;
         float oz = 6.0;
@@ -665,9 +639,9 @@ class BuildingCommandController implements IUIButtonListener {
 
     // ---- world move command ----
 
-    // Right-click on open ground issues a Navmesh::moveTo order to every selected
-    // player unit (the "Selected" marker is written by UnitSelectionController);
-    // each unit's NavmeshAgent pathfinds + rotates to face travel. Suppressed
+    // Right-click on open ground issues one generic Navmesh group-destination
+    // order for selected player units (the "Selected" marker is written by
+    // UnitSelectionController). Suppressed
     // while placing a building / capturing a rally click (right-click cancels
     // placement there) and while the pointer is over UI (which also covers the
     // minimap, so its own right-click move never double-fires).
@@ -720,23 +694,29 @@ class BuildingCommandController implements IUIButtonListener {
         }
         Vec3f dest = new Vec3f(hit.point.x, Terrain::heightAt(hit.point.x, hit.point.z), hit.point.z);
 
-        // setDestination is rejected for off-mesh targets; snap onto the navmesh.
-        if (!Navmesh::isPointOnNavmesh(dest)) {
-            dest = Navmesh::getClosestPoint(dest);
-        }
+        this.issueSelectedGroundMove(dest);
+    }
 
+    public function issueSelectedGroundMove(Vec3f dest): void {
+        this.issueSelectedMove(dest, true);
+    }
+
+    public function issueSelectedMinimapMove(Vec3f dest): void {
+        this.issueSelectedMove(dest, false);
+    }
+
+    private function issueSelectedMove(Vec3f dest, bool allowGather): void {
         // Right-click on (or near) a gold mine is a "gather that node" order for
         // harvesters; anywhere else is a plain move.
-        int goldNode = this.goldNodeNear(dest, 6.0);
+        int goldNode = -1;
+        if (allowGather) {
+            goldNode = this.goldNodeNear(dest, 6.0);
+        }
 
         int[] selected = PluginComponent::findAll("Selected");
-        // Spread the move order over a formation grid so the crowd never has to pack
-        // many agents onto one point. Packing left back-row units jittering in place
-        // (stuck in the Run animation) and shoved one agent off the navmesh surface
-        // (floating). Each plain-move unit gets its own reachable slot; gather orders
-        // keep their node target and do not consume a slot.
-        int total = selected.length;
-        int moveSlot = 0;
+        int[] moveIdsScratch = new int[selected.length];
+        int moveCount = 0;
+
         for (int i = 0; i < selected.length; i = i + 1) {
             int uid = selected[i];
             if (!Entity::isValid(uid)) {
@@ -761,16 +741,25 @@ class BuildingCommandController implements IUIButtonListener {
                     // Move order CANCELS gathering: stop+detach the tree FIRST so it
                     // never races the manual move for the Track's NavmeshAgent.
                     this.stopHarvest(uid);
-                    Vec3f fpHarv = this.formationPoint(dest, moveSlot, total, this.moveFormationSpacing);
-                    moveSlot = moveSlot + 1;
-                    Navmesh::moveTo(uid, fpHarv);
+                    moveIdsScratch[moveCount] = uid;
+                    moveCount = moveCount + 1;
                 }
             } else {
-                Vec3f fpUnit = this.formationPoint(dest, moveSlot, total, this.moveFormationSpacing);
-                moveSlot = moveSlot + 1;
-                Navmesh::moveTo(uid, fpUnit);
+                moveIdsScratch[moveCount] = uid;
+                moveCount = moveCount + 1;
             }
         }
+
+        if (moveCount <= 0) {
+            return;
+        }
+
+        int[] moveIds = new int[moveCount];
+        for (int j = 0; j < moveCount; j = j + 1) {
+            moveIds[j] = moveIdsScratch[j];
+        }
+
+        Navmesh::setGroupDestination(moveIds, dest, this.moveFormationSpacing, Navmesh::FORMATION_GRID);
     }
 
     // True if the entity belongs to a non-player team (an attackable enemy).

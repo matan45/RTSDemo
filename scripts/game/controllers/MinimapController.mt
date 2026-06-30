@@ -28,6 +28,7 @@ import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/PluginComponent.mt";
 import * from "../../lib/engine/Log.mt";
 import * from "../../lib/math/Vec3f.mt";
+import * from "./BuildingCommandController.mt";
 import * from "./RTSCameraController.mt";
 import * from "../util/Config.mt";
 import * from "../util/InputEdge.mt";
@@ -39,6 +40,7 @@ class MinimapController {
     private int viewRectId;
     private int cameraId;
     private RTSCameraController cameraCtrl;
+    private BuildingCommandController? commandCtrl;
 
     // World bounds covered by the minimap camera (orthoSize 256 around origin)
     // are shared via Config::MAP_* (same values as the camera + placement).
@@ -94,6 +96,7 @@ class MinimapController {
         this.viewRectId = -1;
         this.cameraId = -1;
         this.cameraCtrl = null;
+        this.commandCtrl = null;
         this.draggingFromMinimap = false;
         this.blipContainerId = -1;
         this.blipPoolCount = 0;
@@ -259,12 +262,17 @@ class MinimapController {
             if (Terrain::hasHeightAt(wx, wz)) {
                 wy = Terrain::heightAt(wx, wz);
             }
-            int[] selected = PluginComponent::findAll("Selected");
-            for (int i = 0; i < selected.length; i = i + 1) {
-                Navmesh::moveTo(selected[i], new Vec3f(wx, wy, wz));
+            Vec3f dest = new Vec3f(wx, wy, wz);
+            BuildingCommandController? command = this.command();
+            if (command != null) {
+                command.issueSelectedMinimapMove(dest);
+            } else {
+                int[] fallbackSelected = PluginComponent::findAll("Selected");
+                Navmesh::setGroupDestination(fallbackSelected, dest, 2.0, Navmesh::FORMATION_GRID);
             }
-            if (selected.length > 0) {
-                Log::info("[Minimap] move command -> (" + wx + ", " + wz + ") for " + selected.length + " unit(s)");
+            int[] selectedForLog = PluginComponent::findAll("Selected");
+            if (selectedForLog.length > 0) {
+                Log::info("[Minimap] move command -> (" + wx + ", " + wz + ") for " + selectedForLog.length + " unit(s)");
             }
         }
     }
@@ -575,5 +583,13 @@ class MinimapController {
             Log::info("[Minimap] RTSCameraController resolved.");
         }
         return this.cameraCtrl;
+    }
+
+    private function command(): BuildingCommandController? {
+        if (this.commandCtrl != null) {
+            return this.commandCtrl;
+        }
+        this.commandCtrl = Entity::getScript<BuildingCommandController>(Entity::self(), "BuildingCommandController");
+        return this.commandCtrl;
     }
 }

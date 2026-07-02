@@ -113,18 +113,16 @@ public class Navmesh {
         _native_navmesh_stopAgent(entityId);
     }
 
-    // Enable/disable an entity's NavmeshObstacle at runtime. Disable it while a
+    // ============================================
+    // Agent Configuration
+    // ============================================
+	// Enable/disable an entity's NavmeshObstacle at runtime. Disable it while a
     // building ghost follows the cursor (an active carve-obstacle re-bakes the
     // navmesh every frame and freezes nearby units); enable it on commit to
     // carve the placed building's footprint into the navmesh exactly once.
     public static function setObstacleActive(int entityId, bool active): void {
-        _native_navmesh_setObstacleActive(entityId, active);
+         _native_navmesh_setObstacleActive(entityId, active);
     }
-
-    // ============================================
-    // Agent Configuration
-    // ============================================
-
     // Set the maximum speed for an entity's NavmeshAgent
     public static function setSpeed(int entityId, float speed): void {
         _native_navmesh_setAgentSpeed(entityId, speed);

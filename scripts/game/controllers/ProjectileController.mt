@@ -15,11 +15,13 @@
 // On any of those it parks itself (setActive(false)) — it is NEVER destroyed in
 // the hot path, so the pool can reuse it on the next shot.
 
+import * from "../../lib/engine/oop/GameObject.mt";
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/math/Vec3f.mt";
 
 @Script
-class ProjectileController {
+class ProjectileController extends Behaviour {
     private int selfId;
 
     // Target entity id the tracer flies toward (-1 = none / parked). When the
@@ -41,7 +43,7 @@ class ProjectileController {
     private float maxLifetime;
     private float age;
 
-    constructor() {
+    public constructor() : super() {
         this.selfId = -1;
         this.targetId = -1;
         this.aimPoint = new Vec3f(0.0, 0.0, 0.0);
@@ -54,7 +56,7 @@ class ProjectileController {
     }
 
     public function onStart(): void {
-        this.selfId = Entity::self();
+        this.selfId = this.entityId();
         // Bullets are pre-spawned parked; stay parked until the pool activates us.
         this.active = false;
     }
@@ -64,17 +66,17 @@ class ProjectileController {
     // fly toward (its live position is tracked each frame).
     public function activate(Vec3f fromEntitiy, int target): void {
         if (this.selfId < 0) {
-            this.selfId = Entity::self();
+            this.selfId = this.entityId();
         }
-        Entity::setPosition(this.selfId, fromEntitiy);
+        this.transform().setLocalPosition(fromEntitiy);
         this.targetId = target;
         this.age = 0.0;
         this.active = true;
 
         // Seed the aim point so we have a valid heading even on the first frame and
         // a fallback if the target vanishes before we read it again.
-        if (target >= 0 && Entity::isValid(target)) {
-            this.aimPoint = Entity::getPosition(target);
+        if (target >= 0 && GameObject::fromId(target).exists()) {
+            this.aimPoint = GameObject::fromId(target).transform().localPosition();
         } else {
             // No valid target: aim straight ahead of the muzzle a short way so the
             // tracer still flies out and parks on the lifetime cap.
@@ -94,11 +96,11 @@ class ProjectileController {
         }
 
         // Track a live target; keep the last-known aim point once it despawns.
-        if (this.targetId >= 0 && Entity::isValid(this.targetId)) {
-            this.aimPoint = Entity::getPosition(this.targetId);
+        if (this.targetId >= 0 && GameObject::fromId(this.targetId).exists()) {
+            this.aimPoint = GameObject::fromId(this.targetId).transform().localPosition();
         }
 
-        Vec3f pos = Entity::getPosition(this.selfId);
+        Vec3f pos = this.transform().localPosition();
         Vec3f toAim = this.aimPoint.subtract(pos);
         float distSq = toAim.lengthSquared();
 
@@ -113,12 +115,12 @@ class ProjectileController {
         float step = this.speed * deltaTime;
         float stepSq = step * step;
         if (stepSq >= distSq) {
-            Entity::setPosition(this.selfId, this.aimPoint);
+            this.transform().setLocalPosition(this.aimPoint);
             this.park();
             return;
         }
         Vec3f dir = toAim.normalize();
-        Entity::setPosition(this.selfId, pos.add(dir.multiply(step)));
+        this.transform().setLocalPosition(pos.add(dir.multiply(step)));
     }
 
     // Park the bullet back into the pool: clear state and deactivate. Never
@@ -128,7 +130,7 @@ class ProjectileController {
         this.targetId = -1;
         this.age = 0.0;
         if (this.selfId >= 0) {
-            Entity::setActive(this.selfId, false);
+            this.setActive(false);
         }
     }
 

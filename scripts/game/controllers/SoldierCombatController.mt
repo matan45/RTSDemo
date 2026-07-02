@@ -24,6 +24,7 @@
 // bookkeeping. Attach this @Script to the soldier prefab root alongside
 // MeshComponent(animatorRef=soldier.vfAnimator) + NavmeshAgent.
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/Animator.mt";
@@ -37,7 +38,7 @@ import * from "../util/Combat.mt";
 import * from "./ProjectilePool.mt";
 
 @Script
-class SoldierCombatController {
+class SoldierCombatController extends Behaviour {
     private int selfId;
 
     // Current attack target entity id (-1 = none). Set by the right-click router.
@@ -118,7 +119,7 @@ class SoldierCombatController {
     // hit-scan in applyShotDamage.
     private ProjectilePool? projectilePool;
 
-    constructor() {
+    public constructor() : super() {
         this.selfId = -1;
         this.targetId = -1;
         this.hasAnim = false;
@@ -150,7 +151,7 @@ class SoldierCombatController {
     }
 
     public function onStart(): void {
-        this.selfId = Entity::self();
+        this.selfId = this.entityId();
         this.hasAnim = Animator::hasAnimator(this.selfId);
         this.hasLeftHandIK = IK::hasComponent(this.selfId);
 

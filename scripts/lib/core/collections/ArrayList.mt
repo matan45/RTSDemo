@@ -1,12 +1,12 @@
 // ArrayList<T> - Dynamic resizable list implementation
-import * from "../../lib/interfaces/List.mt";
-import * from "../../lib/Iterator.mt";
-import * from "../../lib/iterators/ListIterator.mt";
-import * from "../../lib/stream/Stream.mt";
-import * from "../../lib/stream/StreamImpl.mt";
-import * from "../../lib/exceptions/IndexOutOfBoundsException.mt";
-import * from "../../lib/functional/Comparator.mt";
-import * from "../../lib/utils/SortUtils.mt";
+import * from "../interfaces/List.mt";
+import * from "../Iterator.mt";
+import * from "../iterators/ListIterator.mt";
+import * from "../stream/Stream.mt";
+import * from "../stream/StreamImpl.mt";
+import * from "../exceptions/IndexOutOfBoundsException.mt";
+import * from "../functional/Comparator.mt";
+import * from "../utils/SortUtils.mt";
 
 class ArrayList<T> implements List<T> {
     T[] data;

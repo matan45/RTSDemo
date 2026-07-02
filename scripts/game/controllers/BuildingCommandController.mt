@@ -25,6 +25,7 @@
 // Attach this @Script to GameSystems alongside SelectionController /
 // BuildingPlacementController / UnitSelectionController.
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Input.mt";
 import * from "../../lib/engine/Mouse.mt";
@@ -57,7 +58,7 @@ import * from "../util/Config.mt";
 import * from "../util/InputEdge.mt";
 
 @Script
-class BuildingCommandController implements IUIButtonListener {
+class BuildingCommandController extends Behaviour implements IUIButtonListener {
     private int hudControllerId;
     private RTSHUDController? hudRef;
 
@@ -125,7 +126,7 @@ class BuildingCommandController implements IUIButtonListener {
     private PatrolDemo patrolDemo;
     private EnemyGuards enemyGuards;
 
-    constructor() {
+    public constructor() : super() {
         this.hudControllerId = -1;
         this.hudRef = null;
         this.pendingRallyBuilding = -1;
@@ -1015,14 +1016,14 @@ class BuildingCommandController implements IUIButtonListener {
     }
 
     private function selection(): SelectionController? {
-        return Entity::getScript<SelectionController>(Entity::self(), "SelectionController");
+        return this.gameObject().getScript<SelectionController>("SelectionController");
     }
 
     private function placement(): BuildingPlacementController? {
-        return Entity::getScript<BuildingPlacementController>(Entity::self(), "BuildingPlacementController");
+        return this.gameObject().getScript<BuildingPlacementController>("BuildingPlacementController");
     }
 
     private function unitSelection(): UnitSelectionController? {
-        return Entity::getScript<UnitSelectionController>(Entity::self(), "UnitSelectionController");
+        return this.gameObject().getScript<UnitSelectionController>("UnitSelectionController");
     }
 }

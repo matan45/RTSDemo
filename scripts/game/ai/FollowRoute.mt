@@ -20,6 +20,7 @@
 //          "failure" when blocked (so a parent Selector/decorator can react).
 // onAbort: stops the nav agent (a higher-priority branch -- e.g. combat -- preempts).
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/Blackboard.mt";
@@ -30,7 +31,7 @@ import * from "../util/RouteCommand.mt";
 import * from "../util/RouteState.mt";
 
 @Script
-public class FollowRoute {
+public class FollowRoute extends Behaviour {
     private int selfId;
 
     // Snapped, on-navmesh waypoints in authored order (read once in onStart).
@@ -54,7 +55,7 @@ public class FollowRoute {
     private float stuckTimeout;   // seconds stalled-and-not-arrived -> BLOCKED
     private float maxTravelTime;  // hard per-leg cap -> BLOCKED (catches partial paths)
 
-    public constructor() {
+    public constructor() : super() {
         this.selfId = -1;
         this.points = new Vec3f[0];
         this.count = 0;
@@ -74,7 +75,7 @@ public class FollowRoute {
     }
 
     public function onStart(): void {
-        this.selfId = Entity::self();
+        this.selfId = this.entityId();
         this.loadRoute();
 
         float ad = Blackboard::getFloat(this.selfId, "arrivalDist");

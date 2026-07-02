@@ -7,6 +7,8 @@
 // NOTE: the post coordinates below are placed near the origin; adjust them so each
 // guard spawns on baked navmesh and within reach of where the player will fight.
 
+import * from "../../lib/engine/oop/PrefabRef.mt";
+import * from "../../lib/engine/oop/GameObject.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/Blackboard.mt";
@@ -16,12 +18,12 @@ import * from "../../lib/math/Vec3f.mt";
 
 class EnemyGuards {
     private string guardTree;
-    private string soldierPrefab;
+    private PrefabRef soldierPrefab;
     private int serial;
 
     public constructor() {
         this.guardTree = "assets/ai/Guard.vfBehaviorTree";
-        this.soldierPrefab = "assets/units/soldier_prefab.vfPrefab";
+        this.soldierPrefab = new PrefabRef("assets/units/soldier_prefab.vfPrefab");
         this.serial = 0;
     }
 
@@ -32,14 +34,14 @@ class EnemyGuards {
     }
 
     private function spawnGuard(Vec3f post): void {
-        int id = Entity::instantiate(this.soldierPrefab);
-        if (id < 0) {
+        GameObject? guard = this.soldierPrefab.instantiateAt(post);
+        if (guard == null) {
             return;
         }
+        int id = guard.id;
         this.serial = this.serial + 1;
-        Entity::setName(id, "EnemyGuard_" + parsePrimitive(this.serial));
-        Entity::setPosition(id, post);
-        Entity::setActive(id, true);
+        guard.setName("EnemyGuard_" + parsePrimitive(this.serial));
+        guard.setActive(true);
 
         // Enemy team + combat stats. No "Selectable" -> the player can't select or
         // command it; the selection/command code already filters to TEAM_PLAYER.

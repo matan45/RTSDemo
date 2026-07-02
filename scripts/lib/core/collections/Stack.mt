@@ -1,9 +1,9 @@
 // Stack<T> - LIFO operations
-import * from "../../lib/interfaces/Deque.mt";
-import * from "../../lib/Iterator.mt";
-import * from "../../lib/iterators/StackIterator.mt";
-import * from "../../lib/stream/Stream.mt";
-import * from "../../lib/stream/StreamImpl.mt";
+import * from "../interfaces/Deque.mt";
+import * from "../Iterator.mt";
+import * from "../iterators/StackIterator.mt";
+import * from "../stream/Stream.mt";
+import * from "../stream/StreamImpl.mt";
 
 class Stack<T> implements Deque<T> {
     T[] data;

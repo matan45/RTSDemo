@@ -1,5 +1,5 @@
-import * from "../collections/HashMap.mt";
-import * from "../primitives/String.mt";
+import * from "../core/collections/HashMap.mt";
+import * from "../core/primitives/String.mt";
 import * from "HttpRequest.mt";
 import * from "HttpResponse.mt";
 

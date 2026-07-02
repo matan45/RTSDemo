@@ -25,6 +25,7 @@
 //
 // Attach via a ScriptComponent on an always-active entity (e.g. "GameSystems").
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Input.mt";
 import * from "../../lib/engine/Mouse.mt";
@@ -50,7 +51,7 @@ import * from "../util/Util.mt";
 import * from "../util/InputEdge.mt";
 
 @Script
-class BuildingPlacementController implements IUIButtonListener {
+class BuildingPlacementController extends Behaviour implements IUIButtonListener {
     // Resolved entities.
     private int cmdBuildId;
     private int hudControllerId;
@@ -118,7 +119,7 @@ class BuildingPlacementController implements IUIButtonListener {
     // native spam). Buttons start interactable in the scene, hence true.
     private bool[] slotAffordable;
 
-    constructor() {
+    public constructor() : super() {
         this.cmdBuildId = -1;
         this.hudControllerId = -1;
         this.hudRef = null;
@@ -425,7 +426,7 @@ class BuildingPlacementController implements IUIButtonListener {
     // Resolve the SelectionController sharing this entity (GameSystems). May be
     // null if it is not attached / not yet loaded.
     private function selection(): SelectionController {
-        return Entity::getScript<SelectionController>(Entity::self(), "SelectionController");
+        return this.gameObject().getScript<SelectionController>("SelectionController");
     }
 
     private function enterPlacement(string what): void {

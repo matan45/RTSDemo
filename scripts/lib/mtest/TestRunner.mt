@@ -13,14 +13,14 @@
 // then @AfterAll. AssertionFailedException is treated as FAIL with the raw
 // message; any other Exception is FAIL with "unexpected: ..." unless
 // @Test(expected=...) matched the thrown class name.
-import * from "../collections/ArrayList.mt";
-import * from "../primitives/Int.mt";
-import * from "../primitives/String.mt";
-import * from "../reflect/Class.mt";
-import * from "../reflect/Method.mt";
-import * from "../reflect/Constructor.mt";
-import * from "../reflect/Annotation.mt";
-import * from "../exceptions/Exception.mt";
+import * from "../core/collections/ArrayList.mt";
+import * from "../core/primitives/Int.mt";
+import * from "../core/primitives/String.mt";
+import * from "../core/reflect/Class.mt";
+import * from "../core/reflect/Method.mt";
+import * from "../core/reflect/Constructor.mt";
+import * from "../core/reflect/Annotation.mt";
+import * from "../core/exceptions/Exception.mt";
 import * from "./TestResult.mt";
 import * from "./TestSuiteResult.mt";
 import * from "./AssertionFailedException.mt";

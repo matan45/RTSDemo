@@ -11,6 +11,7 @@
 // (entityId -> BuildingInfo) is kept here in a HashMap (entity id boxed as Int).
 // Attach this @Script to the GameSystems entity alongside BuildingPlacementController.
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Input.mt";
 import * from "../../lib/engine/Mouse.mt";
@@ -30,7 +31,7 @@ import * from "../util/Config.mt";
 import * from "../util/InputEdge.mt";
 
 @Script
-class SelectionController {
+class SelectionController extends Behaviour {
     private int selectedId;
 
     // Registry of selectable buildings, keyed by entity id (boxed as Int).
@@ -70,7 +71,7 @@ class SelectionController {
     private int highlightId;
     private int lastHighlightId;
 
-    constructor() {
+    public constructor() : super() {
         this.selectedId = -1;
         this.selectedUnitInfo = null;
         this.placementActive = false;

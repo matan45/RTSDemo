@@ -14,6 +14,7 @@
 //   PanRight      -> D, Right Arrow
 //   RotateCamera  -> Mouse Middle
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Camera.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Input.mt";
@@ -27,7 +28,7 @@ import * from "../util/Config.mt";
 import * from "../util/Util.mt";
 
 @Script
-class RTSCameraController {
+class RTSCameraController extends Behaviour {
     private int selfId = -1;
     private int terrainId = -1;
 
@@ -47,11 +48,11 @@ class RTSCameraController {
     private float focalZ = 0.0;
     private float lastTerrainY = 0.0;
 
-    constructor() {
+    public constructor() : super() {
     }
 
     public function onStart(): void {
-        this.selfId = Entity::self();
+        this.selfId = this.entityId();
 
         this.terrainId = Entity::findByName("Terrain");
         if (this.terrainId < 0) {

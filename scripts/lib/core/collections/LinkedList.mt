@@ -1,13 +1,13 @@
 // LinkedList<T> - Doubly linked list implementation for O(1) insertions and deletions
-import * from "../../lib/interfaces/List.mt";
-import * from "../../lib/interfaces/Deque.mt";
-import * from "../../lib/Iterator.mt";
-import * from "../../lib/iterators/LinkedListIterator.mt";
-import * from "../../lib/stream/Stream.mt";
-import * from "../../lib/stream/StreamImpl.mt";
-import * from "../../lib/internal/Node.mt";
-import * from "../../lib/functional/Comparator.mt";
-import * from "../../lib/utils/SortUtils.mt";
+import * from "../interfaces/List.mt";
+import * from "../interfaces/Deque.mt";
+import * from "../Iterator.mt";
+import * from "../iterators/LinkedListIterator.mt";
+import * from "../stream/Stream.mt";
+import * from "../stream/StreamImpl.mt";
+import * from "../internal/Node.mt";
+import * from "../functional/Comparator.mt";
+import * from "../utils/SortUtils.mt";
 
 class LinkedList<T> implements List<T>, Deque<T> {
 

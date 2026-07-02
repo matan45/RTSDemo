@@ -14,23 +14,24 @@
 // Returns: "running" while engaging, "failure" when there is no valid target
 // onAbort: clears the unit's attack target
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Blackboard.mt";
 import * from "../util/Combat.mt";
 import * from "../controllers/SoldierCombatController.mt";
 
 @Script
-public class EngageTarget {
+public class EngageTarget extends Behaviour {
     private int selfId;
     private SoldierCombatController? combat;
 
-    public constructor() {
+    public constructor() : super() {
         this.selfId = -1;
         this.combat = null;
     }
 
     public function onStart(): void {
-        this.selfId = Entity::self();
+        this.selfId = this.entityId();
         this.combat = Entity::getScript<SoldierCombatController>(this.selfId, "SoldierCombatController");
     }
 

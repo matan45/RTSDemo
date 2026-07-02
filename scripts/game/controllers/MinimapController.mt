@@ -17,6 +17,7 @@
 // they early-out on UI::isPointerOverUI(); press edges that start on the
 // minimap never reach their drag state machines.
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Input.mt";
 import * from "../../lib/engine/Mouse.mt";
@@ -35,7 +36,7 @@ import * from "../util/InputEdge.mt";
 import * from "../util/RTSFog.mt";
 
 @Script
-class MinimapController {
+class MinimapController extends Behaviour {
     private int minimapViewId;
     private int viewRectId;
     private int cameraId;
@@ -91,7 +92,7 @@ class MinimapController {
     // the engine falls back to a tinted square (AssetRef.resolve -> "" -> white).
     private string unitBlipTexture = "assets/ui/hud/minimap_circle.vfImage";
 
-    constructor() {
+    public constructor() : super() {
         this.minimapViewId = -1;
         this.viewRectId = -1;
         this.cameraId = -1;
@@ -589,7 +590,7 @@ class MinimapController {
         if (this.commandCtrl != null) {
             return this.commandCtrl;
         }
-        this.commandCtrl = Entity::getScript<BuildingCommandController>(Entity::self(), "BuildingCommandController");
+        this.commandCtrl = this.gameObject().getScript<BuildingCommandController>("BuildingCommandController");
         return this.commandCtrl;
     }
 }

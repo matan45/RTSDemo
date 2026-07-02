@@ -1,5 +1,5 @@
-import * from "../primitives/String.mt";
-import * from "../primitives/Int.mt";
+import * from "../core/primitives/String.mt";
+import * from "../core/primitives/Int.mt";
 
 // TCP client socket. Holds an integer handle into the C++ SocketRegistry; all
 // methods delegate to __net_socket_* natives.

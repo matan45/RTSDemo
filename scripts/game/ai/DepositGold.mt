@@ -6,22 +6,23 @@
 // Blackboard in: depositAmount (float)
 // Returns: "success" always
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Blackboard.mt";
 import * from "../controllers/RTSHUDController.mt";
 
 @Script
-public class DepositGold {
+public class DepositGold extends Behaviour {
     private int selfId;
     private RTSHUDController? hud;
 
-    public constructor() {
+    public constructor() : super() {
         this.selfId = -1;
         this.hud = null;
     }
 
     public function onStart(): void {
-        this.selfId = Entity::self();
+        this.selfId = this.entityId();
         int hudId = Entity::findByName("RTS_HUD_Controller");
         if (hudId >= 0) {
             this.hud = Entity::getScript<RTSHUDController>(hudId, "RTSHUDController");

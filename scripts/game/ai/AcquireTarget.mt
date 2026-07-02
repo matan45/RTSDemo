@@ -8,6 +8,7 @@
 // Blackboard out: enemyVisible (bool), targetId (int)
 // Returns: "success" when a target is found, "failure" otherwise
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Blackboard.mt";
 import * from "../../lib/engine/PluginComponent.mt";
@@ -16,15 +17,15 @@ import * from "../util/Config.mt";
 import * from "../util/Combat.mt";
 
 @Script
-public class AcquireTarget {
+public class AcquireTarget extends Behaviour {
     private int selfId;
 
-    public constructor() {
+    public constructor() : super() {
         this.selfId = -1;
     }
 
     public function onStart(): void {
-        this.selfId = Entity::self();
+        this.selfId = this.entityId();
     }
 
     public function tick(float deltaTime): string {

@@ -1,9 +1,9 @@
 // ArrayQueue<T> - FIFO operations
-import * from "../../lib/interfaces/Queue.mt";
-import * from "../../lib/Iterator.mt";
-import * from "../../lib/iterators/QueueIterator.mt";
-import * from "../../lib/stream/Stream.mt";
-import * from "../../lib/stream/StreamImpl.mt";
+import * from "../interfaces/Queue.mt";
+import * from "../Iterator.mt";
+import * from "../iterators/QueueIterator.mt";
+import * from "../stream/Stream.mt";
+import * from "../stream/StreamImpl.mt";
 
 class ArrayQueue<T> implements Queue<T> {
     T[] data;

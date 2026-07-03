@@ -3,11 +3,11 @@
 // HASH-TO-SLOT FORMULA: must match HashMap.mt exactly. See header in HashMap.mt
 // for the list of native mirror sites that must be kept in sync.
 
-import * from "../../lib/interfaces/Set.mt";
-import * from "../../lib/Iterator.mt";
-import * from "../../lib/iterators/HashSetIterator.mt";
-import * from "../../lib/stream/Stream.mt";
-import * from "../../lib/stream/StreamImpl.mt";
+import * from "../interfaces/Set.mt";
+import * from "../Iterator.mt";
+import * from "../iterators/HashSetIterator.mt";
+import * from "../stream/Stream.mt";
+import * from "../stream/StreamImpl.mt";
 
 // Storage layout: 2 parallel flat arrays of length `capacity` (power of 2).
 // `elements[i] == null` marks an empty slot — terminates probe sequences.

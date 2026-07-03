@@ -30,15 +30,15 @@
 //     true static context) because Method.invoke requires a non-null
 //     receiver. Treat them as "shared-instance" hooks in v1.
 
-import * from "../annotations/Retention.mt";
-import * from "../annotations/Targets.mt";
-import * from "../collections/ArrayList.mt";
-import * from "../exceptions/Exception.mt";
-import * from "../primitives/String.mt";
-import * from "../reflect/Class.mt";
-import * from "../reflect/Method.mt";
-import * from "../reflect/Annotation.mt";
-import * from "../reflect/Constructor.mt";
+import * from "../core/annotations/Retention.mt";
+import * from "../core/annotations/Targets.mt";
+import * from "../core/collections/ArrayList.mt";
+import * from "../core/exceptions/Exception.mt";
+import * from "../core/primitives/String.mt";
+import * from "../core/reflect/Class.mt";
+import * from "../core/reflect/Method.mt";
+import * from "../core/reflect/Annotation.mt";
+import * from "../core/reflect/Constructor.mt";
 
 import * from "./annotations/Test.mt";
 import * from "./annotations/Lifecycle.mt";

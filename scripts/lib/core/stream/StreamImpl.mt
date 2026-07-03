@@ -31,6 +31,14 @@ class StreamImpl<T> implements Stream<T> {
     }
 
     /**
+     * Internal accessor used by StreamToIteratorAdapter (flatMap bridge).
+     * Returns the underlying source iterator without consuming the stream.
+     */
+    public function iterator(): Iterator<T> {
+        return this.source;
+    }
+
+    /**
      * Checks if this stream has already been consumed by a terminal operation.
      * Streams can only be used once.
      */

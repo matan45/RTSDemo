@@ -87,11 +87,6 @@
       "maxSceneColliders": 32
     }
   },
-  "pluginSettings": {
-    "RTSGameplay": {
-      "enabled": true
-    }
-  },
   "renderSettings": {
     "animationLOD": {
       "lod0Distance": 25.0,
@@ -408,13 +403,14 @@
       "temporalBlend": 0.8999999761581421
     },
     "shadows": {
-      "clipmapBaseExtent": 100.0,
-      "clipmapDepthRange": 400.0,
-      "clipmapLevelCount": 5,
-      "enabled": false,
+      "clipmapBaseExtent": 20.0,
+      "clipmapDepthRange": 300.0,
+      "clipmapLevelCount": 4,
+      "enabled": true,
       "normalBias": 0.019999999552965164,
+      "perViewCulling": true,
       "pointResolution": 512,
-      "quality": "medium",
+      "quality": "low",
       "shadowBias": 0.004999999888241291,
       "shadowIntensity": 0.5,
       "slopeBias": 1.5,

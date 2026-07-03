@@ -7,6 +7,7 @@
 // Initializes the minimap render target so the top-down camera entity feeds
 // the minimap UIImage.
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/UI.mt";
 import * from "../../lib/engine/Log.mt";
@@ -19,7 +20,7 @@ import * from "../data/UnitInfo.mt";
 import * from "./SelectionController.mt";
 
 @Script
-class RTSHUDController implements IUIButtonListener {
+class RTSHUDController extends Behaviour implements IUIButtonListener {
     private GameState state;
 
     private int goldLabelId;
@@ -55,7 +56,7 @@ class RTSHUDController implements IUIButtonListener {
     // re-issued when the net-power sign actually flips.
     private bool lastPowerNegative;
 
-    constructor() {
+    public constructor() : super() {
         this.goldLabelId = -1;
         this.powerLabelId = -1;
         this.selectionNameId = -1;

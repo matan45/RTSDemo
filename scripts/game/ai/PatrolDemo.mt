@@ -15,6 +15,8 @@
 // playable navmesh sits elsewhere, adjust them so the markers land on baked navmesh
 // (off-mesh markers are snapped, or dropped if too far).
 
+import * from "../../lib/engine/oop/PrefabRef.mt";
+import * from "../../lib/engine/oop/GameObject.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/Blackboard.mt";
@@ -31,6 +33,7 @@ class PatrolDemo {
     private int patrolCount;
     private string routeName;
     private string patrolTree;
+    private PrefabRef soldierPrefab;
     private InputEdge pauseKey;
     private InputEdge resumeKey;
     private InputEdge stopKey;
@@ -41,6 +44,7 @@ class PatrolDemo {
         this.patrolCount = 0;
         this.routeName = "PatrolRoute_01";
         this.patrolTree = "assets/ai/Patrol.vfBehaviorTree";
+        this.soldierPrefab = new PrefabRef("assets/units/soldier_prefab.vfPrefab");
         this.pauseKey = new InputEdge();
         this.resumeKey = new InputEdge();
         this.stopKey = new InputEdge();
@@ -48,8 +52,8 @@ class PatrolDemo {
     }
 
     public function setup(): void {
-        int route = Entity::create(this.routeName);
-        Entity::setPosition(route, new Vec3f(0.0, 0.0, 0.0));
+        GameObject route = GameObject::create(this.routeName);
+        route.transform().setLocalPosition(new Vec3f(0.0, 0.0, 0.0));
         this.addMarker(route, "WP00", -18.0, 18.0);
         this.addMarker(route, "WP01", 18.0, 18.0);
         this.addMarker(route, "WP02", 18.0, -18.0);
@@ -90,19 +94,20 @@ class PatrolDemo {
         }
     }
 
-    private function addMarker(int route, string name, float x, float z): void {
-        int m = Entity::createChild(name, route);
-        Entity::setPosition(m, new Vec3f(x, 0.0, z));
+    private function addMarker(GameObject route, string name, float x, float z): void {
+        GameObject marker = GameObject::create(name);
+        marker.setParent(route);
+        marker.transform().setLocalPosition(new Vec3f(x, 0.0, z));
     }
 
     private function spawnPatroller(Vec3f pos, int mode): void {
-        int id = Entity::instantiate("assets/units/soldier_prefab.vfPrefab");
-        if (id < 0) {
+        GameObject? patroller = this.soldierPrefab.instantiateAt(pos);
+        if (patroller == null) {
             return;
         }
-        Entity::setName(id, "Patroller");
-        Entity::setPosition(id, pos);
-        Entity::setActive(id, true);
+        int id = patroller.id;
+        patroller.setName("Patroller");
+        patroller.setActive(true);
         Navmesh::setSpeed(id, 5.0);
 
         bool ok = Blackboard::attachTree(id, this.patrolTree);

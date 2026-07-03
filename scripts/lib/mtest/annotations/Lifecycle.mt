@@ -1,8 +1,8 @@
 // Lifecycle + control annotations for mtest.
 // @BeforeAll / @AfterAll must be applied to static methods.
 // @Timeout.millis is parsed but not enforced in v1 (no timing native yet).
-import * from "../../annotations/Retention.mt";
-import * from "../../annotations/Targets.mt";
+import * from "../../core/annotations/Retention.mt";
+import * from "../../core/annotations/Targets.mt";
 
 @Retention(RUNTIME)
 @Target([METHOD])

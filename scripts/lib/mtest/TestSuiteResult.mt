@@ -1,6 +1,6 @@
 // TestSuiteResult — aggregate outcome for one test class. Owns an ArrayList
 // of TestResult and tracks pass/fail/skip counters incrementally.
-import * from "../collections/ArrayList.mt";
+import * from "../core/collections/ArrayList.mt";
 import * from "./TestResult.mt";
 
 public class TestSuiteResult {

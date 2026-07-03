@@ -10,7 +10,7 @@
 import * from "./AssertionFailedException.mt";
 import * from "./ThrowingRunnable.mt";
 import * from "./ExceptionName.mt";
-import * from "../exceptions/Exception.mt";
+import * from "../core/exceptions/Exception.mt";
 
 // ----- boolean -----
 

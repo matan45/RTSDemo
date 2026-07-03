@@ -9,7 +9,7 @@
 //
 // v1 limitation: this is string-parsing, not true runtime type lookup.
 // When mType exposes a runtime-class accessor on Object, replace the body.
-import * from "../exceptions/Exception.mt";
+import * from "../core/exceptions/Exception.mt";
 
 public class ExceptionName {
     public static function of(Exception e): string {

@@ -20,6 +20,7 @@
 // Building click-selection stays in SelectionController; this controller pushes
 // setUnitDragActive() so a box-drag release is never also a building click.
 
+import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
 import * from "../../lib/engine/Input.mt";
 import * from "../../lib/engine/Mouse.mt";
@@ -44,7 +45,7 @@ import * from "../util/DragState.mt";
 import * from "../util/InputEdge.mt";
 
 @Script
-class UnitSelectionController {
+class UnitSelectionController extends Behaviour {
     // Drag state machine: 0 = idle, 1 = maybe-drag (button down, under the
     // drag threshold), 2 = dragging (box visible).
     private int state;
@@ -79,7 +80,7 @@ class UnitSelectionController {
     private float clickPixelRadius;
     private int maxSelected;
 
-    constructor() {
+    public constructor() : super() {
         this.state = DragState::IDLE;
         this.dragStartX = 0.0;
         this.dragStartY = 0.0;
@@ -472,7 +473,7 @@ class UnitSelectionController {
     // ---- coordination with the building controllers ----
 
     private function selection(): SelectionController {
-        return Entity::getScript<SelectionController>(Entity::self(), "SelectionController");
+        return this.gameObject().getScript<SelectionController>("SelectionController");
     }
 
     // Push the primary-selected unit's panel info (or null) into SelectionController
@@ -501,7 +502,7 @@ class UnitSelectionController {
 
     private function placementActive(): bool {
         BuildingPlacementController bp =
-            Entity::getScript<BuildingPlacementController>(Entity::self(), "BuildingPlacementController");
+            this.gameObject().getScript<BuildingPlacementController>("BuildingPlacementController");
         if (bp == null) {
             return false;
         }

@@ -410,7 +410,7 @@
       "normalBias": 0.019999999552965164,
       "perViewCulling": true,
       "pointResolution": 512,
-      "quality": "low",
+      "quality": "medium",
       "shadowBias": 0.004999999888241291,
       "shadowIntensity": 0.5,
       "slopeBias": 1.5,
@@ -431,6 +431,16 @@
       "lod1Distance": 100.0,
       "lod2Distance": 200.0,
       "transitionZone": 10.0
+    },
+    "virtualTexture": {
+      "evictionAgeFrames": 1,
+      "pagesPerFrame": 256,
+      "rvtEnabled": true,
+      "rvtPoolBudgetMB": 1024,
+      "rvtTexelsPerMeter": 64.0,
+      "svtEnabled": true,
+      "svtPageLinearMaps": true,
+      "svtPoolBudgetMB": 4096
     }
   },
   "version": "1.0"

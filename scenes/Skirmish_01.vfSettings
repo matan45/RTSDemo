@@ -186,8 +186,8 @@
       "meshletFrustumCullingEnabled": true,
       "meshletOcclusionCullingEnabled": true,
       "occlusionCullingEnabled": true,
-      "terrainFrustumCullingEnabled": false,
-      "terrainMeshletCullingEnabled": false
+      "terrainFrustumCullingEnabled": true,
+      "terrainMeshletCullingEnabled": true
     },
     "display": {
       "msaa": 1,
@@ -421,6 +421,7 @@
       "enabled": true,
       "errorThreshold": 2.0,
       "lodBias": 1.0,
+      "renderLayer": 10,
       "textureScale": 0.10000000149011612
     },
     "transparency": {
@@ -441,6 +442,9 @@
       "svtEnabled": true,
       "svtPageLinearMaps": true,
       "svtPoolBudgetMB": 4096
+    },
+    "water": {
+      "renderLayer": 10
     }
   },
   "version": "1.0"

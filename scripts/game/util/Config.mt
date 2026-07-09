@@ -29,13 +29,13 @@ public class Config {
     public static final int LAYER_DEFAULT = 0;     // units, buildings, terrain, normal meshes
     public static final int LAYER_NO_MINIMAP = 10; // decorative props you want hidden from the minimap
 
-    // Culling mask for the top-down minimap camera ("camera minimap"): all layers
-    // EXCEPT LAYER_NO_MINIMAP. Value is 0xFFFFFFFF with bit 10 cleared (0xFFFFFBFF).
-    // Tag any mesh you want kept off the minimap with
-    //   Entity::setRenderLayer(id, Config::LAYER_NO_MINIMAP);
-    // (at spawn, or author renderLayer=10 on its prefab). Until something is tagged,
-    // the minimap looks unchanged.
-    public static final int MINIMAP_CULL_MASK = 4294966271;
+    // Culling mask for the top-down minimap camera ("camera minimap"). 0 = render NOTHING
+    // from the scene into the minimap RT (no units, buildings, terrain, or water) — the
+    // minimap shows only the clearColor background plus the mType MinimapBlip dots.
+    // A camera renders a mesh only if (1<<mesh.renderLayer) & this mask != 0; terrain/water
+    // honor it via renderSettings.terrain/water.renderLayer (VK-1415, needs the engine build).
+    // To SHOW some layers instead, OR in their bits, e.g. (1<<0) to draw default-layer meshes.
+    public static final int MINIMAP_CULL_MASK = 0;
 
     public constructor() {
     }

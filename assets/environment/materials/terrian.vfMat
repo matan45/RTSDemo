@@ -1,0 +1,39 @@
+{
+    "alphaCutoff": 0.5,
+    "blendMode": "opaque",
+    "domain": "surface",
+    "graph": {
+        "links": [],
+        "nodes": [
+            {
+                "id": 1,
+                "name": "PBR Output",
+                "position": [
+                    300.0,
+                    200.0
+                ],
+                "type": "PBROutput"
+            }
+        ]
+    },
+    "materialIR": {
+        "compilerVersion": 1,
+        "gpuDrivenSupported": true,
+        "hash": "9a194abaedd83a62",
+        "shaderMap": {
+            "compiledShaderPath": "Assets/materials/compiled/cbf29ce484222325_cbf29ce484222325.vfshader",
+            "fragmentShaderHash": "cbf29ce484222325",
+            "hasGeneratedShader": false,
+            "irHash": "9a194abaedd83a62",
+            "shaderMapKey": "9a194abaedd83a62_cbf29ce484222325_cbf29ce484222325",
+            "vertexShaderHash": "cbf29ce484222325"
+        },
+        "shaderMapKey": "9a194abaedd83a62_cbf29ce484222325_cbf29ce484222325",
+        "version": 1
+    },
+    "name": "terrian",
+    "opacity": 1.0,
+    "shadingModel": "defaultLit",
+    "uuid": "15432081441275959540",
+    "version": "1.1"
+}

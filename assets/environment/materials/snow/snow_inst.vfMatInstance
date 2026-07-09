@@ -1,0 +1,16 @@
+{
+    "name": "terrian Instance",
+    "parentMaterialRef": "0fe4d5dbe35ae7ad",
+    "parentMaterialRefPath": "C:/matan/RTSDemo/assets/environment/materials/terrian.vfMat",
+    "textureOverrides": {
+        "Albedo": "48070951301388ea",
+        "AlbedoPath": "C:/matan/RTSDemo/assets/environment/materials/snow/snow_Albedo.vfImage",
+        "Normal": "6b9ea1ac20a0f184",
+        "NormalPath": "C:/matan/RTSDemo/assets/environment/materials/snow/snow_Normal.vfImage",
+        "ORM": "e265cc977242af33",
+        "ORMPath": "C:/matan/RTSDemo/assets/environment/materials/snow/ORM.vfImage"
+    },
+    "type": "MaterialInstance",
+    "uuid": "18441914201957837917",
+    "version": "1.1"
+}

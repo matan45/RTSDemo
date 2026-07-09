@@ -1,0 +1,16 @@
+{
+    "name": "terrian Instance",
+    "parentMaterialRef": "0fe4d5dbe35ae7ad",
+    "parentMaterialRefPath": "C:/matan/RTSDemo/assets/environment/materials/terrian.vfMat",
+    "textureOverrides": {
+        "Albedo": "a400616a90490be6",
+        "AlbedoPath": "C:/matan/RTSDemo/assets/environment/materials/rock/rock_Albedo.vfImage",
+        "Normal": "202dcbe95af02bd8",
+        "NormalPath": "C:/matan/RTSDemo/assets/environment/materials/rock/rock_Normal.vfImage",
+        "ORM": "60d61232ba50f652",
+        "ORMPath": "C:/matan/RTSDemo/assets/environment/materials/rock/ORM.vfImage"
+    },
+    "type": "MaterialInstance",
+    "uuid": "7029737791823265316",
+    "version": "1.1"
+}

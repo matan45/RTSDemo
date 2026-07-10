@@ -92,6 +92,16 @@ class MinimapController extends Behaviour {
     // the engine falls back to a tinted square (AssetRef.resolve -> "" -> white).
     private string unitBlipTexture = "assets/ui/hud/minimap_circle.vfImage";
 
+    // --- Minimap fog-of-war overlay (VK-1488) ---------------------------------
+    // A single UIImage sized to the minimap, layered BELOW the blips, showing the
+    // RTSGameplay plugin's smooth RGBA fog texture (rgb=0, alpha=darkness) via the
+    // generic engine "bind a plugin/GPU texture to a UIImage" API. The plugin owns
+    // the texture and its colors; here we only spawn the image, match its rect to
+    // the minimap, and bind the plugin's overlay key (RTSFog::overlayKey) once it
+    // exists. F10 is honored plugin-side (the overlay goes transparent when off).
+    private int fogOverlayId;      // fog overlay UIImage entity id (-1 = not spawned)
+    private bool fogOverlayBound;  // true once the plugin's overlay texture key is bound
+
     public constructor() : super() {
         this.minimapViewId = -1;
         this.viewRectId = -1;
@@ -102,6 +112,8 @@ class MinimapController extends Behaviour {
         this.blipContainerId = -1;
         this.blipPoolCount = 0;
         this.blipTimer = 0.0;
+        this.fogOverlayId = -1;
+        this.fogOverlayBound = false;
     }
 
     public function onStart(): void {
@@ -135,6 +147,8 @@ class MinimapController extends Behaviour {
             Log::warn("[Minimap] 'camera minimap' not found; minimap layer filter not applied.");
         }
 
+        // Spawn the fog overlay BEFORE the blip container so it renders below the blips.
+        this.setupFogOverlay();
         this.setupBlips();
 
         Log::info("[Minimap] ready.");
@@ -179,6 +193,54 @@ class MinimapController extends Behaviour {
         this.blipPoolCount = adopt;
     }
 
+    // Find-or-create the fog overlay UIImage under the canvas (idempotent across
+    // replays, mirroring setupBlips). Spawned before the blip container so the
+    // blips draw on top of the fog.
+    private function setupFogOverlay(): void {
+        this.fogOverlayId = Entity::findByName("RTS_HUD_MinimapFog");
+        if (this.fogOverlayId < 0) {
+            if (this.minimapViewId < 0) {
+                Log::warn("[Minimap] RTS_HUD_MinimapView missing; fog overlay disabled.");
+                return;
+            }
+            // Parent the fog UNDER the minimap image (not the canvas). UI render order is
+            // a depth-first traversal, so the fog draws right after the minimap terrain but
+            // BEFORE the later-authored view-rect and the runtime blip container -- keeping
+            // the camera view-rectangle and the blips on top of the fog.
+            this.fogOverlayId = Entity::instantiateChild("assets/ui/prefabs/minimap_fog_prefab.vfPrefab", this.minimapViewId);
+        }
+        if (this.fogOverlayId < 0) {
+            Log::warn("[Minimap] Failed to spawn minimap fog overlay.");
+        }
+    }
+
+    // Keep the fog overlay matched to the minimap image's rect (same canvas-unit
+    // basis as the blips/view-rect, so the world-XZ fog mask aligns 1:1 with the
+    // minimap) and bind the plugin's overlay texture key once it is available. The
+    // plugin sizes/colors the fog and honors F10; this only positions + binds it.
+    private function updateFogOverlay(): void {
+        if (this.fogOverlayId < 0) {
+            return;
+        }
+
+        float[] view = UI::getRectData(this.minimapViewId);
+        if (view[0] >= 0.5) {
+            UI::setRectData(this.fogOverlayId, view[1], view[2], view[3], view[4],
+                view[5], view[6], view[7], view[8], view[9], view[10]);
+        }
+
+        if (this.fogOverlayBound) {
+            return;
+        }
+        string key = RTSFog::overlayKey();
+        if (key != "") {
+            UI::setImageExternalTexture(this.fogOverlayId, key);
+            UI::setImageColor(this.fogOverlayId, 1.0, 1.0, 1.0, 1.0);
+            this.fogOverlayBound = true;
+            Log::info("[Minimap] fog overlay bound (" + key + ")");
+        }
+    }
+
     // Return the dot entity for pool slot `index`, lazily spawning it on first
     // use (updateBlips always requests slots in order, so there are no gaps).
     // Returns -1 past the cap.
@@ -208,6 +270,7 @@ class MinimapController extends Behaviour {
 
         this.handleInput(rect);
         this.updateViewRect();
+        this.updateFogOverlay();
 
         // Rebuild the entity blip layer at a low rate (cheap at minimap scale).
         this.blipTimer = this.blipTimer + deltaTime;

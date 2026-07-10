@@ -186,8 +186,8 @@
       "meshletFrustumCullingEnabled": true,
       "meshletOcclusionCullingEnabled": true,
       "occlusionCullingEnabled": true,
-      "terrainFrustumCullingEnabled": false,
-      "terrainMeshletCullingEnabled": false
+      "terrainFrustumCullingEnabled": true,
+      "terrainMeshletCullingEnabled": true
     },
     "display": {
       "msaa": 1,
@@ -418,9 +418,11 @@
       "spotResolution": 1024
     },
     "terrain": {
+      "castShadows": true,
       "enabled": true,
       "errorThreshold": 2.0,
       "lodBias": 1.0,
+      "renderLayer": 0,
       "textureScale": 0.10000000149011612
     },
     "transparency": {
@@ -433,14 +435,17 @@
       "transitionZone": 10.0
     },
     "virtualTexture": {
-      "evictionAgeFrames": 1,
-      "pagesPerFrame": 256,
+      "evictionAgeFrames": 60,
+      "pagesPerFrame": 64,
       "rvtEnabled": true,
-      "rvtPoolBudgetMB": 1024,
-      "rvtTexelsPerMeter": 64.0,
+      "rvtPoolBudgetMB": 256,
+      "rvtTexelsPerMeter": 32.0,
       "svtEnabled": true,
       "svtPageLinearMaps": true,
       "svtPoolBudgetMB": 4096
+    },
+    "water": {
+      "renderLayer": 0
     }
   },
   "version": "1.0"

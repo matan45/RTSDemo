@@ -34,4 +34,12 @@ public class RTSFog {
     public static function states(float[] xs, float[] zs): int[] {
         return _rts_fog_states(xs, zs);
     }
+
+    // VK-1488: the generic UI external-texture key for the RGBA minimap fog
+    // overlay ("__plugintex_<id>__"), or "" until the plugin has created and
+    // registered it. Bind it to a fog-overlay UIImage with
+    // UI::setImageExternalTexture to show a smooth minimap fog-of-war overlay.
+    public static function overlayKey(): string {
+        return _rts_fog_overlayKey();
+    }
 }

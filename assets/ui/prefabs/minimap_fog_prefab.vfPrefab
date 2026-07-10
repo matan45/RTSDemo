@@ -1,0 +1,62 @@
+{
+  "prefab": {
+    "entity": {
+      "children": [],
+      "components": {
+        "uiImage": {
+          "colorTint": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "uiRect": {
+          "anchorMax": [
+            0.0,
+            0.0
+          ],
+          "anchorMin": [
+            0.0,
+            0.0
+          ],
+          "anchoredPosition": [
+            0.0,
+            0.0
+          ],
+          "blocksRaycast": false,
+          "pivot": [
+            0.0,
+            0.0
+          ],
+          "sizeDelta": [
+            256.0,
+            256.0
+          ]
+        }
+      },
+      "isActive": true,
+      "name": "RTS_HUD_MinimapFog",
+      "transform": {
+        "isStatic": true,
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "name": "RTS_HUD_MinimapFog"
+  },
+  "version": "1.0"
+}

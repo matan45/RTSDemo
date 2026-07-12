@@ -419,6 +419,7 @@
     },
     "terrain": {
       "castShadows": true,
+      "detailMaps": true,
       "enabled": true,
       "errorThreshold": 2.0,
       "lodBias": 1.0,

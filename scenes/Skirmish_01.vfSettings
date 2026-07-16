@@ -13,10 +13,15 @@
     },
     "listener": {
       "dopplerFactor": 1.0,
+      "enableHrtf": false,
       "masterVolume": 1.0,
+      "maxDopplerSpeed": 343.29998779296875,
       "speedOfSound": 343.29998779296875
     },
-    "mixSnapshots": []
+    "mixSnapshots": [],
+    "voices": {
+      "maxRealVoices": 64
+    }
   },
   "physicsSettings": {
     "collisionLayers": [
@@ -419,6 +424,7 @@
     },
     "terrain": {
       "castShadows": true,
+      "detailMaps": true,
       "enabled": true,
       "errorThreshold": 2.0,
       "lodBias": 1.0,

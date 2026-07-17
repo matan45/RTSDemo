@@ -3,7 +3,7 @@ name: engine-research
 description: "Research the VertexForge game engine before planning: map architecture, trace call paths across the Editor->Services->Core/Graphics layers and subsystem DLLs, and combine codebase exploration with external Vulkan/rendering/game-engine-design research. Use when planning an engine change, investigating how a subsystem works, scoping a feature, or answering 'how does X work / where does Y live' in VertexForge — especially in plan mode. Trigger keywords: research, investigate, how does, where is, architecture, plan, VertexForge engine, subsystem, render pipeline, call trace, scope a feature."
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   domain: specialized
   triggers: research, investigate, architecture, plan mode, VertexForge, subsystem, call trace, render pipeline, scope feature, how does, where is
   role: researcher
@@ -23,11 +23,16 @@ A **read-only** research skill. The goal is a high-confidence evidence base for 
 - **`CLAUDE.md`** — module dependency graph, subsystem-extraction table, file-location tables, naming conventions.
 - **`C:\Users\matan\.claude\projects\C--matan-VertexForge\memory\MEMORY.md`** — topic-file index of prior subsystem work; open the linked file for an area before exploring it. Treat as *leads*, not truth — re-verify any named file/symbol still exists.
 - **git history** — `git log --oneline -- <path>` for how an area evolved.
+- **the graphify code graph** (`graphify-out/`) — a whole-engine symbol graph (~55k nodes / ~101k edges). Cheapest first move when the question names a symbol; it finds *where to look*, it does not replace reading the source. See [graphify.md](references/graphify.md).
+  - `graphify explain "<Symbol>"` — source `path:line`, degree, community, and every edge. ~2s even against the 70MB `graph.json`.
+  - `grep` (never wholesale-read) `graphify-out/GRAPH_REPORT.md` — `## God Nodes` is a blast-radius warning; also `## Import Cycles`, `## Communities`.
+  - **Check freshness first**: the report header names its build commit — compare to `git rev-parse HEAD`. If stale, say so in *Open questions*; **do not** run `graphify update .` inside plan mode (it writes).
+  - **Only `[EXTRACTED]` edges (94%) are trustworthy.** `[INFERRED]` edges are name-collision guesses — verify before citing.
 
 ## Core Workflow
 
-1. **Frame** — restate the question in one line. Decompose into ≤3 **codebase areas** + the **external/theory questions** worth researching. Pick entry points from [investigation-playbook.md](references/investigation-playbook.md).
-2. **Fan out (parallel)** — in a **single message**, launch up to **3 `Explore` agents**, each with a distinct, specific focus (e.g. existing implementation / related components / tests & patterns). In parallel, run `WebSearch`/`WebFetch` for theory questions — see [external-research.md](references/external-research.md).
+1. **Frame** — restate the question in one line. Decompose into ≤3 **codebase areas** + the **external/theory questions** worth researching. Pick entry points from [investigation-playbook.md](references/investigation-playbook.md). If the question names a symbol, `graphify explain` it first — it costs ~2s and sharpens the entry points.
+2. **Fan out (parallel)** — in a **single message**, launch up to **3 `Explore` agents**, each with a distinct, specific focus (e.g. existing implementation / related components / tests & patterns). Hand each agent the concrete `path:line` set the graph surfaced rather than a vague area. In parallel, run `WebSearch`/`WebFetch` for theory questions — see [external-research.md](references/external-research.md).
 3. **Synthesize** — collapse results into the Output Template. Resolve any contradiction by `Read`-ing the cited file directly; never ship an unverified claim.
 4. **Gap pass** — list unknowns and unverified claims. Run a focused second round **only** for gaps that block the plan (loop-until-confident, not exhaustive).
 
@@ -55,6 +60,7 @@ Open questions  — what remains unverified, and why.
 ### MUST NOT DO
 - Make edits, run builds, or any non-read action (the plan file is the only allowed write).
 - Trust a memory/topic file without re-verifying the named files/symbols exist now.
+- Cite a graphify `[INFERRED]` edge as fact, or trust a `graphify path` whose middle hop is a stdlib type (`vector`, `string`, `shared_mutex`) — both are artifacts, not call paths.
 - Enumerate every file in a subsystem — name the load-bearing ones.
 - State time-sensitive or version-specific facts without a source.
 

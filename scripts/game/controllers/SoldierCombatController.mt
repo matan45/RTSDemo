@@ -23,6 +23,20 @@
 // orders (issued by the router via Navmesh::moveTo) animate as Run with no extra
 // bookkeeping. Attach this @Script to the soldier prefab root alongside
 // MeshComponent(animatorRef=soldier.vfAnimator) + NavmeshAgent.
+//
+// RATE SPLIT (VK-1536). The work is deliberately divided by the rate it NEEDS, because the
+// engine's script tick governor throttles onUpdate and never touches onLateUpdate:
+//
+//   onUpdate      - decisions: target validity, chase/fire state, nav orders. Reads no
+//                   deltaTime and no input, so it is safe at a reduced rate. This is the
+//                   half that scales: set Tick Governor -> Update Interval (e.g. 0.1 for
+//                   10Hz) on this script's row in soldier_prefab to cut the per-unit
+//                   main-thread cost of a large army.
+//   onLateUpdate  - cosmetics that must run every frame: the Speed blend, the animation
+//                   event drain (muzzle flash + hit-scan), and the support-hand IK.
+//
+// Put new per-frame work in onLateUpdate. Anything added to onUpdate must tolerate being
+// called at the authored interval with an ACCUMULATED deltaTime.
 
 import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
@@ -209,6 +223,11 @@ class SoldierCombatController extends Behaviour {
         this.hasMoveOrder = false;   // force a fresh path decision next tick
     }
 
+    // DECISION work only -- this is the throttleable half (VK-1536). Nothing here reads
+    // deltaTime or per-frame input: it is a state machine over positions that issues nav
+    // orders, so running it at a reduced rate (Tick Governor -> Update Interval on the
+    // prefab's script row) costs latency and nothing else. The per-frame cosmetic work
+    // deliberately lives in onLateUpdate below, which the governor never throttles.
     public function onUpdate(float deltaTime): void {
         if (this.selfId < 0) {
             return;
@@ -224,29 +243,39 @@ class SoldierCombatController extends Behaviour {
         } else {
             this.tickIdleOrMove();
         }
+    }
 
-        // Muzzle flash: always drain the event FIFO when we have an animator (so
-        // it never backs up to its cap), but only spawn when the Muzzle socket
-        // exists. Animation events only fire during the Fire state.
+    // Per-FRAME work. Two reasons it all belongs here rather than in onUpdate:
+    //
+    //  1. Freshness: onLateUpdate runs AFTER the engine's Navmesh and Transforms tasks
+    //     (Scripts -> Navmesh -> Transforms -> LateScripts), so Navmesh::getVelocity and the
+    //     rifle's socket world transform are both current for THIS frame. Animation/IK still
+    //     evaluate later (inside Render), so an IK target set here is applied the same frame.
+    //  2. VK-1536: the tick governor throttles onUpdate ONLY. Anything that must run every
+    //     frame has to live here, or it degrades the moment a unit opts into an interval --
+    //     the support hand would snap at the throttled rate and muzzle flashes would batch.
+    //
+    // Speed blend: driven from the planar nav speed as a CONTINUOUS 1D Idle<->Run blend, so
+    // the legs wind down with the body -- no extra Run step on stop, no idle-slide. The
+    // navmesh (not root motion) owns movement, so this is purely cosmetic -- no feedback
+    // loop with the agent's pacing.
+    public function onLateUpdate(float deltaTime): void {
+        if (this.selfId < 0) {
+            return;
+        }
+
         if (this.hasAnim) {
+            this.updateLocomotionSpeed();
+
+            // Muzzle flash: always drain the event FIFO when we have an animator (so it
+            // never backs up to its cap), but only spawn when the Muzzle socket exists.
+            // Animation events only fire during the Fire state.
             this.drainShootEvents();
         }
 
         // Keep the support hand glued to the rifle's grip across every anim state.
+        // Guarded internally; needs no animator, only the IK chain + grip socket.
         this.updateHandIK();
-    }
-
-    // onLateUpdate runs AFTER the engine's Navmesh task (Scripts -> Navmesh -> Transforms
-    // -> LateScripts), so Navmesh::getVelocity here is fresh for THIS frame. We drive the
-    // 1D Idle<->Run blend ("Speed") from the planar nav speed: a CONTINUOUS blend means the
-    // legs wind down with the body, so there is no extra Run step on stop and no idle-slide.
-    // The navmesh (not root motion) owns movement now, so this is purely cosmetic -- no
-    // feedback loop with the agent's pacing.
-    public function onLateUpdate(float deltaTime): void {
-        if (this.selfId < 0 || !this.hasAnim) {
-            return;
-        }
-        this.updateLocomotionSpeed();
     }
 
     private function updateLocomotionSpeed(): void {

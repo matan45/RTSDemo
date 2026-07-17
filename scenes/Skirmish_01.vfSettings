@@ -209,6 +209,11 @@
       "vfxDistance": 300.0,
       "waterDistance": 2000.0
     },
+    "dynamicResolution": {
+      "enabled": false,
+      "gpuFrameTimeTargetMs": 16.600000381469727,
+      "minScale": 0.5
+    },
     "gi": {
       "cascadeMultiplier": 2.0,
       "enabled": false,

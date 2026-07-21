@@ -92,6 +92,11 @@
       "maxSceneColliders": 32
     }
   },
+  "pluginSettings": {
+    "PSDImport": {
+      "enabled": false
+    }
+  },
   "renderSettings": {
     "animationLOD": {
       "lod0Distance": 25.0,
@@ -107,6 +112,7 @@
       "aerialIntensity": 1.0,
       "aerialMaxDist": 100000.0,
       "atmosphereRadius": 6460000.0,
+      "cycleControlsSunEntity": false,
       "cycleSpeed": 1.0,
       "dayNightEnabled": false,
       "enabled": false,
@@ -144,6 +150,8 @@
       "starTwinkleSpeed": 1.0,
       "sunAngularRadius": 0.009349999949336052,
       "sunAzimuth": 0.0,
+      "sunColorFeedbackStrength": 1.0,
+      "sunColorFromAtmosphere": false,
       "sunElevation": 45.0,
       "sunIrradiance": [
         1.4739999771118164,

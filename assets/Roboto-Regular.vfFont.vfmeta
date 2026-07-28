@@ -1,7 +1,27 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 4,
   "guid": "45215717a803d31d",
+  "importOptions": {
+    "atlasPadding": 1,
+    "atlasSize": 1,
+    "baseFontSize": 32,
+    "fieldMode": 1,
+    "includeBasicLatin": true,
+    "includeCyrillic": false,
+    "includeDingbats": false,
+    "includeEmoji": false,
+    "includeGreek": false,
+    "includeKerning": true,
+    "includeLatin1Supplement": true,
+    "includeLatinExtendedA": false,
+    "includeLatinExtendedB": false,
+    "includeMiscSymbols": false,
+    "mtsdfPxRange": 4.0,
+    "sdfOnEdgeValue": 128,
+    "sdfPadding": 4,
+    "sdfSpread": 4.0
+  },
   "importSource": "C:\\matan\\VertexForge\\resources\\editor\\Roboto-Regular.ttf",
-  "importTimestamp": "2026-05-26 10:10:57",
+  "importTimestamp": "2026-07-28 14:00:44",
   "type": "Font"
 }

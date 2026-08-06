@@ -92,11 +92,6 @@
       "maxSceneColliders": 32
     }
   },
-  "pluginSettings": {
-    "PSDImport": {
-      "enabled": false
-    }
-  },
   "renderSettings": {
     "animationLOD": {
       "lod0Distance": 25.0,
@@ -111,10 +106,13 @@
     "atmosphere": {
       "aerialIntensity": 1.0,
       "aerialMaxDist": 100000.0,
+      "ambientIntensity": 1.0,
+      "ambientItemsPerFrame": 6,
       "atmosphereRadius": 6460000.0,
       "cycleControlsSunEntity": false,
       "cycleSpeed": 1.0,
       "dayNightEnabled": false,
+      "dynamicAmbient": false,
       "enabled": false,
       "groundAlbedo": [
         0.30000001192092896,
@@ -210,6 +208,7 @@
       "billboardDistance": 1000.0,
       "decalDistance": 200.0,
       "enabled": false,
+      "foliageDensityScale": 1.0,
       "foliageDistance": 500.0,
       "shadowDistanceMultiplier": 0.5,
       "staticMeshDistance": 1000.0,
@@ -459,6 +458,7 @@
       "rvtEnabled": true,
       "rvtPoolBudgetMB": 256,
       "rvtTexelsPerMeter": 32.0,
+      "rvtWorldHeight": false,
       "svtEnabled": true,
       "svtPageLinearMaps": true,
       "svtPoolBudgetMB": 4096

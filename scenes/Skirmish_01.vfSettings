@@ -435,8 +435,8 @@
       "spotResolution": 1024
     },
     "terrain": {
-      "castShadows": true,
-      "detailMaps": true,
+      "castShadows": false,
+      "detailMaps": false,
       "enabled": true,
       "errorThreshold": 2.0,
       "lodBias": 1.0,

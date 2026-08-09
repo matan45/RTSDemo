@@ -50,6 +50,7 @@ import * from "./UnitSelectionController.mt";
 import * from "./SoldierCombatController.mt";
 import * from "../ai/PatrolDemo.mt";
 import * from "../ai/EnemyGuards.mt";
+import * from "../ai/EnemyBases.mt";
 import * from "../data/BuildingInfo.mt";
 import * from "../data/UnitDef.mt";
 import * from "../data/UnitInfo.mt";
@@ -125,10 +126,16 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
     // wiring. Remove these fields + their setup/update calls to drop the demo.
     private PatrolDemo patrolDemo;
     private EnemyGuards enemyGuards;
+    // VK-1589: enemy command structures + their World-Sector streaming sources. Same
+    // bootstrap-from-onStart shape; also needs teardown() so the sources do not survive
+    // a play-stop or a script reload. Nullable, unlike the two above, precisely because
+    // onDestroy must be able to run on a script that never reached onStart.
+    private EnemyBases? enemyBases;
 
     public constructor() : super() {
         this.hudControllerId = -1;
         this.hudRef = null;
+        this.enemyBases = null;
         this.pendingRallyBuilding = -1;
         this.queueCount = 0;
         this.maxQueue = 8;
@@ -177,6 +184,10 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
         this.enemyGuards = new EnemyGuards();
         this.enemyGuards.setup();
 
+        // VK-1589 (after the guards, so the bases spawn onto settled terrain height).
+        this.enemyBases = new EnemyBases();
+        this.enemyBases.setup();
+
         Log::info("[BuildingCommand] ready.");
     }
 
@@ -212,6 +223,12 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
         this.handleMoveCommand();
         this.updateQueueUI();
         this.patrolDemo.update(deltaTime);
+
+        // Narrow a local - mType field-narrowing across a call is unreliable.
+        EnemyBases? bases = this.enemyBases;
+        if (bases != null) {
+            bases.update();
+        }
     }
 
     public function onDestroy(): void {
@@ -224,6 +241,15 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
         this.queueListId = -1;
         this.queueLabelId = -1;
         this.queueProgressId = -1;
+
+        // VK-1589: release the base streaming sources. onDestroy fires on play-stop and on
+        // script reload; neither deletes the base entities, so the engine's owner-UUID hook
+        // would not fire for them.
+        EnemyBases? bases = this.enemyBases;
+        if (bases != null) {
+            bases.teardown();
+        }
+        this.enemyBases = null;
     }
 
     // ---- IUIButtonListener ----

@@ -27,6 +27,7 @@ import * from "../../lib/engine/Terrain.mt";
 import * from "../../lib/engine/Window.mt";
 import * from "../../lib/engine/Navmesh.mt";
 import * from "../../lib/engine/PluginComponent.mt";
+import * from "../../lib/engine/Streaming.mt";
 import * from "../../lib/engine/Log.mt";
 import * from "../../lib/math/Vec3f.mt";
 import * from "./BuildingCommandController.mt";
@@ -102,6 +103,41 @@ class MinimapController extends Behaviour {
     private int fogOverlayId;      // fog overlay UIImage entity id (-1 = not spawned)
     private bool fogOverlayBound;  // true once the plugin's overlay texture key is bound
 
+    // --- Minimap-jump streaming pre-warm (VK-1589) ----------------------------
+    // jumpTo is a synchronous teleport with no arrival event, and in a sector world the
+    // camera's own ring then has to pull the destination in a sector at a time. Registering
+    // a streaming source AT the destination gives the streamer a head start and, unlike the
+    // camera, lets it outrank everything else for the per-frame load budget.
+    //
+    // Shape is "register on press -> follow while held -> release after a linger", NOT
+    // "release on arrival": the drag-pan path re-issues a jump every held frame, so the
+    // destination keeps moving and there is nothing to arrive at. The linger keeps the
+    // destination pinned for a moment after release so the ring finishes filling.
+    //
+    // priority 2 is deliberate and is the OPPOSITE call from EnemyBases (priority 0). Here
+    // out-bidding the camera is the entire point - the camera is already at the destination
+    // and its own ring would otherwise compete with itself.
+    private bool prewarmEnabled = true;         // flip to false for the A/B measurement below
+    private int prewarmSourceId;                // 0 = nothing registered
+    private float prewarmX;
+    private float prewarmY;
+    private float prewarmZ;
+    private bool prewarmTargetLive;             // a jump destination is being held this frame
+    private float prewarmLinger;                // seconds left to hold after release
+    private float prewarmLingerTime = 1.5;
+    private float prewarmRadiusMultiplier = 1.0;
+    private int prewarmPriority = 2;
+
+    // Frames-to-ready instrumentation. Counts frames from the press edge until the
+    // destination sector reports Loaded; run once with prewarmEnabled false and once true
+    // to get the comparison. In a non-sector scene isSectorLoadedAt is always true, so this
+    // honestly reports 1 frame rather than pretending to measure something.
+    private bool measuring;
+    private int measureFrames;
+    private float measureX;
+    private float measureZ;
+    private int measureFrameCap = 600;          // ~10s at 60fps; give up rather than count forever
+
     public constructor() : super() {
         this.minimapViewId = -1;
         this.viewRectId = -1;
@@ -114,6 +150,16 @@ class MinimapController extends Behaviour {
         this.blipTimer = 0.0;
         this.fogOverlayId = -1;
         this.fogOverlayBound = false;
+        this.prewarmSourceId = 0;
+        this.prewarmX = 0.0;
+        this.prewarmY = 0.0;
+        this.prewarmZ = 0.0;
+        this.prewarmTargetLive = false;
+        this.prewarmLinger = 0.0;
+        this.measuring = false;
+        this.measureFrames = 0;
+        this.measureX = 0.0;
+        this.measureZ = 0.0;
     }
 
     public function onStart(): void {
@@ -258,6 +304,11 @@ class MinimapController extends Behaviour {
     }
 
     public function onUpdate(float deltaTime): void {
+        // VK-1589: cleared here, not in handleInput, so the early-outs below also count as
+        // "no jump target this frame" - otherwise a minimap that stops resolving would
+        // strand the pre-warm source registered forever.
+        this.prewarmTargetLive = false;
+
         if (this.minimapViewId < 0) {
             return;
         }
@@ -280,7 +331,91 @@ class MinimapController extends Behaviour {
         }
     }
 
+    // VK-1589: the sector streamer runs on the main thread as part of the pre-Transforms
+    // block, and onLateUpdate is ordered after it. Doing the Streaming:: work here rather
+    // than in handleInput keeps a per-frame writer off the streamer's back.
+    public function onLateUpdate(float deltaTime): void {
+        this.updateJumpPrewarm(deltaTime);
+        this.updateReadyMeasure();
+    }
+
     public function onDestroy(): void {
+        // Never leak the transient source across a play-stop or a script reload: it has no
+        // owner entity, so the engine's auto-unregister hook cannot clean it up.
+        if (this.prewarmSourceId != 0) {
+            Streaming::unregisterWorldSource(this.prewarmSourceId);
+            this.prewarmSourceId = 0;
+        }
+        this.prewarmTargetLive = false;
+        this.measuring = false;
+    }
+
+    // ============================================
+    // Jump pre-warm (VK-1589)
+    // ============================================
+
+    private function updateJumpPrewarm(float deltaTime): void {
+        if (!this.prewarmEnabled) {
+            return;
+        }
+
+        if (this.prewarmTargetLive) {
+            // Refresh the linger every held frame so the countdown always starts full
+            // once the button comes up, whatever ended the drag.
+            this.prewarmLinger = this.prewarmLingerTime;
+
+            if (this.prewarmSourceId == 0) {
+                this.prewarmSourceId = Streaming::registerWorldSource(
+                    this.prewarmX, this.prewarmY, this.prewarmZ,
+                    this.prewarmRadiusMultiplier, this.prewarmPriority, 0);
+            } else {
+                Streaming::updateWorldSource(this.prewarmSourceId,
+                                             this.prewarmX, this.prewarmY, this.prewarmZ);
+            }
+            return;
+        }
+
+        if (this.prewarmSourceId == 0) {
+            return;
+        }
+
+        this.prewarmLinger = this.prewarmLinger - deltaTime;
+        if (this.prewarmLinger <= 0.0) {
+            Streaming::unregisterWorldSource(this.prewarmSourceId);
+            this.prewarmSourceId = 0;
+        }
+    }
+
+    // Frames from the jump press until the destination sector reports Loaded (AC of
+    // VK-1589). Toggle prewarmEnabled between runs to get the before/after numbers.
+    private function updateReadyMeasure(): void {
+        if (!this.measuring) {
+            return;
+        }
+
+        this.measureFrames = this.measureFrames + 1;
+
+        if (Streaming::isSectorLoadedAt(this.measureX, this.measureZ)) {
+            this.measuring = false;
+            Log::info("[Minimap] jump destination ready after "
+                      + parsePrimitive(this.measureFrames) + " frame(s), pre-warm "
+                      + this.prewarmLabel() + ".");
+            return;
+        }
+
+        if (this.measureFrames >= this.measureFrameCap) {
+            this.measuring = false;
+            Log::warn("[Minimap] jump destination still not loaded after "
+                      + parsePrimitive(this.measureFrames) + " frame(s), pre-warm "
+                      + this.prewarmLabel() + "; giving up on the measurement.");
+        }
+    }
+
+    private function prewarmLabel(): string {
+        if (this.prewarmEnabled) {
+            return "on";
+        }
+        return "off";
     }
 
     // ============================================
@@ -307,12 +442,35 @@ class MinimapController extends Behaviour {
         if (!nowLeft) {
             this.draggingFromMinimap = false;
         }
+
+        // VK-1589: only record the destination here (prewarmTargetLive was cleared at the
+        // top of onUpdate). The Streaming:: calls themselves happen in onLateUpdate, which
+        // is ordered after the engine's sector-streaming task; onUpdate runs on a worker
+        // thread alongside it.
         if (this.draggingFromMinimap) {
             float wx = this.minimapToWorldX(rect, mx);
             float wz = this.minimapToWorldZ(rect, my);
             RTSCameraController cam = this.camera();
             if (cam != null) {
                 cam.jumpTo(wx, wz);
+            }
+
+            float wy = 0.0;
+            if (Terrain::hasHeightAt(wx, wz)) {
+                wy = Terrain::heightAt(wx, wz);
+            }
+            this.prewarmX = wx;
+            this.prewarmY = wy;
+            this.prewarmZ = wz;
+            this.prewarmTargetLive = true;
+
+            // Measure from the press edge only: a drag re-targets every frame, so
+            // restarting the clock mid-drag would never converge.
+            if (leftPressed) {
+                this.measuring = true;
+                this.measureFrames = 0;
+                this.measureX = wx;
+                this.measureZ = wz;
             }
         }
 

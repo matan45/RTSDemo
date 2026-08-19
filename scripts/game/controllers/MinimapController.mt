@@ -7,10 +7,11 @@
 // axis-aligned bounds of the main camera's visible ground area.
 //
 // The minimap camera ("camera minimap") is a top-down orthographic camera over
-// the world origin with orthoSize 256, so its 512x512 render texture maps 1:1
-// onto the world bounds [-256, 256] on X/Z. The minimap image's on-screen rect
-// comes from UI::getRectPixels (same viewport-pixel space as
-// Input::getViewportMouseX/Y), so anchoring and canvas scaling stay engine-side.
+// the world origin with orthoSize 64 (ortho half-extent), so its 512x512 render
+// texture maps 1:1 onto the playable world bounds [-64, 64] on X/Z -- the same
+// Config::MAP_MIN/MAX_X/Z the view-rect and click-jump math clamp to. The minimap
+// image's on-screen rect comes from UI::getRectPixels (same viewport-pixel space
+// as Input::getViewportMouseX/Y), so anchoring and canvas scaling stay engine-side.
 //
 // Attach this @Script to the GameSystems entity alongside the other controllers.
 // World-click controllers are unaffected: the minimap view blocks raycasts and

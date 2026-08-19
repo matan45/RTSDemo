@@ -17,6 +17,19 @@
 // setTarget(-1). The right-click router reaches this script via
 // Entity::getScript<SoldierCombatController>(unitId, "SoldierCombatController").
 //
+// STANCE (VK-1298 slice 1). Two flags turn the same state machine into the three
+// stances an RTS player expects, and both are set from the unit command card:
+//
+//   autoAcquire  - scan for a hostile every scanInterval while idle and engage it
+//                  unprompted. ON by default (attack-move, and standing units that
+//                  defend themselves); a plain Move order clears it so the squad
+//                  actually walks to the destination instead of stopping to fight,
+//                  and BuildingCommandController restores it on arrival.
+//   holdPosition - never leave this spot. The soldier keeps its target and keeps
+//                  firing whenever that target is in range, but never chases. This
+//                  is what makes a defensive line hold instead of dissolving into
+//                  a pursuit.
+//
 // Locomotion is nav-paced: the NavmeshAgent (not root motion) moves the unit at its
 // configured maxSpeed, and the animator's "Speed" float drives a 1D Idle<->Run blend
 // tree from the agent's velocity (set fresh each frame in onLateUpdate). Plain move
@@ -50,6 +63,7 @@ import * from "../../lib/math/Vec3f.mt";
 import * from "../util/Config.mt";
 import * from "../util/Combat.mt";
 import * from "./ProjectilePool.mt";
+import * from "./DeathController.mt";
 
 @Script
 class SoldierCombatController extends Behaviour {
@@ -126,6 +140,27 @@ class SoldierCombatController extends Behaviour {
     private float handIkWeight;    // blend (1.0 = full IK; drop to A/B vs drift)
     private bool hasLeftHandIK;    // cached IK::hasComponent(self), resolved in onStart
 
+    // ---- stance (VK-1298 slice 1) ----
+    // See the header. autoAcquire drives the idle scan; holdPosition suppresses the
+    // chase leg of tickCombat.
+    private bool autoAcquire;
+    private bool holdPosition;
+    // Radius of the idle hostile scan. Wider than fireRange so a soldier starts
+    // closing on a target it can see before that target is already shooting back.
+    private float acquireRange;
+    // The scan walks every entity carrying a Team component, so it is rate-limited
+    // rather than run on every decision tick. It accumulates the SAME deltaTime
+    // onUpdate is handed, so the cadence stays correct when the tick governor
+    // throttles this script (VK-1536).
+    private float scanInterval;
+    private float scanAccum;
+
+    // ---- death reporting ----
+    // Resolved once from GameSystems, exactly like projectilePool below. The plugin
+    // damage native never destroys anything, so this hand-off is what turns a 0-HP
+    // entity into an actual despawn (see controllers/DeathController.mt).
+    private DeathController? deaths;
+
     // ---- cosmetic tracer (VK-1427 Phase 6) ----
     // Tracers are drawn from ONE shared ProjectilePool on the GameSystems entity, not
     // a per-soldier pool, so the scene holds at most `cap` bullets total regardless of
@@ -154,8 +189,15 @@ class SoldierCombatController extends Behaviour {
         this.faceYawOffsetDeg = 0.0;
         this.muzzleVfx = "assets/units/soldier/fire.vfVFX";
 
+        this.autoAcquire = true;
+        this.holdPosition = false;
+        this.acquireRange = 22.0;
+        this.scanInterval = 0.3;
+        this.scanAccum = 0.0;
+
         this.ak47Id = -1;
         this.projectilePool = null;
+        this.deaths = null;
 
         this.enableHandIK = true;
         this.ikChain = "LeftHandGrip";
@@ -203,6 +245,7 @@ class SoldierCombatController extends Behaviour {
         int gsId = Entity::findByName("GameSystems");
         if (gsId >= 0) {
             this.projectilePool = Entity::getScript<ProjectilePool>(gsId, "ProjectilePool");
+            this.deaths = Entity::getScript<DeathController>(gsId, "DeathController");
         }
 
         // The engine's animation-event queue is keyed by entity id for the whole
@@ -223,6 +266,41 @@ class SoldierCombatController extends Behaviour {
         this.hasMoveOrder = false;   // force a fresh path decision next tick
     }
 
+    // Hold Position: keep firing at whatever comes into range, never chase. An
+    // out-of-range target is deliberately KEPT rather than dropped, so toggling
+    // hold back off resumes the pursuit without a fresh order.
+    public function setHold(bool hold): void {
+        this.holdPosition = hold;
+        if (hold && this.hasMoveOrder) {
+            Navmesh::stopAgent(this.selfId);
+            this.hasMoveOrder = false;
+        }
+    }
+
+    public function isHolding(): bool {
+        return this.holdPosition;
+    }
+
+    // Turn the idle hostile scan on/off. A plain Move order clears it so the squad
+    // walks past enemies instead of peeling off to fight; attack-move leaves it on.
+    public function setAutoAcquire(bool on): void {
+        this.autoAcquire = on;
+    }
+
+    public function isAutoAcquire(): bool {
+        return this.autoAcquire;
+    }
+
+    // Stop command: drop the attack order, halt the agent, lower the rifle. Stance
+    // is deliberately unchanged -- a stopped soldier with autoAcquire on will
+    // re-engage anything that walks up to it, which is the standard RTS behaviour.
+    public function stop(): void {
+        this.targetId = -1;
+        this.hasMoveOrder = false;
+        Navmesh::stopAgent(this.selfId);
+        this.setFiring(false);
+    }
+
     // DECISION work only -- this is the throttleable half (VK-1536). Nothing here reads
     // deltaTime or per-frame input: it is a state machine over positions that issues nav
     // orders, so running it at a reduced rate (Tick Governor -> Update Interval on the
@@ -232,6 +310,11 @@ class SoldierCombatController extends Behaviour {
         if (this.selfId < 0) {
             return;
         }
+
+        // Accumulate here rather than inside the idle branch so the scan cadence is
+        // wall-clock: a soldier that flickers between chase and idle would otherwise
+        // never build up enough idle ticks to ever scan.
+        this.scanAccum = this.scanAccum + deltaTime;
 
         // Drop a dead/despawned target.
         if (this.targetId >= 0 && !Entity::isValid(this.targetId)) {
@@ -311,6 +394,15 @@ class SoldierCombatController extends Behaviour {
             // Chase: move toward the target. Locomotion (Run) is driven by the resulting
             // nav velocity via the Speed blend param in onLateUpdate.
             this.setFiring(false);
+            if (this.holdPosition) {
+                // Holding: out of range simply means "not shooting yet". The target
+                // is kept, so fire resumes the instant it walks back into range.
+                if (this.hasMoveOrder) {
+                    Navmesh::stopAgent(this.selfId);
+                    this.hasMoveOrder = false;
+                }
+                return;
+            }
             if (!this.hasMoveOrder || this.lastCmd.distanceSquared(tp) > this.reissueDistSq) {
                 Vec3f dest = tp;
                 if (!Navmesh::isPointOnNavmesh(dest)) {
@@ -338,6 +430,27 @@ class SoldierCombatController extends Behaviour {
         // param in onLateUpdate; nothing to set here beyond clearing combat state.
         this.setFiring(false);
         this.hasMoveOrder = false;
+        this.tryAutoAcquire();
+    }
+
+    // Look for something to shoot when there is no order. The scan is team-relative
+    // (see util/Combat.mt), so this one method serves player soldiers and enemy wave
+    // soldiers alike. Rate-limited because it is a full pass over every
+    // Team-carrying entity.
+    private function tryAutoAcquire(): void {
+        if (!this.autoAcquire) {
+            return;
+        }
+        if (this.scanAccum < this.scanInterval) {
+            return;
+        }
+        this.scanAccum = 0.0;
+
+        Vec3f sp = Entity::getPosition(this.selfId);
+        int foe = Combat::findNearestHostile(this.selfId, sp.x, sp.z, this.acquireRange);
+        if (foe >= 0) {
+            this.setTarget(foe);
+        }
     }
 
     // ---- helpers ----
@@ -447,16 +560,29 @@ class SoldierCombatController extends Behaviour {
 
     // Deal one shot's damage to the current target via the RTSGameplay plugin.
     // No-op when there is no valid target or the target has no Health component
-    // (Combat::applyDamage returns NO_HEALTH). On a kill we drop the target so the
-    // soldier returns to idle; a scene handler reacting to "rts.unit_killed" owns
-    // the actual despawn/cleanup (the native never destroys the entity).
+    // (Combat::applyDamage returns NO_HEALTH).
+    //
+    // On a kill the victim is handed to DeathController and the target dropped so
+    // the soldier returns to idle. That hand-off is what makes anything ever die:
+    // the plugin native only clamps HP to 0 and publishes "rts.unit_killed" on the
+    // PLUGIN event bus, which mType cannot subscribe to -- so without this call the
+    // corpse would stand there forever. Null-safe: a scene with no DeathController
+    // behaves exactly as it did before.
     private function applyShotDamage(): void {
         if (this.targetId < 0 || !Entity::isValid(this.targetId)) {
             return;
         }
         int result = Combat::applyDamage(this.targetId, this.damage);
         if (result == Combat::KILLED) {
+            // Capture the victim BEFORE clearing, and clear BEFORE reporting: the
+            // despawn is synchronous, so this soldier must already be target-free
+            // by the time the entity goes away.
+            int victim = this.targetId;
             this.targetId = -1;
+            DeathController? d = this.deaths;
+            if (d != null) {
+                d.reportKill(victim, this.selfId);
+            }
         }
     }
 

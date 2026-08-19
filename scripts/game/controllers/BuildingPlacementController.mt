@@ -23,6 +23,12 @@
 //      exact data behind the on-screen mask); explored-but-unseen and unexplored
 //      cells both reject. No-op while fog is disabled (F10).
 //
+// SCRIPTED PLACEMENT. placeAt() builds without a cursor: same snap, same validity
+// rules, same gold/power/components/registration, just with the site and rotation
+// passed in. It exists so an automated match (and any future AI builder) can build
+// a base through exactly the code path a player uses, instead of a parallel one
+// that could drift. See its own comment for the single rule it cannot enforce.
+//
 // Attach via a ScriptComponent on an always-active entity (e.g. "GameSystems").
 
 import * from "../../lib/engine/oop/Behaviour.mt";
@@ -255,14 +261,15 @@ class BuildingPlacementController extends Behaviour implements IUIButtonListener
         Vec3f snapped = this.snapToGrid(hit.point);
         float groundY = Terrain::heightAt(snapped.x, snapped.z);
         this.ghostCenter = new Vec3f(snapped.x, groundY, snapped.z);
-        this.ghostValid = this.isValidPlacement(this.ghostCenter, this.rotationSteps, hit.normal.y);
+        this.ghostValid = this.isValidPlacement(this.resolvedSlot(), this.ghostCenter,
+                                                this.rotationSteps, hit.normal.y);
 
         // The ghost is the real building prefab following the cursor. Yaw is
         // composed on top of the prefab's authored base rotation.
         if (this.ghostEntity >= 0) {
             Entity::setActive(this.ghostEntity, true);
             Entity::setPosition(this.ghostEntity, this.ghostCenter);
-            Entity::setRotation(this.ghostEntity, this.composedRotation());
+            Entity::setRotation(this.ghostEntity, this.composedRotation(this.ghostBaseRot, this.rotationSteps));
         }
 
         // Tint the ghost mesh to signal validity (green = valid, red = invalid).
@@ -523,16 +530,22 @@ class BuildingPlacementController extends Behaviour implements IUIButtonListener
     // applies Euler as Rx*Ry*Rz, so for a Blender-import base of -90 deg X the
     // identity Ry(yaw)*Rx(-90) == Rx(-90)*Rz(yaw) puts the yaw into the Z slot
     // (negated for a +90 base); an upright base takes it in Y as usual.
-    private function composedRotation(): Vec3f {
-        float yaw = (float)(this.rotationSteps * 90);
-        float bx = this.ghostBaseRot.x;
+    //
+    // Both the base rotation and the step count are parameters rather than reads of
+    // ghostBaseRot/rotationSteps: placeAt() promotes a building it just instantiated
+    // while a cursor ghost for a DIFFERENT slot may still be live, and writing that
+    // instance's base rotation into the shared field would visibly re-orient the
+    // ghost. As a pure function of its inputs this cannot happen.
+    private function composedRotation(Vec3f baseRot, int steps): Vec3f {
+        float yaw = (float)(steps * 90);
+        float bx = baseRot.x;
         if (bx < -45.0) {
-            return new Vec3f(bx, this.ghostBaseRot.y, this.ghostBaseRot.z + yaw);
+            return new Vec3f(bx, baseRot.y, baseRot.z + yaw);
         }
         if (bx > 45.0) {
-            return new Vec3f(bx, this.ghostBaseRot.y, this.ghostBaseRot.z - yaw);
+            return new Vec3f(bx, baseRot.y, baseRot.z - yaw);
         }
-        return new Vec3f(bx, this.ghostBaseRot.y + yaw, this.ghostBaseRot.z);
+        return new Vec3f(bx, baseRot.y + yaw, baseRot.z);
     }
 
     // Create/refresh the reusable ghost entity for the selected build slot. Rebuilds
@@ -593,32 +606,33 @@ class BuildingPlacementController extends Behaviour implements IUIButtonListener
     }
 
     // A 90-degree rotation of an axis-aligned rectangle just swaps its extents
-    // on odd steps, so the world AABB stays exact. Footprint comes from the
-    // currently-selected building definition.
-    private function halfXFor(int steps): float {
-        BuildingDef def = this.buildings[this.resolvedSlot()];
+    // on odd steps, so the world AABB stays exact. The slot is explicit rather than
+    // read from resolvedSlot() so placeAt() can measure a footprint for a building
+    // that is not the one the cursor currently has selected.
+    private function halfXFor(int slot, int steps): float {
+        BuildingDef def = this.buildings[slot];
         if (steps % 2 == 0) {
             return def.halfX;
         }
         return def.halfZ;
     }
 
-    private function halfZFor(int steps): float {
-        BuildingDef def = this.buildings[this.resolvedSlot()];
+    private function halfZFor(int slot, int steps): float {
+        BuildingDef def = this.buildings[slot];
         if (steps % 2 == 0) {
             return def.halfZ;
         }
         return def.halfX;
     }
 
-    private function isValidPlacement(Vec3f center, int steps, float groundNormalY): bool {
+    private function isValidPlacement(int slot, Vec3f center, int steps, float groundNormalY): bool {
         // (a) slope: the terrain surface normal must be near-vertical (physics).
         if (groundNormalY < this.slopeMinNormalY) {
             return false;
         }
 
-        float hx = this.halfXFor(steps);
-        float hz = this.halfZFor(steps);
+        float hx = this.halfXFor(slot, steps);
+        float hz = this.halfZFor(slot, steps);
 
         // (b) map bounds.
         if (center.x - hx < Config::MAP_MIN_X || center.x + hx > Config::MAP_MAX_X) {
@@ -705,16 +719,42 @@ class BuildingPlacementController extends Behaviour implements IUIButtonListener
         // Apply the building's power delta (Power Plant produces, others consume).
         hud.addPower(this.buildings[slot].power);
 
-        // Promote the ghost in place into the placed building (the prefab already
-        // carries the mesh, material, and collider, and the ghost is at the right
-        // pose). The ghost wears a tint material, so restore the prefab's real
-        // material, then clear the slot so a fresh ghost is created for the next
-        // placement.
+        // Everything from here on is shared with placeAt(); the ghost bookkeeping
+        // and the placement-mode exit below are the only cursor-specific bits.
+        this.promote(id, slot, this.ghostCenter, this.rotationSteps, this.ghostBaseRot);
+
+        // The ghost has become the building, so drop the slot: the next placement
+        // builds a fresh one.
+        this.ghostEntity = -1;
+        this.ghostSlot = -1;
+
+        // Release the placement lock so the next click selects instead of placing.
+        SelectionController sel = this.selection();
+        if (sel != null) {
+            sel.setPlacementActive(false);
+        }
+
+        Log::info("[BuildPlacement] placed building; gold now " + parsePrimitive(hud.getGold())
+            + ", power now " + parsePrimitive(hud.getPower()));
+        this.placing = false;
+    }
+
+    // Turn an instantiated prefab instance into a real placed building: final pose,
+    // real material, navmesh carve, physics body, plugin components, footprint
+    // bookkeeping and selection registration.
+    //
+    // Shared verbatim by the cursor path (commitPlacement) and the scripted path
+    // (placeAt) so the two can never drift. Gold and power are deliberately NOT
+    // charged here -- both callers spend BEFORE promoting, so a failed spend can
+    // destroy the instance without having to unwind any of this.
+    private function promote(int id, int slot, Vec3f center, int steps, Vec3f baseRot): void {
+        // The instance may be wearing the ghost's tint material, so restore the
+        // prefab's real one.
         if (this.materialFor(slot) != "") { Entity::setMaterial(id, this.materialFor(slot)); }
-        Entity::setName(id, "Building_" + this.placedCount);
+        Entity::setName(id, "Building_" + parsePrimitive(this.placedCount));
         Entity::setActive(id, true);
-        Entity::setPosition(id, this.ghostCenter);
-        Entity::setRotation(id, this.composedRotation());
+        Entity::setPosition(id, center);
+        Entity::setRotation(id, this.composedRotation(baseRot, steps));
 
         // Re-enable the carve NavmeshObstacle now that the building is at its
         // final pose: this carves its footprint into the navmesh exactly once so
@@ -728,7 +768,7 @@ class BuildingPlacementController extends Behaviour implements IUIButtonListener
             Physics::createBody(id);
         }
 
-        // Fog of war (VK-1314): player buildings are vision sources — reveal a
+        // Fog of war (VK-1314): player buildings are vision sources -- reveal a
         // generous area around the new building. Team marks it player-owned for
         // the engine-side fog system.
         PluginComponent::add(id, "Team");
@@ -744,31 +784,92 @@ class BuildingPlacementController extends Behaviour implements IUIButtonListener
         PluginComponent::setFloat(id, "Health", "maxHP", maxHP);
         PluginComponent::setFloat(id, "Health", "currentHP", maxHP);
 
-        this.ghostEntity = -1;
-        this.ghostSlot = -1;
-
-        this.placed[this.placedCount] = new PlacedBuilding(this.ghostCenter,
-            this.halfXFor(this.rotationSteps), this.halfZFor(this.rotationSteps), id);
+        float hx = this.halfXFor(slot, steps);
+        float hz = this.halfZFor(slot, steps);
+        this.placed[this.placedCount] = new PlacedBuilding(center, hx, hz, id);
         this.placedCount = this.placedCount + 1;
 
-        // Make the new building selectable (VK-1348) and release the placement
-        // lock so the next click selects instead of placing.
+        // Make the new building selectable (VK-1348).
         SelectionController sel = this.selection();
         if (sel != null) {
-            BuildingInfo info = this.infoForSlot(this.resolvedSlot());
+            BuildingInfo info = this.infoForSlot(slot);
             // Bind the panel info to this entity so its health bar reads the live
             // plugin Health component (currentHP/maxHP) added above -- one source
             // of truth, so damage shows on the HUD bar.
             info.entityId = id;
             // Rotation-adjusted footprint sizes the selection-highlight decal.
-            info.halfX = this.halfXFor(this.rotationSteps);
-            info.halfZ = this.halfZFor(this.rotationSteps);
+            info.halfX = hx;
+            info.halfZ = hz;
             sel.registerBuilding(id, info);
-            sel.setPlacementActive(false);
+        }
+    }
+
+    // Build slot `slot` at `center`, rotated `steps` * 90 degrees, with no cursor
+    // involved. Returns the new building's entity id, or -1 if it could not be
+    // placed (bad slot, cap reached, invalid site, missing prefab, or not enough
+    // gold). Charges gold and power exactly like a player click.
+    //
+    // ONE RULE IT CANNOT ENFORCE: the slope test. That needs the terrain surface
+    // NORMAL, which only comes back from the cursor's physics raycast -- the Terrain
+    // API exposes heightAt, not normalAt -- so this passes a flat 1.0. Bounds,
+    // overlap and fog are all still checked. On the demo terrain that is a
+    // non-issue; on a cliff-heavy map a scripted build could land on a slope a
+    // player would be refused.
+    public function placeAt(int slot, Vec3f center, int steps): int {
+        if (slot < 0 || slot >= this.buildings.length) {
+            Log::warn("[BuildPlacement] placeAt: slot " + parsePrimitive(slot) + " out of range.");
+            return -1;
+        }
+        if (this.placedCount >= this.maxPlaced) {
+            Log::warn("[BuildPlacement] placeAt: placed-building cap reached.");
+            return -1;
         }
 
-        Log::info("[BuildPlacement] placed building; gold now " + hud.getGold()
-            + ", power now " + hud.getPower());
-        this.placing = false;
+        Vec3f snapped = this.snapToGrid(center);
+        Vec3f site = new Vec3f(snapped.x, Terrain::heightAt(snapped.x, snapped.z), snapped.z);
+        if (!this.isValidPlacement(slot, site, steps, 1.0)) {
+            Log::warn("[BuildPlacement] placeAt: invalid site for slot " + parsePrimitive(slot)
+                + " (bounds/overlap/fog).");
+            return -1;
+        }
+
+        string prefab = this.prefabFor(slot);
+        if (prefab == "") {
+            Log::warn("[BuildPlacement] placeAt: slot " + parsePrimitive(slot) + " has no prefab path.");
+            return -1;
+        }
+        int id = Entity::instantiate(prefab);
+        if (id < 0) {
+            Log::warn("[BuildPlacement] placeAt: instantiate failed for '" + prefab + "'.");
+            return -1;
+        }
+
+        // Read the prefab's authored base rotation off the fresh instance, and start
+        // its carve obstacle inert -- promote() re-enables it at the final pose,
+        // which is what carves the footprint exactly once (same as the ghost path).
+        Vec3f baseRot = Entity::getRotation(id);
+        Navmesh::setObstacleActive(id, false);
+
+        // Resolve + charge BEFORE promoting, so a failed spend just destroys the
+        // instance instead of leaving a half-registered building behind.
+        RTSHUDController? hud = this.hud();
+        if (hud == null) {
+            Log::warn("[BuildPlacement] placeAt: HUD controller unavailable; cannot charge gold.");
+            Entity::destroy(id);
+            return -1;
+        }
+        if (!hud.trySpendGold(this.buildings[slot].cost)) {
+            Entity::destroy(id);
+            return -1;
+        }
+        hud.addPower(this.buildings[slot].power);
+
+        this.promote(id, slot, site, steps, baseRot);
+
+        Log::info("[BuildPlacement] placeAt slot " + parsePrimitive(slot)
+            + " -> id " + parsePrimitive(id)
+            + "; gold now " + parsePrimitive(hud.getGold())
+            + ", power now " + parsePrimitive(hud.getPower()));
+        return id;
     }
 }

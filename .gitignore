@@ -1,3 +1,4 @@
 *.vfmeta
 assetdb.json
 *.mtcLib
+tools/out/

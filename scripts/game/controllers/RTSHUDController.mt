@@ -6,6 +6,18 @@
 // building's command card (the buttons are hidden while nothing is selected).
 // Initializes the minimap render target so the top-down camera entity feeds
 // the minimap UIImage.
+//
+// The five command buttons are shared between two cards (VK-1298 slice 1): a
+// selected BUILDING gets its own command list, and with no building selected but
+// units selected they become the UNIT card (Move / Attack-Move / Stop / Hold).
+// This side only paints the labels -- BuildingCommandController.onButtonClicked
+// decides which card a click belongs to and runs it.
+//
+// "Are units selected?" is read as getSelectedUnitInfo() != null rather than from
+// UnitSelectionController directly: importing that controller here would close a
+// circular import through BuildingPlacementController, which mType rejects. The
+// unit info is already pushed into SelectionController every frame for the
+// selection panel, so it costs nothing extra.
 
 import * from "../../lib/engine/oop/Behaviour.mt";
 import * from "../../lib/engine/Entity.mt";
@@ -43,6 +55,12 @@ class RTSHUDController extends Behaviour implements IUIButtonListener {
     private static final float WORD_CMD_FONT_SIZE = 18.0;
     // Extra spacing between letters of word labels so they read clearly (VK-1352).
     private static final float WORD_CMD_LETTER_SPACING = 6.0;
+
+    // lastShownId sentinel for "the unit command card is up". Buildings key the
+    // card by their entity id, and units have no single owning id (a squad is many
+    // entities), so they need a sentinel of their own that cannot collide with -1
+    // (nothing selected) or -2 (nothing applied yet).
+    private static final int UNIT_CARD_ID = -3;
 
     // SelectionController (on the GameSystems entity) drives the selection panel.
     private int selectionOwnerId;
@@ -133,20 +151,24 @@ class RTSHUDController extends Behaviour implements IUIButtonListener {
 
         if (info == null) {
             // No building selected: show the primary-selected unit's panel
-            // (icon + health) if there is one, else the empty panel. Units have
-            // no command card yet, so it stays hidden in either case (VK-1302).
+            // (icon + health) if there is one, else the empty panel.
             UnitInfo? uinfo = null;
             if (sel != null) {
                 uinfo = sel.getSelectedUnitInfo();
             }
             if (uinfo == null) {
                 this.clearSelectionPanel();
+                if (this.lastShownId != -1) {
+                    this.hideCommandCard();
+                    this.lastShownId = -1;
+                }
             } else {
                 this.showUnitPanel(uinfo);
-            }
-            if (this.lastShownId != -1) {
-                this.hideCommandCard();
-                this.lastShownId = -1;
+                // Units selected: swap the shared buttons over to the unit card.
+                if (this.lastShownId != UNIT_CARD_ID) {
+                    this.applyUnitCommandCard();
+                    this.lastShownId = UNIT_CARD_ID;
+                }
             }
         } else {
             if (this.selectionNameId >= 0) { UI::setLabelText(this.selectionNameId, info.displayName); }
@@ -381,6 +403,38 @@ class RTSHUDController extends Behaviour implements IUIButtonListener {
                 } else {
                     Entity::setActive(bid, false);
                 }
+            }
+        }
+    }
+
+    // The unit command card: the four orders that apply to any selected unit, in
+    // the index order BuildingCommandController.executeUnitCommand expects. The
+    // fifth button (Build) is hidden -- it belongs to buildings.
+    //
+    // Labels only. Which units they act on, and whether an order is immediate
+    // (Stop / Hold) or armed for the next right-click (Move / Attack-Move), is
+    // entirely the command controller's business.
+    private function applyUnitCommandCard(): void {
+        string[] labels = new string[4];
+        labels[0] = "Move";
+        labels[1] = "Attack-Move";
+        labels[2] = "Stop";
+        labels[3] = "Hold";
+
+        for (int i = 0; i < 5; i = i + 1) {
+            int bid = this.cmdButtons[i];
+            if (bid < 0) {
+                continue;
+            }
+            if (i < labels.length) {
+                Entity::setActive(bid, true);
+                UI::setLabelText(bid, labels[i]);
+                // Same word-label treatment the building card uses (VK-1352).
+                UI::setLabelFontSize(bid, WORD_CMD_FONT_SIZE);
+                UI::setLabelAlignment(bid, UI::LABEL_ALIGN_LEFT, UI::LABEL_VALIGN_MIDDLE);
+                UI::setLabelSpacing(bid, 1.0, WORD_CMD_LETTER_SPACING);
+            } else {
+                Entity::setActive(bid, false);
             }
         }
     }

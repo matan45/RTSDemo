@@ -188,6 +188,22 @@ class UnitSelectionController extends Behaviour {
         this.unitInfo.put(new Int(id), info);
     }
 
+    // Forget a unit entirely: drop its selection ring (if selected) AND its panel
+    // info. DeathController calls this the moment a unit dies, BEFORE the entity is
+    // destroyed, so removeUnit can still clear the "Selected" plugin marker.
+    //
+    // updateRings() prunes dead units too, but only ones that were SELECTED at the
+    // time -- an unselected unit's UnitInfo would otherwise sit in the map for the
+    // rest of the match, and a recycled entity id would then inherit a dead unit's
+    // portrait and health bar.
+    public function unregisterUnit(int id): void {
+        if (id < 0) {
+            return;
+        }
+        this.removeUnit(id);
+        this.unitInfo.remove(new Int(id));
+    }
+
     // ---- drag state machine ----
 
     private function updateDrag(): void {

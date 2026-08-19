@@ -80,6 +80,59 @@
         "uuid": 10477109757241377672
       },
       {
+        "children": [],
+        "components": {
+          "camera": {
+            "aspectRatio": 1.0,
+            "cameraId": 1,
+            "farPlane": 300.0,
+            "fieldOfView": 45.0,
+            "isPerspective": false,
+            "isPrimary": false,
+            "nearPlane": 0.10000000149011612,
+            "orthoSize": 64.0,
+            "showFrustum": false
+          },
+          "renderTexture": {
+            "clearColor": [
+              0.05000000074505806,
+              0.06999999843865633,
+              0.05999999865889549,
+              1.0
+            ],
+            "enabled": true,
+            "fixedIntervalSeconds": 0.03333333507180214,
+            "height": 512,
+            "priority": 0,
+            "renderShadows": false,
+            "tonemap": true,
+            "updateMode": "everyFrame",
+            "width": 512
+          }
+        },
+        "isActive": true,
+        "name": "camera minimap",
+        "transform": {
+          "isStatic": true,
+          "position": [
+            0.0,
+            120.0,
+            0.0
+          ],
+          "rotation": [
+            -90.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "uuid": 9000000000000000004
+      },
+      {
         "children": [
           {
             "children": [],
@@ -2322,6 +2375,75 @@
           {
             "children": [],
             "components": {
+              "uiLabel": {
+                "color": [
+                  1.0,
+                  0.7799999713897705,
+                  0.3499999940395355,
+                  1.0
+                ],
+                "fontRef": "45215717a803d31d",
+                "fontRefPath": "C:/matan/RTSDemo/assets/Roboto-Regular.vfFont",
+                "fontSize": 22.0,
+                "fontStyle": "bold",
+                "horizontalAlignment": "center",
+                "letterSpacing": 4.0,
+                "lineSpacing": 1.0,
+                "overflow": "ellipsis",
+                "richText": false,
+                "text": "",
+                "verticalAlignment": "middle",
+                "wordWrap": false
+              },
+              "uiRect": {
+                "anchorMax": [
+                  0.5,
+                  1.0
+                ],
+                "anchorMin": [
+                  0.5,
+                  1.0
+                ],
+                "anchoredPosition": [
+                  0.0,
+                  -70.0
+                ],
+                "blocksRaycast": false,
+                "pivot": [
+                  0.5,
+                  0.0
+                ],
+                "sizeDelta": [
+                  700.0,
+                  40.0
+                ]
+              }
+            },
+            "isActive": true,
+            "name": "RTS_HUD_AlertLabel",
+            "transform": {
+              "isStatic": true,
+              "position": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "uuid": 9000000000000000405
+          },
+          {
+            "children": [],
+            "components": {
               "uiImage": {
                 "border": [
                   3.0,
@@ -2779,6 +2901,42 @@
                 "pinFullRate": false,
                 "scriptRef": "d2f1a6b3c8e40579",
                 "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/ProjectilePool.mt",
+                "tickSignificance": 1.0,
+                "updateInterval": 0.0
+              },
+              {
+                "enabled": true,
+                "inputPriority": 0,
+                "pinFullRate": false,
+                "scriptRef": "a5ccfab46a2100ae",
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/DeathController.mt",
+                "tickSignificance": 1.0,
+                "updateInterval": 0.0
+              },
+              {
+                "enabled": true,
+                "inputPriority": 0,
+                "pinFullRate": false,
+                "scriptRef": "3e8293a182d0b637",
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/MatchController.mt",
+                "tickSignificance": 1.0,
+                "updateInterval": 0.0
+              },
+              {
+                "enabled": true,
+                "inputPriority": 0,
+                "pinFullRate": false,
+                "scriptRef": "781f8a203e3eb3d8",
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/ArtilleryController.mt",
+                "tickSignificance": 1.0,
+                "updateInterval": 0.0
+              },
+              {
+                "enabled": true,
+                "inputPriority": 0,
+                "pinFullRate": false,
+                "scriptRef": "7d8fac5ccd651b7a",
+                "scriptRefPath": "C:/matan/RTSDemo/scripts/game/controllers/AutomatedMatchController.mt",
                 "tickSignificance": 1.0,
                 "updateInterval": 0.0
               }

@@ -22,6 +22,18 @@
 // generic Navmesh group-destination order for the movable selected units; the
 // minimap right-click move uses the same route without harvest-node gathering.
 //
+// UNIT COMMAND CARD (VK-1298 slice 1). The same five command buttons serve units
+// when no building is selected: Move / Attack-Move / Stop / Hold. Stop and Hold
+// act immediately on the selection; Move and Attack-Move ARM a one-shot order that
+// the next right-click consumes in handleMoveCommand, which is why they only
+// differ in stance and not in plumbing:
+//
+//   Move        - autoAcquire OFF, so the squad walks past enemies to the
+//                 destination. Restored to ON once the crowd group arrives
+//                 (Navmesh::isGroupArrived), so the squad defends itself again on
+//                 the far side instead of standing there being shot.
+//   Attack-Move - autoAcquire ON (the default), so the squad engages on the way.
+//
 // Attach this @Script to GameSystems alongside SelectionController /
 // BuildingPlacementController / UnitSelectionController.
 
@@ -48,9 +60,11 @@ import * from "./SelectionController.mt";
 import * from "./BuildingPlacementController.mt";
 import * from "./UnitSelectionController.mt";
 import * from "./SoldierCombatController.mt";
+import * from "./DeathController.mt";
 import * from "../ai/PatrolDemo.mt";
 import * from "../ai/EnemyGuards.mt";
 import * from "../ai/EnemyBases.mt";
+import * from "../ai/EnemyCommander.mt";
 import * from "../data/BuildingInfo.mt";
 import * from "../data/UnitDef.mt";
 import * from "../data/UnitInfo.mt";
@@ -131,6 +145,24 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
     // a play-stop or a script reload. Nullable, unlike the two above, precisely because
     // onDestroy must be able to run on a script that never reached onStart.
     private EnemyBases? enemyBases;
+    // VK-1298 slice 1: the enemy's offensive AI. Same bootstrap shape; it borrows
+    // enemyBases (it never owns or destroys them) to pick a wave's source base.
+    private EnemyCommander? enemyCommander;
+
+    // Armed one-shot unit order, consumed by the next right-click. 0 = none.
+    private static final int ORDER_NONE = 0;
+    private static final int ORDER_MOVE = 1;
+    private static final int ORDER_ATTACK_MOVE = 2;
+    private int pendingUnitOrder;
+
+    // The crowd group of the last plain Move order, tracked ONLY so autoAcquire can
+    // be switched back on when it arrives. -1 = nothing pending.
+    private int moveGroupId;
+    private int[] moveGroupIds;
+
+    // DeathController's drain (see its header: it cannot import this file, so
+    // deaths are polled rather than pushed). Resolved lazily off this same entity.
+    private DeathController? deaths;
 
     public constructor() : super() {
         this.hudControllerId = -1;
@@ -154,6 +186,10 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
         this.harvestDeposit = 10.0;
         this.attackPickRadius = 40.0;
         this.moveFormationSpacing = 2.0;
+        this.pendingUnitOrder = ORDER_NONE;
+        this.moveGroupId = -1;
+        this.deaths = null;
+        this.enemyCommander = null;
     }
 
     public function onStart(): void {
@@ -185,8 +221,17 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
         this.enemyGuards.setup();
 
         // VK-1589 (after the guards, so the bases spawn onto settled terrain height).
-        this.enemyBases = new EnemyBases();
-        this.enemyBases.setup();
+        EnemyBases bases = new EnemyBases();
+        this.enemyBases = bases;
+        bases.setup();
+
+        // VK-1298 slice 1: attack waves, sourced from those bases. Constructed after
+        // setup() so the base entity ids it will read already exist.
+        EnemyCommander commander = new EnemyCommander(bases);
+        this.enemyCommander = commander;
+        commander.setup();
+
+        this.moveGroupIds = new int[0];
 
         Log::info("[BuildingCommand] ready.");
     }
@@ -224,10 +269,17 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
         this.updateQueueUI();
         this.patrolDemo.update(deltaTime);
 
+        this.drainDeaths();
+        this.updateMoveGroup();
+
         // Narrow a local - mType field-narrowing across a call is unreliable.
         EnemyBases? bases = this.enemyBases;
         if (bases != null) {
             bases.update();
+        }
+        EnemyCommander? commander = this.enemyCommander;
+        if (commander != null) {
+            commander.update(deltaTime);
         }
     }
 
@@ -250,22 +302,34 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
             bases.teardown();
         }
         this.enemyBases = null;
+
+        EnemyCommander? commander = this.enemyCommander;
+        if (commander != null) {
+            commander.teardown();
+        }
+        this.enemyCommander = null;
     }
 
     // ---- IUIButtonListener ----
 
     @Override
     public function onButtonClicked(int buttonEntityId, string entityName): void {
+        int idx = this.cmdIndexFor(buttonEntityId);
+        if (idx < 0) {
+            return;
+        }
         SelectionController? sel = this.selection();
         if (sel == null) {
             return;
         }
         BuildingInfo? info = sel.getSelectedInfo();
-        if (info == null || !info.isPlayer()) {
+        if (info == null) {
+            // No building selected: the same buttons are the UNIT command card
+            // (RTSHUDController paints the labels; this side runs them).
+            this.executeUnitCommand(idx);
             return;
         }
-        int idx = this.cmdIndexFor(buttonEntityId);
-        if (idx < 0 || idx >= info.commands.length) {
+        if (!info.isPlayer() || idx >= info.commands.length) {
             return;
         }
         this.execute(sel.getSelectedId(), info, info.commands[idx]);
@@ -289,10 +353,10 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
         if (cmd == "Sell") { this.sell(buildingId, info); return; }
         if (cmd == "Upgrade") { this.upgrade(buildingId, info); return; }
         if (cmd == "Rally") { this.beginRally(buildingId); return; }
-        if (cmd == "Track") { this.enqueue(buildingId, "Track"); return; }
-        if (cmd == "Soldier") { this.enqueue(buildingId, "Soldier"); return; }
-        if (cmd == "Engineer") { this.enqueue(buildingId, "Engineer"); return; }
-        if (cmd == "Tank") { this.enqueue(buildingId, "Tank"); return; }
+        if (cmd == "Track") { this.queueUnit(buildingId, "Track"); return; }
+        if (cmd == "Soldier") { this.queueUnit(buildingId, "Soldier"); return; }
+        if (cmd == "Engineer") { this.queueUnit(buildingId, "Engineer"); return; }
+        if (cmd == "Tank") { this.queueUnit(buildingId, "Tank"); return; }
     }
 
     private function sell(int buildingId, BuildingInfo info): void {
@@ -465,24 +529,29 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
 
     // ---- production queue ----
 
-    private function enqueue(int buildingId, string type): void {
+    // Queue one `type` at `buildingId`, charging its gold cost up front (refunded by
+    // spawnUnit if the prefab turns out to be missing). Returns false when the queue
+    // is full or the player cannot afford it -- which is exactly what an automated
+    // build order needs in order to assert on the outcome instead of guessing.
+    public function queueUnit(int buildingId, string type): bool {
         RTSHUDController? hud = this.hud();
         if (hud == null) {
-            return;
+            return false;
         }
         if (this.buildingQueueCount(buildingId) >= this.maxQueue || this.queueCount >= this.queueCap) {
             hud.pushAlertMessage("Production queue full", 1.5);
-            return;
+            return false;
         }
         int cost = this.unitCost(type);
         if (!hud.trySpendGold(cost)) {
             hud.pushAlertMessage("Need " + parsePrimitive(cost) + " gold for " + type, 2.0);
-            return;
+            return false;
         }
         float time = this.unitTime(type);
         this.queue[this.queueCount] = new QueueItem(buildingId, type, time);
         this.queueCount = this.queueCount + 1;
         hud.pushAlertMessage("Queued " + type, 1.5);
+        return true;
     }
 
     private function tickQueue(float dt): void {
@@ -572,7 +641,7 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
         int id = Entity::instantiate(prefab);
         if (id < 0) {
             // Spawn failed (e.g. the prefab is missing): refund the gold that
-            // enqueue() spent up front so the player isn't silently charged for
+            // queueUnit() spent up front so the player isn't silently charged for
             // a unit that never appears.
             Log::warn("[BuildingCommand] failed to spawn unit '" + type + "' (" + prefab + ")");
             RTSHUDController? hud = this.hud();
@@ -698,20 +767,9 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
         // collider; a miss falls through to the ground-move path below.
         int target = this.pickEnemy(mx, my);
         if (target >= 0) {
-            int[] selUnits = PluginComponent::findAll("Selected");
-            for (int i = 0; i < selUnits.length; i = i + 1) {
-                int uid = selUnits[i];
-                if (!Entity::isValid(uid)) {
-                    continue;
-                }
-                SoldierCombatController? sc =
-                    Entity::getScript<SoldierCombatController>(uid, "SoldierCombatController");
-                if (sc != null) {
-                    sc.setTarget(target);
-                } else {
-                    Navmesh::moveTo(uid, Entity::getPosition(target));
-                }
-            }
+            // An explicit attack order supersedes whatever the command card armed.
+            this.pendingUnitOrder = ORDER_NONE;
+            this.orderAttack(PluginComponent::findAll("Selected"), target);
             return;
         }
 
@@ -721,18 +779,35 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
         }
         Vec3f dest = new Vec3f(hit.point.x, Terrain::heightAt(hit.point.x, hit.point.z), hit.point.z);
 
-        this.issueSelectedGroundMove(dest);
+        // Consume an armed Move / Attack-Move from the unit command card. Plain Move
+        // suppresses auto-acquire for the trip; Attack-Move restores it. A bare
+        // right-click (nothing armed) keeps the historical behaviour: targets are
+        // cleared but the stance is left alone.
+        int armed = this.pendingUnitOrder;
+        this.pendingUnitOrder = ORDER_NONE;
+        if (armed != ORDER_NONE) {
+            this.applyMoveStance(PluginComponent::findAll("Selected"), armed == ORDER_ATTACK_MOVE);
+        }
+
+        int groupId = this.issueSelectedGroundMove(dest);
+
+        if (armed == ORDER_MOVE) {
+            this.trackMoveGroup(groupId, PluginComponent::findAll("Selected"));
+        }
     }
 
-    public function issueSelectedGroundMove(Vec3f dest): void {
-        this.issueSelectedMove(dest, true);
+    public function issueSelectedGroundMove(Vec3f dest): int {
+        return this.issueSelectedMove(dest, true);
     }
 
-    public function issueSelectedMinimapMove(Vec3f dest): void {
-        this.issueSelectedMove(dest, false);
+    public function issueSelectedMinimapMove(Vec3f dest): int {
+        return this.issueSelectedMove(dest, false);
     }
 
-    private function issueSelectedMove(Vec3f dest, bool allowGather): void {
+    // Routes the current selection to `dest`, peeling harvesters off into the gather
+    // loop when allowGather and the click landed on a gold node. Returns the crowd
+    // group id of the units that actually moved (-1 if none did).
+    private function issueSelectedMove(Vec3f dest, bool allowGather): int {
         // Right-click on (or near) a gold mine is a "gather that node" order for
         // harvesters; anywhere else is a plain move.
         int goldNode = -1;
@@ -778,7 +853,7 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
         }
 
         if (moveCount <= 0) {
-            return;
+            return -1;
         }
 
         int[] moveIds = new int[moveCount];
@@ -786,7 +861,104 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
             moveIds[j] = moveIdsScratch[j];
         }
 
-        Navmesh::setGroupDestination(moveIds, dest, this.moveFormationSpacing, Navmesh::FORMATION_GRID);
+        return this.orderMove(moveIds, dest);
+    }
+
+    // ---- public order primitives (also the automated-match entry points) ----
+
+    // Send `ids` to `dest` as one crowd group and return the navmesh group id, or -1
+    // if none of them could move. Attack orders are cleared (a move order overrides
+    // a standing target) but STANCE is untouched: autoAcquire/hold belong to the
+    // caller, because a bare right-click, a Move-button order and an Attack-Move
+    // order all funnel through here and differ only in stance.
+    //
+    // The harvester (Track) gather loop is NOT handled here -- see issueSelectedMove,
+    // which peels those off before calling us.
+    public function orderMove(int[] ids, Vec3f dest): int {
+        int[] scratch = new int[ids.length];
+        int n = 0;
+        for (int i = 0; i < ids.length; i = i + 1) {
+            int uid = ids[i];
+            if (!Entity::isValid(uid)) {
+                continue;
+            }
+            SoldierCombatController? scc =
+                Entity::getScript<SoldierCombatController>(uid, "SoldierCombatController");
+            if (scc != null) {
+                scc.setTarget(-1);
+            }
+            scratch[n] = uid;
+            n = n + 1;
+        }
+        if (n <= 0) {
+            return -1;
+        }
+        int[] moveIds = new int[n];
+        for (int j = 0; j < n; j = j + 1) {
+            moveIds[j] = scratch[j];
+        }
+        return Navmesh::setGroupDestination(moveIds, dest, this.moveFormationSpacing,
+                                            Navmesh::FORMATION_GRID);
+    }
+
+    // Order `ids` to attack `targetId`. Soldiers lock on (chase + stop-and-fire);
+    // anything without a combat controller just walks to the target's position.
+    // Hold Position is deliberately LEFT ALONE: a held unit ordered to attack fires
+    // when the target is in range rather than breaking formation to chase it.
+    public function orderAttack(int[] ids, int targetId): void {
+        if (targetId < 0 || !Entity::isValid(targetId)) {
+            return;
+        }
+        for (int i = 0; i < ids.length; i = i + 1) {
+            int uid = ids[i];
+            if (!Entity::isValid(uid)) {
+                continue;
+            }
+            SoldierCombatController? sc =
+                Entity::getScript<SoldierCombatController>(uid, "SoldierCombatController");
+            if (sc != null) {
+                // A fight order re-arms auto-acquire: after this target dies the
+                // unit should pick the next one rather than go passive.
+                sc.setAutoAcquire(true);
+                sc.setTarget(targetId);
+            } else {
+                Navmesh::moveTo(uid, Entity::getPosition(targetId));
+            }
+        }
+    }
+
+    // Called by DeathController (indirectly, via drainDeaths) once `id` has been
+    // despawned. Everything here is keyed by entity id and none of it needs the
+    // entity to still exist, which is why polling a frame later is equivalent to
+    // being called inline.
+    public function onEntityDied(int id): void {
+        if (id < 0) {
+            return;
+        }
+        // A dead building's production is gone with it (no refund -- same rule as
+        // selling mid-production). tickQueue also drops items whose building went
+        // invalid, so this mainly makes the drop immediate and deterministic.
+        int i = 0;
+        while (i < this.queueCount) {
+            if (this.queue[i].buildingId == id) {
+                this.removeAt(i);
+            } else {
+                i = i + 1;
+            }
+        }
+        this.clearRally(id);
+        this.trackHomes.remove(new Int(id));
+    }
+
+    // Enemy waves launched so far (0 before the first). Read by the automated match
+    // harness to assert that enemy pressure actually showed up; the commander is
+    // owned here because BuildingCommandController bootstraps it (see onStart).
+    public function getWaveNumber(): int {
+        EnemyCommander? commander = this.enemyCommander;
+        if (commander == null) {
+            return 0;
+        }
+        return commander.getWaveNumber();
     }
 
     // True if the entity belongs to a non-player team (an attackable enemy).
@@ -1021,6 +1193,160 @@ class BuildingCommandController extends Behaviour implements IUIButtonListener {
     private function hideQueueUI(): void {
         if (this.queueHudId >= 0) { Entity::setActive(this.queueHudId, false); }
         if (this.queueListId >= 0) { UI::setListItemCount(this.queueListId, 0); }
+    }
+
+    // ---- unit command card ----
+
+    // Run the unit-card command at `idx`. Indices match the button order
+    // RTSHUDController paints in applyUnitCommandCard: 0 Move, 1 Attack-Move,
+    // 2 Stop, 3 Hold.
+    private function executeUnitCommand(int idx): void {
+        UnitSelectionController? usel = this.unitSelection();
+        if (usel == null || usel.getSelectedCount() <= 0) {
+            return;
+        }
+        int[] ids = PluginComponent::findAll("Selected");
+        RTSHUDController? hud = this.hud();
+
+        if (idx == 0) {
+            this.pendingUnitOrder = ORDER_MOVE;
+            if (hud != null) { hud.pushAlertMessage("Move: right-click a destination", 2.0); }
+            return;
+        }
+        if (idx == 1) {
+            this.pendingUnitOrder = ORDER_ATTACK_MOVE;
+            if (hud != null) { hud.pushAlertMessage("Attack-Move: right-click a destination", 2.0); }
+            return;
+        }
+        if (idx == 2) {
+            this.stopUnits(ids);
+            if (hud != null) { hud.pushAlertMessage("Stop", 1.2); }
+            return;
+        }
+        if (idx == 3) {
+            this.holdUnits(ids);
+            if (hud != null) { hud.pushAlertMessage("Hold position", 1.2); }
+            return;
+        }
+    }
+
+    private function stopUnits(int[] ids): void {
+        for (int i = 0; i < ids.length; i = i + 1) {
+            int uid = ids[i];
+            if (!Entity::isValid(uid)) {
+                continue;
+            }
+            SoldierCombatController? sc =
+                Entity::getScript<SoldierCombatController>(uid, "SoldierCombatController");
+            if (sc != null) {
+                sc.stop();
+            } else {
+                Navmesh::stopAgent(uid);
+            }
+            // A Track told to Stop must also drop its gather loop, or the tree
+            // immediately re-issues a destination and the unit walks off again.
+            this.stopHarvest(uid);
+        }
+        this.pendingUnitOrder = ORDER_NONE;
+        this.moveGroupId = -1;
+    }
+
+    private function holdUnits(int[] ids): void {
+        for (int i = 0; i < ids.length; i = i + 1) {
+            int uid = ids[i];
+            if (!Entity::isValid(uid)) {
+                continue;
+            }
+            SoldierCombatController? sc =
+                Entity::getScript<SoldierCombatController>(uid, "SoldierCombatController");
+            if (sc != null) {
+                sc.setHold(true);
+            } else {
+                Navmesh::stopAgent(uid);
+            }
+        }
+        this.pendingUnitOrder = ORDER_NONE;
+        this.moveGroupId = -1;
+    }
+
+    // Apply the stance an armed order implies before the move goes out. Both orders
+    // clear Hold -- being told to go somewhere is an explicit instruction to leave
+    // the spot, so it has to override "never leave this spot".
+    private function applyMoveStance(int[] ids, bool attackMove): void {
+        for (int i = 0; i < ids.length; i = i + 1) {
+            int uid = ids[i];
+            if (!Entity::isValid(uid)) {
+                continue;
+            }
+            SoldierCombatController? sc =
+                Entity::getScript<SoldierCombatController>(uid, "SoldierCombatController");
+            if (sc != null) {
+                sc.setHold(false);
+                sc.setAutoAcquire(attackMove);
+            }
+        }
+    }
+
+    // Remember a plain Move group so auto-acquire can be turned back on when it
+    // lands. Only ONE such group is tracked: a new Move order supersedes the old
+    // one, and a squad left with autoAcquire off is corrected by the next order.
+    private function trackMoveGroup(int groupId, int[] ids): void {
+        if (groupId < 0) {
+            return;
+        }
+        this.moveGroupId = groupId;
+        this.moveGroupIds = new int[ids.length];
+        for (int i = 0; i < ids.length; i = i + 1) {
+            this.moveGroupIds[i] = ids[i];
+        }
+    }
+
+    // Re-arm auto-acquire once the tracked Move group has arrived, so the squad
+    // defends itself at the destination instead of standing there being shot.
+    private function updateMoveGroup(): void {
+        if (this.moveGroupId < 0) {
+            return;
+        }
+        if (!Navmesh::isGroupArrived(this.moveGroupId)) {
+            return;
+        }
+        for (int i = 0; i < this.moveGroupIds.length; i = i + 1) {
+            int uid = this.moveGroupIds[i];
+            if (!Entity::isValid(uid)) {
+                continue;
+            }
+            SoldierCombatController? sc =
+                Entity::getScript<SoldierCombatController>(uid, "SoldierCombatController");
+            if (sc != null) {
+                sc.setAutoAcquire(true);
+            }
+        }
+        this.moveGroupId = -1;
+        this.moveGroupIds = new int[0];
+    }
+
+    // ---- deaths ----
+
+    // Poll DeathController for entities despawned since last frame. It cannot call
+    // us directly: this file imports SoldierCombatController which imports
+    // DeathController, and an import back would close a cycle -- which mType rejects
+    // outright. See DeathController's header.
+    private function drainDeaths(): void {
+        DeathController? d = this.deathController();
+        if (d == null) {
+            return;
+        }
+        int[] gone = d.drainDeaths();
+        for (int i = 0; i < gone.length; i = i + 1) {
+            this.onEntityDied(gone[i]);
+        }
+    }
+
+    private function deathController(): DeathController? {
+        if (this.deaths == null) {
+            this.deaths = this.gameObject().getScript<DeathController>("DeathController");
+        }
+        return this.deaths;
     }
 
     // ---- script resolution ----

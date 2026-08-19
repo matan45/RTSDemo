@@ -74,11 +74,52 @@ class EnemyBases {
         this.warnedNoWorld = false;
     }
 
+    // Max (and starting) HP each base spawns with. Exposed as a knob purely for
+    // testing: dropping it to a few hundred turns "kill both enemy bases" from a
+    // long grind into something a single squad -- or an automated harness run --
+    // can finish, which is what makes the WIN path testable at all. Must be called
+    // BEFORE setup(); the value is baked into each base's Health at spawn.
+    public function setBaseMaxHealth(float hp): void {
+        if (hp > 0.0) {
+            this.baseMaxHealth = hp;
+        }
+    }
+
+    public function getBaseMaxHealth(): float {
+        return this.baseMaxHealth;
+    }
+
     public function setup(): void {
         for (int i = 0; i < this.postX.length; i = i + 1) {
             this.spawnBase(this.postX[i], this.postZ[i]);
         }
         Log::info("[EnemyBases] spawned " + parsePrimitive(this.count) + " enemy base(s).");
+    }
+
+    // Entity ids of the bases that were actually spawned. Sized to `count`, not to
+    // the backing array, so a failed instantiate never leaks a 0/garbage id to
+    // callers. EnemyCommander picks a wave's source base out of this.
+    public function getBaseIds(): int[] {
+        int[] ids = new int[this.count];
+        for (int i = 0; i < this.count; i = i + 1) {
+            ids[i] = this.baseIds[i];
+        }
+        return ids;
+    }
+
+    // Bases still standing. "Alive" is deliberately BOTH checks: Combat::applyDamage
+    // drives Health to 0 without deleting (see the header note), while
+    // DeathController then destroys the entity -- so a base can be invalid, or valid
+    // with 0 HP, depending on which pass got to it first.
+    public function aliveBases(): int {
+        int n = 0;
+        for (int i = 0; i < this.count; i = i + 1) {
+            int id = this.baseIds[i];
+            if (Entity::isValid(id) && Combat::isAlive(id)) {
+                n = n + 1;
+            }
+        }
+        return n;
     }
 
     private function spawnBase(float x, float z): void {

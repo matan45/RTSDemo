@@ -165,9 +165,9 @@ class RTSHUDController extends Behaviour implements IUIButtonListener {
             } else {
                 this.showUnitPanel(uinfo);
                 // Units selected: swap the shared buttons over to the unit card.
-                if (this.lastShownId != UNIT_CARD_ID) {
+                if (this.lastShownId != RTSHUDController::UNIT_CARD_ID) {
                     this.applyUnitCommandCard();
-                    this.lastShownId = UNIT_CARD_ID;
+                    this.lastShownId = RTSHUDController::UNIT_CARD_ID;
                 }
             }
         } else {

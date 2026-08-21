@@ -107,7 +107,7 @@ class MatchController extends Behaviour {
     public function onUpdate(float deltaTime): void {
         this.matchTime = this.matchTime + deltaTime;
 
-        if (this.result != RESULT_RUNNING) {
+        if (this.result != MatchController::RESULT_RUNNING) {
             this.handleRestart();
             return;
         }
@@ -132,7 +132,7 @@ class MatchController extends Behaviour {
     // True once the match has been decided. EnemyCommander stops sending waves on
     // this; Slice 2's automated harness ends its run on it.
     public function isOver(): bool {
-        return this.result != RESULT_RUNNING;
+        return this.result != MatchController::RESULT_RUNNING;
     }
 
     // RESULT_RUNNING / RESULT_WIN / RESULT_LOSE.
@@ -148,7 +148,7 @@ class MatchController extends Behaviour {
 
     private function evaluate(): void {
         if (this.aliveEnemyBases() == 0) {
-            this.finish(RESULT_WIN);
+            this.finish(MatchController::RESULT_WIN);
             return;
         }
 
@@ -156,7 +156,7 @@ class MatchController extends Behaviour {
         if (playerCCs > 0) {
             this.hadCommandCenter = true;
         } else if (this.hadCommandCenter) {
-            this.finish(RESULT_LOSE);
+            this.finish(MatchController::RESULT_LOSE);
         }
     }
 
@@ -220,7 +220,7 @@ class MatchController extends Behaviour {
 
         string label = "DEFEAT";
         string tag = "LOSE";
-        if (outcome == RESULT_WIN) {
+        if (outcome == MatchController::RESULT_WIN) {
             label = "VICTORY";
             tag = "WIN";
         }

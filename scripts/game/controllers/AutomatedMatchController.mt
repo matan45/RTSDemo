@@ -221,16 +221,16 @@ class AutomatedMatchController extends Behaviour {
             Log::warn("[AutoMatch] heartbeat coroutine could not start: " + e.getMessage());
         }
 
-        this.enterPhase(PHASE_BOOT, "BOOT");
+        this.enterPhase(AutomatedMatchController::PHASE_BOOT, "BOOT");
     }
 
     public function onUpdate(float deltaTime): void {
-        if (!this.enabled || this.phase == PHASE_DONE) {
+        if (!this.enabled || this.phase == AutomatedMatchController::PHASE_DONE) {
             return;
         }
         this.t = this.t + deltaTime;
 
-        if (this.phase != PHASE_BOOT) {
+        if (this.phase != AutomatedMatchController::PHASE_BOOT) {
             this.statAccum = this.statAccum + deltaTime;
             if (this.statAccum >= 1.0) {
                 this.statAccum = 0.0;
@@ -238,19 +238,19 @@ class AutomatedMatchController extends Behaviour {
             }
         }
 
-        if (this.phase == PHASE_BOOT) {
+        if (this.phase == AutomatedMatchController::PHASE_BOOT) {
             this.tickBoot();
-        } else if (this.phase == PHASE_BUILD) {
+        } else if (this.phase == AutomatedMatchController::PHASE_BUILD) {
             this.tickBuild();
-        } else if (this.phase == PHASE_TRAIN) {
+        } else if (this.phase == AutomatedMatchController::PHASE_TRAIN) {
             this.tickTrain();
-        } else if (this.phase == PHASE_STAGE) {
+        } else if (this.phase == AutomatedMatchController::PHASE_STAGE) {
             this.tickStage();
-        } else if (this.phase == PHASE_ASSAULT) {
+        } else if (this.phase == AutomatedMatchController::PHASE_ASSAULT) {
             this.tickAssault();
-        } else if (this.phase == PHASE_DEFEND) {
+        } else if (this.phase == AutomatedMatchController::PHASE_DEFEND) {
             this.tickDefend();
-        } else if (this.phase == PHASE_SOAK) {
+        } else if (this.phase == AutomatedMatchController::PHASE_SOAK) {
             this.tickSoak();
         }
     }
@@ -262,7 +262,7 @@ class AutomatedMatchController extends Behaviour {
     // ---- public API ----
 
     public function isRunning(): bool {
-        return this.enabled && this.phase != PHASE_DONE;
+        return this.enabled && this.phase != AutomatedMatchController::PHASE_DONE;
     }
 
     // ---- heartbeat probe (first coroutine in the project; see header) ----
@@ -307,7 +307,7 @@ class AutomatedMatchController extends Behaviour {
         // Settle for one second even when everything resolved on the first frame.
         if (allResolved && this.sincePhase() >= 1.0) {
             this.assertTrue("controllers_resolved", true, "all peers resolved");
-            this.enterPhase(PHASE_BUILD, "BUILD");
+            this.enterPhase(AutomatedMatchController::PHASE_BUILD, "BUILD");
             return;
         }
         if (this.sincePhase() >= this.bootTimeoutSec) {
@@ -326,22 +326,22 @@ class AutomatedMatchController extends Behaviour {
         }
 
         if (this.buildStep == 0) {
-            this.commandCenterId = place.placeAt(SLOT_COMMAND, new Vec3f(this.ccX, 0.0, this.ccZ), 0);
+            this.commandCenterId = place.placeAt(AutomatedMatchController::SLOT_COMMAND, new Vec3f(this.ccX, 0.0, this.ccZ), 0);
             this.assertTrue("place_CommandCenter", this.commandCenterId >= 0, "id=" + parsePrimitive(this.commandCenterId));
         } else if (this.buildStep == 1) {
-            this.powerId = place.placeAt(SLOT_POWER, new Vec3f(this.powerX, 0.0, this.powerZ), 0);
+            this.powerId = place.placeAt(AutomatedMatchController::SLOT_POWER, new Vec3f(this.powerX, 0.0, this.powerZ), 0);
             this.assertTrue("place_Power", this.powerId >= 0, "id=" + parsePrimitive(this.powerId));
         } else if (this.buildStep == 2) {
-            this.barracksId = place.placeAt(SLOT_BARRACKS, new Vec3f(this.barracksX, 0.0, this.barracksZ), 0);
+            this.barracksId = place.placeAt(AutomatedMatchController::SLOT_BARRACKS, new Vec3f(this.barracksX, 0.0, this.barracksZ), 0);
             this.assertTrue("place_Barracks", this.barracksId >= 0, "id=" + parsePrimitive(this.barracksId));
         } else if (this.buildStep == 3) {
-            this.refineryId = place.placeAt(SLOT_REFINERY, new Vec3f(this.refineryX, 0.0, this.refineryZ), 0);
+            this.refineryId = place.placeAt(AutomatedMatchController::SLOT_REFINERY, new Vec3f(this.refineryX, 0.0, this.refineryZ), 0);
             this.assertTrue("place_Refinery", this.refineryId >= 0, "id=" + parsePrimitive(this.refineryId));
         } else {
             int gold = h.getGold();
             this.assertTrue("gold_after_build", gold == this.goldAfterBuild,
                 "gold=" + parsePrimitive(gold) + " expected=" + parsePrimitive(this.goldAfterBuild));
-            this.enterPhase(PHASE_TRAIN, "TRAIN");
+            this.enterPhase(AutomatedMatchController::PHASE_TRAIN, "TRAIN");
             return;
         }
         this.buildStep = this.buildStep + 1;
@@ -393,11 +393,11 @@ class AutomatedMatchController extends Behaviour {
 
     private function afterTrain(): void {
         if (this.scenario == "defend") {
-            this.enterPhase(PHASE_DEFEND, "DEFEND");
+            this.enterPhase(AutomatedMatchController::PHASE_DEFEND, "DEFEND");
         } else if (this.scenario == "soak") {
-            this.enterPhase(PHASE_SOAK, "SOAK");
+            this.enterPhase(AutomatedMatchController::PHASE_SOAK, "SOAK");
         } else {
-            this.enterPhase(PHASE_STAGE, "STAGE");
+            this.enterPhase(AutomatedMatchController::PHASE_STAGE, "STAGE");
         }
     }
 
@@ -413,13 +413,13 @@ class AutomatedMatchController extends Behaviour {
             this.soldierIds = this.collectPlayerSoldiers();
             if (this.soldierIds.length == 0) {
                 this.assertTrue("staged", false, "no soldiers to stage");
-                this.enterPhase(PHASE_ASSAULT, "ASSAULT");
+                this.enterPhase(AutomatedMatchController::PHASE_ASSAULT, "ASSAULT");
                 return;
             }
             this.groupId = cmd.orderMove(this.soldierIds, new Vec3f(this.stageX, 0.0, this.stageZ));
             if (this.groupId < 0) {
                 this.assertTrue("staged", false, "orderMove returned -1");
-                this.enterPhase(PHASE_ASSAULT, "ASSAULT");
+                this.enterPhase(AutomatedMatchController::PHASE_ASSAULT, "ASSAULT");
             }
             return;
         }
@@ -427,14 +427,14 @@ class AutomatedMatchController extends Behaviour {
         if (Navmesh::isGroupArrived(this.groupId)) {
             this.assertTrue("staged", true,
                 "group=" + parsePrimitive(this.groupId) + " t=" + parsePrimitive(this.sincePhase()));
-            this.enterPhase(PHASE_ASSAULT, "ASSAULT");
+            this.enterPhase(AutomatedMatchController::PHASE_ASSAULT, "ASSAULT");
             return;
         }
         if (this.sincePhase() >= this.stageTimeoutSec) {
             this.assertTrue("staged", false,
                 "group=" + parsePrimitive(this.groupId) + " not arrived after "
                 + parsePrimitive(this.stageTimeoutSec) + "s");
-            this.enterPhase(PHASE_ASSAULT, "ASSAULT");
+            this.enterPhase(AutomatedMatchController::PHASE_ASSAULT, "ASSAULT");
         }
     }
 
@@ -542,7 +542,7 @@ class AutomatedMatchController extends Behaviour {
         }
         this.ended = true;
         this.running = false;
-        this.phase = PHASE_DONE;
+        this.phase = AutomatedMatchController::PHASE_DONE;
 
         Log::info("MATCH,END," + tag + "," + parsePrimitive(this.t));
 
@@ -637,7 +637,7 @@ class AutomatedMatchController extends Behaviour {
                 continue;
             }
             int team = PluginComponent::getInt(id, "Team", "teamId");
-            if (team == TEAM_PLAYER) {
+            if (team == AutomatedMatchController::TEAM_PLAYER) {
                 if (PluginComponent::has(id, "Selectable")) {
                     pUnits = pUnits + 1;
                 } else {
@@ -678,7 +678,7 @@ class AutomatedMatchController extends Behaviour {
             if (!Entity::isValid(id) || !Combat::isAlive(id) || !PluginComponent::has(id, "Team")) {
                 continue;
             }
-            if (PluginComponent::getInt(id, "Team", "teamId") != TEAM_PLAYER) {
+            if (PluginComponent::getInt(id, "Team", "teamId") != AutomatedMatchController::TEAM_PLAYER) {
                 continue;
             }
             scratch[n] = id;
@@ -701,7 +701,7 @@ class AutomatedMatchController extends Behaviour {
             if (!Entity::isValid(id) || !Combat::isAlive(id) || !PluginComponent::has(id, "Team")) {
                 continue;
             }
-            if (PluginComponent::getInt(id, "Team", "teamId") == TEAM_PLAYER) {
+            if (PluginComponent::getInt(id, "Team", "teamId") == AutomatedMatchController::TEAM_PLAYER) {
                 continue;
             }
             if (Entity::getName(id) == "EnemyBuilding") {
@@ -726,7 +726,7 @@ class AutomatedMatchController extends Behaviour {
             if (!Entity::isValid(id) || !Combat::isAlive(id)) {
                 continue;
             }
-            if (PluginComponent::getInt(id, "Team", "teamId") == TEAM_PLAYER) {
+            if (PluginComponent::getInt(id, "Team", "teamId") == AutomatedMatchController::TEAM_PLAYER) {
                 continue;
             }
             if (Entity::getName(id) != "EnemyBuilding") {
